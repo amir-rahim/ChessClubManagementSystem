@@ -1,11 +1,13 @@
-# Team *enter team name here* Small Group project
+# Team Shark Small Group project
 
 ## Team members
 The members of the team are:
-- *Enter member 1*
-- *Enter member 2*
-- *Enter member 3*
-- *Enter member 4*
+- Amir Rahim
+- Jessy Briard
+- Jake Davis
+- Riccardo Gugliermini
+- Musa Ibrahim
+
 *Add any further information about the team here, such as absent team members.*
 
 ## Project structure
