@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
@@ -51,7 +51,8 @@ def sign_up(request):
 
 @login_required
 def user_dashboard(request):
-    return render(request, 'user_dashboard.html')
+    data = {'user': request.user}
+    return render(request, 'user_dashboard.html', data)
 
 def log_out(request):
     logout(request)
