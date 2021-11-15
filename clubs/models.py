@@ -10,7 +10,7 @@ class Club(models.Model):
 
 
 class User(AbstractUser):
-    """User model used for authentication and microblog authoring."""
+    """User model used for authentication."""
 
     username = models.CharField(
         max_length=30,

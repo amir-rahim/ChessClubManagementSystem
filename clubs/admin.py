@@ -1,4 +1,4 @@
-"""Configuration of the admin interface for microblogs."""
+"""Configuration of the admin interface for clubs."""
 from django.contrib import admin
 from .models import User
 
