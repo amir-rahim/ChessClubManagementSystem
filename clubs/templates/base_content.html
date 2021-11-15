@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block head %}
+  {% block content_head %}
+  {% endblock %}
+{% endblock %}
+{% block body %}
+  {% include 'partials/navbar.html' %}
+  {% include 'partials/messages.html' %}
+  {% block content %}
+  {% endblock %}
+{% endblock %}
