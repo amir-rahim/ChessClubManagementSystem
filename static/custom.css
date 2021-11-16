@@ -9,3 +9,7 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  hr.solid {
+    border-top: 3px solid #bbb;
+  }
