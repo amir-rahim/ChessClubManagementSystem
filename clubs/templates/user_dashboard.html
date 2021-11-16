@@ -13,21 +13,25 @@
                 <img src="{{user.gravatar}}" class="center" width="120" height="120">
                 <h1 class="cover-heading">Welcome Back, {{user.name}}! </h1>
                 <p class="cover-text">Welcome to your profile dashboard!</p>
+                <hr class="solid">
                 <p>
                     <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
                     User Profile
                     </a>
                 </p>
+                <hr class="solid">
             <p>
                 <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
                 Create Club
                 </a>
               </p>
+              <hr class="solid">
               <p>
                 <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
                 Club Memberships
                 </a>
               </p>
+              <hr class="solid">
               <p>
                 <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
                 Available Clubs

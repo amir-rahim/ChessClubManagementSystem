@@ -8,8 +8,13 @@
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user-account-dropdown">
         <li class="dropdown-item">
+          <a class="dropdown-link" href="{% url 'user_profile' %}">
+              My Profile
+          </a>       
+        </li>
+        <li class="dropdown-item">
           <a class="dropdown-link" href="{% url 'user_dashboard' %}">
-              Dashboard
+              My Dashboard
           </a>       
         </li>
         <li class="dropdown-item">
