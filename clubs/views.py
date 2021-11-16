@@ -54,6 +54,11 @@ def user_dashboard(request):
     data = {'user': request.user}
     return render(request, 'user_dashboard.html', data)
 
+@login_required
+def user_profile(request):
+    data = {'user': request.user}
+    return render(request, 'user_profile.html', data)
+
 def log_out(request):
     logout(request)
     return redirect('home')
