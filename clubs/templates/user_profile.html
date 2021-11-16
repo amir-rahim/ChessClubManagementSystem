@@ -11,28 +11,8 @@
         <div class="col-12">
             <div class="card cover-card">
                 <img src="{{user.gravatar}}" class="center" width="120" height="120">
-                <h1 class="cover-heading">Welcome Back, {{user.name}}! </h1>
-                <p class="cover-text">Welcome to your profile dashboard!</p>
-                <p>
-                    <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
-                    User Profile
-                    </a>
-                </p>
-            <p>
-                <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
-                Create Club
-                </a>
-              </p>
-              <p>
-                <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
-                Club Memberships
-                </a>
-              </p>
-              <p>
-                <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
-                Available Clubs
-                </a>
-              </p>
+                <h1 class="cover-heading">Name: {{user.name}}</h1>
+                <p class="cover-text">Email: {{user.email}}</p>
             </div>
           </div>
         </div>
