@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
-from .forms import LogInForm, SignUpForm
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm
 from .helpers import login_prohibited
 
 # Create your views here.
@@ -57,3 +57,7 @@ def user_dashboard(request):
 def log_out(request):
     logout(request)
     return redirect('home')
+
+def membership_application(request):
+    form = MembershipApplicationForm()
+    return render(request, 'application.html', {'form': form})
