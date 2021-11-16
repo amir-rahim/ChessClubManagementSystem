@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django import forms
 from libgravatar import Gravatar
 
 # Create your models here.
@@ -36,6 +37,11 @@ class User(AbstractUser):
 
 
 class Membership(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     approved = False
+
+class MembershipApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Membership
+        fields = ['club']

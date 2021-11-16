@@ -54,4 +54,5 @@ class SignUpForm(forms.ModelForm):
 
 class MembershipApplicationForm(forms.Form):
     """Form enabling logged user to apply for a membership."""
-    club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label="Choose a club")
+
+    club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label="Choose a club", to_field_name="name")
