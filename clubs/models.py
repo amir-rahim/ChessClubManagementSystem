@@ -34,3 +34,8 @@ class User(AbstractUser):
         gravatar_url = gravatar_object.get_image(size=size, default='mp')
         return gravatar_url
 
+
+class Membership(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=True)
+    approved = False

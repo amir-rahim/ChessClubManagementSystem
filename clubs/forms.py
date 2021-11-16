@@ -1,8 +1,7 @@
 """Forms for the clubs app."""
 from django import forms
 from django.core.validators import RegexValidator
-
-from .models import User
+from .models import User, Membership, Club
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -53,3 +52,6 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
+class MembershipApplicationForm(forms.Form):
+    """Form enabling logged user to apply for a membership."""
+    club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label="Choose a club")
