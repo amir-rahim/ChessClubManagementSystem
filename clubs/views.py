@@ -70,4 +70,4 @@ def membership_application(request):
             messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
 
     form = MembershipApplicationForm(initial = {'user': request.user})
-    return render(request, 'application.html', {'form': form})
+    return render(request, 'apply.html', {'form': form})
