@@ -52,8 +52,14 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
-class MembershipApplicationForm(forms.Form):
+class MembershipApplicationForm(forms.ModelForm):
     """Form enabling logged user to apply for a membership."""
+    class Meta:
+        model = Membership
+        fields = ['club', 'user']
+        widgets = {
+            'user': forms.HiddenInput(attrs = {'is_hidden': True})
+        }
 
     def __init__(self, *args, **kwargs):
         """Change label for selector """

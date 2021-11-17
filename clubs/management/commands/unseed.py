@@ -5,5 +5,5 @@ class Command(BaseCommand):
     """The database unseeder."""
 
     def handle(self, *args, **options):
-        User.objects.get(username="Jebediah Kerman").delete()
+        User.objects.get(username="jkerman").delete()
         Club.objects.get(name="Kerbal Chess Club").delete()

@@ -5,7 +5,8 @@ class Command(BaseCommand):
     """The database seeder."""
 
     def handle(self, *args, **options):
-        user = User.objects.create_user("JKerman","Password123")
+        user = User.objects.create_user(username = "jkerman", password = "Password123.")
+        user.username = "jkerman"
         user.name = "Jebediah Kerman"
         user.email = "jebediah.kerman@gmail.com"
         user.save()

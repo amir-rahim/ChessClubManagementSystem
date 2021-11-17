@@ -13,10 +13,11 @@ class ApplicationFormTestCase(TestCase):
     ]
 
     def setUp(self):
-        ##self.user = User.objects.get(username='johndoe')
+        self.user = User.objects.get(username='johndoe')
         self.club = Club.objects.get(name='Kerbal Chess Club')
         self.form_input = {
-            'club' : self.club
+            'club' : self.club,
+            'user' : self.user
         }
 
     def test_valid_application_form(self):
@@ -42,3 +43,12 @@ class ApplicationFormTestCase(TestCase):
         after_count = Membership.objects.count()
 
         self.assertEqual(after_count, before_count + 1)
+
+    def test_cannot_apply_multiple_times_same_club(self):
+        form = MembershipApplicationForm(data=self.form_input)
+        before_count = Membership.objects.count()
+        form.save()
+        after_count = Membership.objects.count()
+        self.assertEqual(after_count, before_count + 1)
+        form = MembershipApplicationForm(data=self.form_input)
+        self.assertFalse(form.is_valid())

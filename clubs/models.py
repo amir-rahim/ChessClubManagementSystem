@@ -41,7 +41,12 @@ class Membership(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     approved = False
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'club'], name='unique_user_club'),
+        ]
+
 class MembershipApplicationForm(forms.ModelForm):
     class Meta:
         model = Membership
-        fields = ['club']
+        fields = ['club', 'user']
