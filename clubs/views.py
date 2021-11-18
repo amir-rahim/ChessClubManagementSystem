@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
-from .models import Membership
+from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm
 from .helpers import login_prohibited
 
@@ -76,3 +76,12 @@ def membership_application(request):
 
     form = MembershipApplicationForm(initial = {'user': request.user})
     return render(request, 'apply.html', {'form': form})
+
+@login_required
+def available_clubs(request):
+    query = Club.objects.all()
+    list_of_clubs = []
+    for club in query:
+        owner = club.owner
+        list_of_clubs.append({"name":club.name, "owner":owner.name})
+    return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
