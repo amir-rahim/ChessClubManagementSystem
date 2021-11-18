@@ -9,7 +9,7 @@ class ApplicationFormTestCase(TestCase):
 
     fixtures = [
         'clubs/tests/fixtures/default_users.json',
-        'clubs/tests/fixtures/default_club.json'
+        'clubs/tests/fixtures/default_clubs.json'
     ]
 
     def setUp(self):

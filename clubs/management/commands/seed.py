@@ -8,6 +8,12 @@ class Command(BaseCommand):
         user = User.objects.create_user(username = "jkerman", password = "Password123.")
         user.username = "jkerman"
         user.name = "Jebediah Kerman"
-        user.email = "jebediah.kerman@gmail.com"
+        user.email = "jeb@example.org"
         user.save()
-        Club.objects.create(name="Kerbal Chess Club")
+
+        user = User.objects.create_user(username = "bkerman", password = "Password123.")
+        user.name = "Billie Kerman"
+        user.email = "billie@example.org"
+        user.save()
+        
+        Club.objects.create(name = "Kerbal Chess Club", owner = user)

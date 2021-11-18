@@ -1,9 +1,0 @@
-[
-  {
-    "model": "clubs.club",
-    "pk": 1,
-    "fields": {
-      "name": "Kerbal Chess Club"
-    }
-  }
-]
