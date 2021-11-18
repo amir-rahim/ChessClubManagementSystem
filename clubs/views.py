@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
-from .forms import LogInForm, SignUpForm
+from .models import Membership
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm
 from .helpers import login_prohibited
 
 # Create your views here.
@@ -62,3 +63,16 @@ def user_profile(request):
 def log_out(request):
     logout(request)
     return redirect('home')
+
+@login_required
+def membership_application(request):
+    if request.method == 'POST':
+        form = MembershipApplicationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('user_dashboard')
+        else:
+            messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
+
+    form = MembershipApplicationForm(initial = {'user': request.user})
+    return render(request, 'apply.html', {'form': form})

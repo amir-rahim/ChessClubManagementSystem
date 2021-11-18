@@ -1,0 +1,18 @@
+[
+  {
+    "model": "clubs.club",
+    "pk": 1,
+    "fields": {
+      "name": "Kerbal Chess Club",
+      "owner": 1
+    }
+  },
+  {
+    "model": "clubs.club",
+    "pk": 2,
+    "fields": {
+      "name": "Royal Chess Club",
+      "owner": 3
+    }
+  }
+]
