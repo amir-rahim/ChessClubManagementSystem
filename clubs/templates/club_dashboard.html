@@ -10,17 +10,10 @@
         <div class="row h-100">
         <div class="col-12">
             <div class="card cover-card">
-                <h1 class="cover-heading">Available clubs</h1>
-                <p class="cover-text">Find the club you are looking for here!</p>
-                {% for club in list_of_clubs %}
-                  <hr class="solid">
-                  <p>
-                    <a href="/club/{{club.club_id}}" class="btn btn-lg btn-secondary">
-                      <b>{{club.name}}</b>
-                    </a>
-                  </p>
-                  <p>{{club.owner}}</p>
-                {% endfor %}
+              {% for club in club_info %}
+                <h1 class="cover-heading">{{club.name}}</h1>
+                <p class="cover-text">{{club.owner}}</p>
+              {% endfor %}
             </div>
           </div>
         </div>

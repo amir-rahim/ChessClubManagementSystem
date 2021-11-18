@@ -83,5 +83,15 @@ def available_clubs(request):
     list_of_clubs = []
     for club in query:
         owner = club.owner
-        list_of_clubs.append({"name":club.name, "owner":owner.name})
+        list_of_clubs.append({"name":club.name, "owner":owner.name, "club_id":club.id})
     return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
+
+@login_required
+def club_dashboard(request, club_id):
+    club_info = []
+    try:
+        club = Club.objects.get(id=club_id)
+        club_info.append({"name":club.name, "owner":club.owner})
+    except:
+        club_info.append({"name":"Club does not exist", "owner":""})
+    return render(request, 'club_dashboard.html', {'club_info': club_info})

@@ -63,6 +63,3 @@ class AvailableClubsViewTestCase(TestCase):
         self.assertEqual(list_of_clubs[0]["owner"], self.user.name)
         self.assertEqual(list_of_clubs[1]["name"], "New club 2")
         self.assertEqual(list_of_clubs[1]["owner"], self.user2.name)
-
-    def test_redirect_club_page(self):
-        pass
