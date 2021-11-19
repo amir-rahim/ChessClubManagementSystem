@@ -9,31 +9,35 @@
     <div class="row h-100">
     <div class="col-12">
         <div class="card cover-card centered-card">
-            <h1 class="cover-heading">User Profile</h1>
-            <hr class="solid">
-            <section>
-            <h2 class="cover-heading">Profile Details</h2>
-            <hr class="solid">
-            <h4 class="cover-text">Profile Photo: </h4>
-            <p><img src="{{user.gravatar}}" class="center" width="120" height="120"/> </p>
-            <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
-            <h4 class="cover-text">Email: </h4><p>{{user.email}}</p>
-            <h4 class="cover-text">Chess Experience: </h4><p>*experience goes here*</p>
-            <h4 class="cover-text">Bio: </h4><p>*bio goes here*</p>
-            </section>
-            <hr class="solid">
-            <section>
-            <h2 class="cover-heading">Contact Details</h2>
-            <hr class="solid">
-            <h4 class="cover-text">Email: </h3><p>{{user.email}}<p/>
-            <h4 class="cover-text">Phone Number: </h4><p>*Phone Number goes here*<p/>
-            </section>
-            <hr class="solid">
-            <p>
-                <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
-                    Edit Profile
-                </a>
-            </p>
+            <div class="card-body">
+                <h1 class="cover-heading">User Profile</h1>
+                <hr class="solid">
+                <section>
+                    <h2 class="cover-heading">Profile Details</h2>
+                    <hr class="solid">
+                    <h4 class="cover-text">Profile Photo: </h4>
+                    <p>
+                        <img src="{{user.gravatar}}" class="center" width="120" height="120"/> 
+                    </p>
+                    <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
+                    <h4 class="cover-text">Email: </h4><p>{{user.email}}</p>
+                    <h4 class="cover-text">Chess Experience: </h4><p>*experience goes here*</p>
+                    <h4 class="cover-text">Bio: </h4><p>*bio goes here*</p>
+                </section>
+                <hr class="solid">
+                <section>
+                    <h2 class="cover-heading">Contact Details</h2>
+                    <hr class="solid">
+                    <h4 class="cover-text">Email: </h3><p>{{user.email}}<p/>
+                    <h4 class="cover-text">Phone Number: </h4><p>*Phone Number goes here*<p/>
+                </section>
+                <hr class="solid">
+                <p>
+                    <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
+                        Edit Profile
+                    </a>
+                </p>
+            </div>
         </div>
       </div>
     </div>
