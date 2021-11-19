@@ -5,11 +5,10 @@
 {% endblock %}
 
 {% block content %}
-<div id="vanta-bg">
     <div class="container vh-100">
         <div class="row h-100">
         <div class="col-12">
-            <div class="card cover-card">
+            <div class="card cover-card centered-card">
                 <img src="{{user.gravatar}}" class="center" width="120" height="120">
                 <h1 class="cover-heading">Welcome Back, {{user.name}}! </h1>
                 <p class="cover-text">Welcome to your profile dashboard!</p>
@@ -41,29 +40,4 @@
           </div>
         </div>
     </div>
-</div>
-<script>
-VANTA.DOTS({
-  el: "#vanta-bg",
-  mouseControls: true,
-  touchControls: true,
-  gyroControls: false,
-  minHeight: 200.00,
-  minWidth: 200.00,
-  scale: 1.00,
-  scaleMobile: 1.00,
-  color: 0xa0a0a0,
-  color2: 0xffffff,
-  backgroundColor: 0xffffff,
-  size: 3.10
-})
-</script>
-<style>
-.navbar {
-    position: fixed;
-    top: 0;
-    z-index: 100;
-    width: 100%;
-}
-</style>
 {% endblock %}

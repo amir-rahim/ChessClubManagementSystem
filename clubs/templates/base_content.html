@@ -2,10 +2,30 @@
 {% block head %}
   {% block content_head %}
   {% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"></script>
 {% endblock %}
 {% block body %}
   {% include 'partials/navbar.html' %}
   {% include 'partials/messages.html' %}
-  {% block content %}
-  {% endblock %}
+  <div id="vanta-bg">
+    {% block content %}
+    {% endblock %}
+  </div>
+  <script>
+    VANTA.DOTS({
+      el: "#vanta-bg",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00,
+      color: 0xa0a0a0,
+      color2: 0xffffff,
+      backgroundColor: 0xffffff,
+      size: 3.10
+    })
+  </script>
 {% endblock %}
