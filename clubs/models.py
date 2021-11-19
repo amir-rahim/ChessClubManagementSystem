@@ -36,6 +36,12 @@ class Club(models.Model):
     name = models.CharField(max_length=100, blank=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
+    def is_member(self, user):
+        return Membership.objects.filter(club=self, user=user).exists()
+
+    def get_members(self):
+        return Membership.objects.filter(club=self)
+
 class Membership(models.Model):
     class Meta:
         constraints = [

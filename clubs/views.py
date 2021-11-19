@@ -88,10 +88,21 @@ def available_clubs(request):
 
 @login_required
 def club_dashboard(request, club_id):
-    club_info = []
+    user = request.user
+
     try:
         club = Club.objects.get(id=club_id)
-        club_info.append({"name":club.name, "owner":club.owner})
     except:
-        club_info.append({"name":"Club does not exist", "owner":""})
-    return render(request, 'club_dashboard.html', {'club_info': club_info})
+        club = None
+
+    if club is not None:
+        is_member = club.is_member(user)
+        is_owner = club.owner == user
+        members = club.get_members()
+
+    return render(request, 'club_dashboard.html', {
+        'club': club, 
+        'is_member': is_member,
+        'is_owner': is_owner,
+        'members': members
+    })

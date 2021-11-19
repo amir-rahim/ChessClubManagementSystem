@@ -6,15 +6,52 @@
 {% block content %}
 <div class="container vh-100">
     <div class="row h-100">
-        <div class="col-12">
+        <div class="col-sm-12 col-md-4">
             <div class="card cover-card">
-              {% for club in club_info %}
-                <h1 class="cover-heading">{{club.name}}</h1>
-                <p class="cover-text">{{club.owner}}</p>
-              {% endfor %}
+                <div class="card-body">
+                    <h1 class="card-title">{{club.name}}</h1>
+
+
+                    {% if is_owner %}
+                        <a href="" class="btn btn-primary">Edit</a>
+                        <a href="" class="btn btn-danger">Transfer Ownership</a> 
+                    {% else %}
+                        {% if is_member %}
+                            <form action="/club/{{club.id}}/leave" method="POST" 
+                                onsubmit="return confirm('Do you really want to leave {{club.name}}')">
+                                <button type="submit" class="btn btn-danger">Leave Club</button>
+                            </form>
+                        {% else %}
+                            <form action="/apply/{{club.id}}" method="GET">
+                                <button type="submit" class="btn btn-primary">Join Club</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
-          </div>
         </div>
-    </div>
+
+        <div class="col-sm-12 col-md-8">
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Details</h2>
+                    <ul class="list-group list-group-horizontal">
+                        <li class="list-group-item flex-fill">Owner</li>
+                        <li class="list-group-item flex-fill">{{club.owner}}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2>Members</h2>
+                    <ul>
+                    {% for member in members %}
+                        <li>{{member.user.name}}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
 </div>
 {% endblock %}
