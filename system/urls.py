@@ -27,4 +27,6 @@ urlpatterns = [
     path('log_out/', views.log_out, name='log_out'),
     path('sign_up/', views.sign_up, name='sign_up'),
     path('membership_application/', views.membership_application, name='membership_application'),
+    path('available_clubs/', views.available_clubs, name='available_clubs'),
+    path('club/<int:club_id>', views.club_dashboard, name='club_dashboard')
 ]
