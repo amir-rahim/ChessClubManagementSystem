@@ -33,7 +33,7 @@ class User(AbstractUser):
         return gravatar_url
 
 class Club(models.Model):
-    name = models.CharField(max_length=100, blank=False)
+    name = models.CharField(max_length=100, blank=False, unique=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def save(self, *args, **kwargs):
