@@ -36,6 +36,18 @@ class Club(models.Model):
     name = models.CharField(max_length=100, blank=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            Membership.objects.get(club = self, user = self.owner)
+        except:
+            Membership.objects.create(
+                user=self.owner,
+                club=self,
+                application_status=Membership.Application.APPROVED,
+                user_type=Membership.UserTypes.OWNER
+            )
+
 class Membership(models.Model):
     class Meta:
         constraints = [

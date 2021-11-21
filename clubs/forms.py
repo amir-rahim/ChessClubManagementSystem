@@ -67,3 +67,13 @@ class MembershipApplicationForm(forms.ModelForm):
         self.fields['club'].label_from_instance = lambda instance: instance.name
 
     club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label=None, to_field_name="name")
+
+
+class ClubCreationForm(forms.ModelForm):
+    """Form enabling logged user to create a new club."""
+    class Meta:
+        model = Club
+        fields = ['name', 'owner']
+        widgets = {
+            'owner': forms.HiddenInput(attrs = {'is_hidden': True})
+        }
