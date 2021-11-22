@@ -13,9 +13,7 @@ class AvailableClubsViewTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(username="johndoe")
-        self.user.save()
         self.user2 = User.objects.get(username="janedoe")
-        self.user2.save()
         self.url = reverse('available_clubs')
 
     def test_user_dashboard_url(self):
