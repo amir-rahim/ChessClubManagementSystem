@@ -16,16 +16,10 @@
                         <a href="" class="btn btn-primary">Edit</a>
                         <a href="" class="btn btn-danger">Transfer Ownership</a> 
                     {% else %}
-                        {% if is_member %}
-                            <form action="/club/{{club.id}}/leave" method="POST" 
-                                onsubmit="return confirm('Do you really want to leave {{club.name}}')">
-                                <button type="submit" class="btn btn-danger">Leave Club</button>
-                            </form>
-                        {% else %}
-                            <form action="/apply/{{club.id}}" method="GET">
-                                <button type="submit" class="btn btn-primary">Join Club</button>
-                            </form>
-                        {% endif %}
+                        <form action="/club/{{club.id}}/leave" method="POST" 
+                            onsubmit="return confirm('Do you really want to leave {{club.name}}')">
+                            <button type="submit" class="btn btn-danger">Leave Club</button>
+                        </form>
                     {% endif %}
                 </div>
             </div>
