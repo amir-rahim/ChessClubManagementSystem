@@ -1,0 +1,25 @@
+{% extends 'base_content.html' %}
+
+{% block content %}
+<div class="container vh-100">
+    <div class="row h-100">
+    <div class="col-12">
+        <div class="card cover-card">
+            <div class="card-body">
+                <h1 class="cover-heading">Club Memberships</h1>
+                <p class="cover-text">Find the club you are looking for here!</p>
+                {% for club in clubs %}
+                  <hr class="solid">
+                  <p>
+                    <a href="/club/{{club.id}}" class="btn btn-lg btn-secondary">
+                      <b>{{club.name}}</b>
+                    </a>
+                  </p>
+                  <p>{{club.owner}}</p>
+                {% endfor %}
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}

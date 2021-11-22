@@ -87,6 +87,12 @@ def available_clubs(request):
     return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
 
 @login_required
+def club_memberships(request):
+    memberships = Membership.objects.filter(user=request.user)
+    clubs = [membership.club for membership in memberships]
+    return render(request, 'club_memberships.html', {'clubs': clubs})
+
+@login_required
 def club_dashboard(request, club_id):
     user = request.user
 
