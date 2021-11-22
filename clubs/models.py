@@ -33,7 +33,14 @@ class User(AbstractUser):
         return gravatar_url
 
 class Club(models.Model):
-    name = models.CharField(max_length=100, blank=False, unique=True)
+    name = models.CharField(
+        max_length=100,
+        blank=False,
+        unique=True,
+        validators=[RegexValidator(
+            regex=r'^\w{3,}$',
+            message='Club name must consist of at least three alphanumericals'
+        )])
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def save(self, *args, **kwargs):

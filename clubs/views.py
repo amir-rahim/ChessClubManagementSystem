@@ -73,8 +73,8 @@ def membership_application(request):
             return redirect('user_dashboard')
         else:
             messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
-
-    form = MembershipApplicationForm(initial = {'user': request.user})
+    else:
+        form = MembershipApplicationForm(initial = {'user': request.user})
     return render(request, 'apply.html', {'form': form})
 
 @login_required
@@ -84,7 +84,8 @@ def club_creation(request):
         if form.is_valid():
             form.save()
             return redirect('user_dashboard')
-        else:
-            messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
-    form = ClubCreationForm(initial = {'owner': request.user})
+        #else:
+        #    messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
+    else:
+        form = ClubCreationForm(initial = {'owner': request.user})
     return render(request, 'new_club.html', {'form': form})

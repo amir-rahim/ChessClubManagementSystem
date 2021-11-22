@@ -5,7 +5,7 @@
       {{ field.label_tag }}
     {% endif %}
     {% if form.is_bound %}
-      {% if field.errors %}
+      {% if field.errors and not field.is_hidden%}
         {% render_field field class="form-control is-invalid" %}
       {% else %}
         {% render_field field class="form-control is-valid" %}
@@ -13,11 +13,13 @@
     {% else %}
       {% render_field field class="form-control" %}
     {% endif %}
-    <div class="valid-feedback">
-      Looks good!
-    </div>
-    <div class="invalid-feedback">
-      {{ field.errors }}
-    </div>
+    {% if not field.is_hidden %}
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+      <div class="invalid-feedback">
+        {{ field.errors }}
+      </div>
+    {% endif %}
   </div>
 {% endfor %}

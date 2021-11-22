@@ -24,6 +24,10 @@ class ApplicationFormTestCase(TestCase):
         form = MembershipApplicationForm(data=self.form_input)
         self.assertTrue(form.is_valid())
 
+    def test_form_has_valid_initial_data(self):
+        form = MembershipApplicationForm(initial = {'user': self.user})
+        print(form.initial['user'].id)
+
     def test_form_has_necessary_fields(self):
         form = MembershipApplicationForm()
         self.assertIn('club', form.fields)

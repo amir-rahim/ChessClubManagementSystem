@@ -53,6 +53,8 @@ class SignUpForm(forms.ModelForm):
 
 
 class MembershipApplicationForm(forms.ModelForm):
+    #queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = initial['user'].id).values('club'))
+    queryset = Club.objects.all()
     """Form enabling logged user to apply for a membership."""
     class Meta:
         model = Membership
@@ -65,8 +67,23 @@ class MembershipApplicationForm(forms.ModelForm):
         """Change label for selector """
         super(MembershipApplicationForm, self).__init__(*args, **kwargs)
         self.fields['club'].label_from_instance = lambda instance: instance.name
+        #self.fields['club'].queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
+        self.initial['user']._setup()
+        self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
+        self.fields['club'].queryset = self.queryset
+        #print()
 
-    club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label=None, to_field_name="name")
+
+
+    #club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label=None, to_field_name="name")
+    club = forms.ModelChoiceField(
+        queryset = queryset,
+        empty_label=None,
+        to_field_name="name")
+
+
+
+
 
 
 class ClubCreationForm(forms.ModelForm):
