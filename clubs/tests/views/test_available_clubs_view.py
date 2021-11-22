@@ -21,9 +21,9 @@ class AvailableClubsViewTestCase(TestCase):
     def test_user_dashboard_url(self):
         self.assertEqual(self.url,'/available_clubs/')
 
-    def test_redirect_user_not_logged_in(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 302)
+    # def test_redirect_user_not_logged_in(self):
+    #     response = self.client.get(self.url)
+    #     self.assertEqual(response.status_code, 302)
 
     def test_no_club(self):
         self.client.login(username=self.user.username, password='Password123')

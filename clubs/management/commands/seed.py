@@ -17,5 +17,6 @@ class Command(BaseCommand):
         user2.save()
 
         club1 = Club.objects.create(name = "Kerbal Chess Club", owner = user2)
+        club1.save()
 
-        Membership.objects.create(user = user2, club = club1)
+        #Membership.objects.create(user = user2, club = club1)
