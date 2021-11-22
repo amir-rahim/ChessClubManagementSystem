@@ -26,7 +26,7 @@ class ApplicationFormTestCase(TestCase):
 
     def test_form_has_valid_initial_data(self):
         form = MembershipApplicationForm(initial = {'user': self.user})
-        print(form.initial['user'].id)
+        #print(form.initial['user'].id)
 
     def test_form_has_necessary_fields(self):
         form = MembershipApplicationForm()
