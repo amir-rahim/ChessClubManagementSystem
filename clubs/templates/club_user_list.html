@@ -1,0 +1,15 @@
+</head>
+<body>
+
+    <h1>User List</h1>
+    <ul>
+       {% for User in users %}
+       <li> {{ user.username }}<br/>
+           <br>
+       {% endfor %}
+        <a href="{% url 'home' %}" >Back</a> </li>
+   </ul>
+</div>
+
+</body>
+</html>

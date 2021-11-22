@@ -7,6 +7,9 @@ from django.conf import settings
 from .forms import LogInForm, SignUpForm
 from .helpers import login_prohibited
 
+from .models import User
+
+
 # Create your views here.
 
 @login_prohibited
@@ -62,3 +65,9 @@ def user_profile(request):
 def log_out(request):
     logout(request)
     return redirect('home')
+
+
+def club_user_list(request):
+    model = User
+    user = User.objects.all()
+    return render(request, 'club_user_list.html', {'users': user  })
