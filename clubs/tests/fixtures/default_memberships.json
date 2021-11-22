@@ -1,0 +1,22 @@
+[
+  {
+    "model": "clubs.membership",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "user": 1,
+      "user_type": "OW",
+      "application_status": 2
+    }
+  },
+  {
+    "model": "clubs.membership",
+    "pk": 2,
+    "fields": {
+      "club": 2,
+      "user": 3,
+      "user_type": "OW",
+      "application_status": 2
+    }
+  }
+]

@@ -1,8 +1,7 @@
 """Forms for the clubs app."""
 from django import forms
 from django.core.validators import RegexValidator
-
-from .models import User
+from .models import User, Membership, Club
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -53,3 +52,18 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
+class MembershipApplicationForm(forms.ModelForm):
+    """Form enabling logged user to apply for a membership."""
+    class Meta:
+        model = Membership
+        fields = ['club', 'user']
+        widgets = {
+            'user': forms.HiddenInput(attrs = {'is_hidden': True})
+        }
+
+    def __init__(self, *args, **kwargs):
+        """Change label for selector """
+        super(MembershipApplicationForm, self).__init__(*args, **kwargs)
+        self.fields['club'].label_from_instance = lambda instance: instance.name
+
+    club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label=None, to_field_name="name")
