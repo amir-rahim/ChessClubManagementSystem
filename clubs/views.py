@@ -93,11 +93,11 @@ def club_memberships(request):
     return render(request, 'club_memberships.html', {'clubs': clubs})
 
 @login_required
-def club_dashboard(request, club_id):
+def club_dashboard(request, id):
     user = request.user
 
     try:
-        club = Club.objects.get(id=club_id)
+        club = Club.objects.get(id=id)
     except:
         club = None
 

@@ -18,5 +18,15 @@
       "user_type": "OW",
       "application_status": 2
     }
+  },
+  {
+    "model": "clubs.membership",
+    "pk": 3,
+    "fields": {
+      "club": 2,
+      "user": 1,
+      "user_type": "MB",
+      "application_status": 2
+    }
   }
 ]
