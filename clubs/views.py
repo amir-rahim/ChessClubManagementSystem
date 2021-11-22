@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
 from .models import Membership, Club, User
-from .forms import LogInForm, SignUpForm, MembershipApplicationForm
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm
 from .helpers import login_prohibited
 
 # Create your views here.
@@ -73,11 +73,23 @@ def membership_application(request):
             return redirect('user_dashboard')
         else:
             messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
-
-    form = MembershipApplicationForm(initial = {'user': request.user})
+    else:
+        form = MembershipApplicationForm(initial = {'user': request.user})
     return render(request, 'apply.html', {'form': form})
 
 @login_required
+def club_creation(request):
+    if request.method == 'POST':
+        form = ClubCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('user_dashboard')
+        #else:
+        #    messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
+    else:
+        form = ClubCreationForm(initial = {'owner': request.user})
+    return render(request, 'new_club.html', {'form': form})
+
 def available_clubs(request):
     query = Club.objects.all()
     list_of_clubs = []
