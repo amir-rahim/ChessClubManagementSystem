@@ -8,6 +8,9 @@ from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm
 from .helpers import login_prohibited
 
+from .models import User
+
+
 # Create your views here.
 
 @login_prohibited
@@ -63,6 +66,12 @@ def user_profile(request):
 def log_out(request):
     logout(request)
     return redirect('home')
+
+
+def club_user_list(request):
+    model = User
+    user = User.objects.all()
+    return render(request, 'club_user_list.html', {'users': user  })
 
 @login_required
 def membership_application(request):
