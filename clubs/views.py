@@ -73,11 +73,6 @@ def club_user_list(request):
     user = User.objects.all()
     return render(request, 'club_user_list.html', {'users': user  })
 
-def detailed_user_list()
-    model = User
-    user = User.objects.all()
-    return render(request, 'detailed_user_list.html', {'users': user  })
-
 @login_required
 def membership_application(request):
     if request.method == 'POST':
