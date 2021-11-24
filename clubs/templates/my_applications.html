@@ -1,0 +1,57 @@
+{% extends 'base_content.html' %}
+{% block content_head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="vanta-bg">
+    <div class="container vh-100">
+        <div class="row h-100">
+        <div class="col-12">
+            <div class="card cover-card">
+                <h1 class="cover-heading">My applications</h1>
+                <p class="cover-text">Your Pending, Approved and Denied club applications</p>
+                {% for application in applications_info %}
+                  <hr class="solid">
+                  <p>
+                    <a href="/club/{{application.club_id}}" class="btn btn-lg btn-secondary">
+                      <b>{{application.club_name}}</b>
+                    </a>
+                  </p>
+                  <p>Application status: {{applications.application_status}}</p>
+                {% endfor %}
+                {% for message in messages %}
+                  <hr class="solid">
+                  <p>{{message}}</p>
+                {% endfor %}
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+<script>
+VANTA.DOTS({
+  el: "#vanta-bg",
+  mouseControls: true,
+  touchControls: true,
+  gyroControls: false,
+  minHeight: 200.00,
+  minWidth: 200.00,
+  scale: 1.00,
+  scaleMobile: 1.00,
+  color: 0xa0a0a0,
+  color2: 0xffffff,
+  backgroundColor: 0xffffff,
+  size: 3.10
+})
+</script>
+<style>
+.navbar {
+    position: fixed;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+}
+</style>
+{% endblock %}

@@ -95,3 +95,23 @@ def club_dashboard(request, club_id):
     except:
         club_info.append({"name":"Club does not exist", "owner":""})
     return render(request, 'club_dashboard.html', {'club_info': club_info})
+
+@login_required
+def my_applications(request):
+    user = request.user
+    messages = []
+    applications_info = []
+    try:
+        applications = Membership.objects.get(user=user)
+        for application in applications:
+            application_status = applications.application_status
+            if application_status == 'P':
+                application_status = "Pending"
+            elif application_status == 'A':
+                application_status = "Approved"
+            else: #'D'
+                application_status = "Denied"
+            applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
+    except:
+        messages.append("You have not applied to any club yet.")
+    return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})

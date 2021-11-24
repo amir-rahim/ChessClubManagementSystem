@@ -46,7 +46,7 @@ class Membership(models.Model):
         NON_MEMBER = 'NM'
         MEMBER = 'MB'
         OFFICER = 'OF'
-        OWNER = "OW"
+        OWNER = 'OW'
 
     class Application(models.TextChoices):
         PENDING = 'P'
