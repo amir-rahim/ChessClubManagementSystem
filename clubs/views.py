@@ -72,11 +72,14 @@ def membership_application(request):
             form.save()
             return redirect('user_dashboard')
         else:
-            messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
+            if form.data.get('personal_statement').strip() == "":
+                messages.add_message(request, messages.ERROR, "Please enter a valid personal statement.")
+            else:
+                messages.add_message(request, messages.ERROR, "There is an error with the form, please try again.")
     else:
         form = MembershipApplicationForm(initial = {'user': request.user})
         if form.fields['club'].queryset.count() == 0:
-            messages.add_message(request, messages.ERROR, "You already applied to every club available.")
+            messages.add_message(request, messages.ERROR, "Cannot apply to any club. You already applied to every club available.")
             return redirect('user_dashboard')
     return render(request, 'apply.html', {'form': form})
 
