@@ -69,19 +69,15 @@ class MembershipApplicationForm(forms.ModelForm):
         """Change label for selector """
         super(MembershipApplicationForm, self).__init__(*args, **kwargs)
         self.fields['club'].label_from_instance = lambda instance: instance.name
-        #self.initial['user']._setup()
-        #if(self.initial.get('user') == None):
-            #self.user = self.initial['user']
+
         if(self.initial.get('user') == None):
             self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.user.id).values('club'))
         else:
             self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
-        #self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.user.id).values('club'))
+
         self.fields['club'].queryset = self.queryset
 
 
-
-    #club = forms.ModelChoiceField(queryset=Club.objects.all(), empty_label=None, to_field_name="name")
     club = forms.ModelChoiceField(
         queryset = queryset,
         empty_label=None,

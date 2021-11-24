@@ -89,9 +89,10 @@ def club_creation(request):
         form = ClubCreationForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.SUCCESS, "Club created successfully.")
             return redirect('user_dashboard')
-        #else:
-        #    messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
+        else:
+            messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
     else:
         form = ClubCreationForm(initial = {'owner': request.user})
     return render(request, 'new_club.html', {'form': form})
