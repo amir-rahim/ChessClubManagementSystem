@@ -55,20 +55,28 @@ class SignUpForm(forms.ModelForm):
 class MembershipApplicationForm(forms.ModelForm):
     #queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = initial['user'].id).values('club'))
     queryset = Club.objects.all()
+    #user = None
     """Form enabling logged user to apply for a membership."""
     class Meta:
         model = Membership
-        fields = ['club', 'user']
+        fields = ['club', 'user', 'personal_statement']
         widgets = {
-            'user': forms.HiddenInput(attrs = {'is_hidden': True})
+            'user': forms.HiddenInput(attrs = {'is_hidden': True}),
+            'personal_statement': forms.Textarea(),
         }
 
     def __init__(self, *args, **kwargs):
         """Change label for selector """
         super(MembershipApplicationForm, self).__init__(*args, **kwargs)
         self.fields['club'].label_from_instance = lambda instance: instance.name
-        self.initial['user']._setup()
-        self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
+        #self.initial['user']._setup()
+        #if(self.initial.get('user') == None):
+            #self.user = self.initial['user']
+        if(self.initial.get('user') == None):
+            self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.user.id).values('club'))
+        else:
+            self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
+        #self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.user.id).values('club'))
         self.fields['club'].queryset = self.queryset
 
 
