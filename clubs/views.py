@@ -5,8 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
 from .models import Membership, Club, User
-from .forms import LogInForm, SignUpForm, MembershipApplicationForm
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm
 from .helpers import login_prohibited
+
+from .models import User
+
 
 # Create your views here.
 
@@ -64,6 +67,12 @@ def log_out(request):
     logout(request)
     return redirect('home')
 
+
+def club_user_list(request):
+    model = User
+    user = User.objects.all()
+    return render(request, 'club_user_list.html', {'users': user  })
+
 @login_required
 def membership_application(request):
     if request.method == 'POST':
@@ -73,11 +82,23 @@ def membership_application(request):
             return redirect('user_dashboard')
         else:
             messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
-
-    form = MembershipApplicationForm(initial = {'user': request.user})
+    else:
+        form = MembershipApplicationForm(initial = {'user': request.user})
     return render(request, 'apply.html', {'form': form})
 
 @login_required
+def club_creation(request):
+    if request.method == 'POST':
+        form = ClubCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('user_dashboard')
+        #else:
+        #    messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
+    else:
+        form = ClubCreationForm(initial = {'owner': request.user})
+    return render(request, 'new_club.html', {'form': form})
+
 def available_clubs(request):
     query = Club.objects.all()
     list_of_clubs = []
@@ -87,14 +108,36 @@ def available_clubs(request):
     return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
 
 @login_required
-def club_dashboard(request, club_id):
-    club_info = []
+def club_memberships(request):
+    memberships = Membership.objects.filter(user=request.user)
+    clubs = [membership.club for membership in memberships]
+    return render(request, 'club_memberships.html', {'clubs': clubs})
+
+@login_required
+def club_dashboard(request, id):
+    user = request.user
+
     try:
-        club = Club.objects.get(id=club_id)
-        club_info.append({"name":club.name, "owner":club.owner})
+        club = Club.objects.get(id=id)
     except:
-        club_info.append({"name":"Club does not exist", "owner":""})
-    return render(request, 'club_dashboard.html', {'club_info': club_info})
+        club = None
+
+    if club is not None:
+        if not Membership.objects.filter(user=user, club=club).exists():
+            messages.add_message(request, messages.ERROR, "You are not a member of this club.")
+            return redirect('user_dashboard')
+
+        is_officer = Membership.objects.filter(user=user, club=club, user_type='OF').exists()
+        is_owner = Membership.objects.filter(user=user, club=club, user_type='OW').exists()
+        members = Membership.objects.filter(club=club)
+
+    return render(request, 'club_dashboard.html', {
+        'club': club,
+        'is_officer': is_officer,
+        'is_owner': is_owner,
+        'members': members
+    })
+
 
 @login_required
 def my_applications(request):

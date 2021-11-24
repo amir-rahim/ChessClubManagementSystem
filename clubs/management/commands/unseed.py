@@ -9,7 +9,7 @@ class Command(BaseCommand):
         club1 = Club.objects.get(name = "Kerbal Chess Club", owner = user2)
 
 
-        Membership.objects.get(user = user2, club = club1).delete()
+        #Membership.objects.get(user = user2, club = club1).delete()
 
         Club.objects.get(name="Kerbal Chess Club", owner=user2).delete()
 
