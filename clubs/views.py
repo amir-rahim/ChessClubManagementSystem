@@ -75,6 +75,9 @@ def membership_application(request):
             messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
     else:
         form = MembershipApplicationForm(initial = {'user': request.user})
+        if form.fields['club'].queryset.count() == 0:
+            messages.add_message(request, messages.ERROR, "You already applied to every club available.")
+            return redirect('user_dashboard')
     return render(request, 'apply.html', {'form': form})
 
 @login_required
