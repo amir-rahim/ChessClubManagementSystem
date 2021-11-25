@@ -53,9 +53,6 @@ class SignUpForm(forms.ModelForm):
 
 
 class MembershipApplicationForm(forms.ModelForm):
-    #queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = initial['user'].id).values('club'))
-    queryset = Club.objects.all()
-    #user = None
     """Form enabling logged user to apply for a membership."""
     class Meta:
         model = Membership
@@ -70,21 +67,48 @@ class MembershipApplicationForm(forms.ModelForm):
         super(MembershipApplicationForm, self).__init__(*args, **kwargs)
         self.fields['club'].label_from_instance = lambda instance: instance.name
 
-        if(self.initial.get('user') == None):
-            self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.user.id).values('club'))
-        else:
+        if(self.data.get('user') != None):
+            self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = User.objects.get(id=self.data.get('user'))).values('club'))
+        elif (self.initial.get('user') != None):
             self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
+            self.data['user'] = self.initial['user']
+        else:
+            self.queryset = Club.objects.all()
+
 
         self.fields['club'].queryset = self.queryset
+        self.fields['club'].empty_label = None
 
+    #queryset = None
+    #club = forms.ModelChoiceField(
+    #    queryset = queryset,
+    #    empty_label=None,
+    #    to_field_name="name")
 
-    club = forms.ModelChoiceField(
-        queryset = queryset,
-        empty_label=None,
-        to_field_name="name")
+    def clean(self):
+        """Clean the data and generate messages for any errors."""
+        super().clean()
+        club = self.cleaned_data.get('club')
+        if(self.cleaned_data.get('user') != None):
+            user = self.cleaned_data.get('user')
+        elif (self.initial.get('user') != None):
+            user = self.initial.get('user')
 
+    def save(self):
+        """Create a new membership."""
+        super().save(commit=False)
+        if(self.cleaned_data.get('user') != None):
+            user = self.cleaned_data.get('user')
+        elif (self.initial.get('user') != None):
+            user = self.initial.get('user')
 
+        membership = Membership.objects.create(
+            user = user,
+            club = self.cleaned_data.get('club'),
+            personal_statement = self.cleaned_data.get('personal_statement')
 
+        )
+        return membership
 
 
 
