@@ -37,10 +37,11 @@ class Club(models.Model):
         max_length=100,
         blank=False,
         unique=True,
-        validators=[RegexValidator(
-            regex=r'[a-zA-Z][[a-zA-Z0-9 ]+',
-            message='Club name must start with a letter and contain only letters, number, and spaces.'
-        )])
+        #validators=[RegexValidator(
+        #    regex=r'[a-zA-Z][[a-zA-Z0-9 ]+',
+        #    message='Club name must start with a letter and contain only letters, number, and spaces.'
+        #)]
+    )
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def save(self, *args, **kwargs):
@@ -73,8 +74,8 @@ class Membership(models.Model):
         APPROVED = 'A'
         DENIED = 'D'
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=True)
     personal_statement = models.CharField(max_length=500, blank=False)
     application_status = models.CharField(max_length=10, choices=Application.choices, default=Application.PENDING)
     user_type = models.CharField(max_length=10, choices=UserTypes.choices, default=UserTypes.NON_MEMBER)
@@ -113,4 +114,13 @@ class Membership(models.Model):
 class MembershipApplicationForm(forms.ModelForm):
     class Meta:
         model = Membership
-        fields = ['club', 'user']
+        fields = ['club', 'user', 'personal_statement']
+
+
+class Tournament(models.Model):
+    name = models.CharField(max_length=100, blank=False, unique=True)
+    description = models.CharField(max_length=1000, blank=False)
+    date = models.DateTimeField()
+    organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    capacity = models.IntegerField()
+    deadline = models.DateTimeField()

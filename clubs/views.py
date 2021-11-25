@@ -70,6 +70,7 @@ def membership_application(request):
         form = MembershipApplicationForm(initial = {'user': request.user}, data=request.POST)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.SUCCESS, "Application sent successfully.")
             return redirect('user_dashboard')
         else:
             if form.data.get('personal_statement').strip() == "":

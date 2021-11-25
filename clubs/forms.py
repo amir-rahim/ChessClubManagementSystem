@@ -83,8 +83,11 @@ class MembershipApplicationForm(forms.ModelForm):
         empty_label=None,
         to_field_name="name")
 
+    def clean(self):
+        """Clean the data and generate messages for any errors."""
 
-
+        super().clean()
+        club = self.cleaned_data.get('club')
 
 
 
