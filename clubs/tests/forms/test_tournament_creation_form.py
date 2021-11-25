@@ -25,12 +25,10 @@ class TournamentCreationFormTestCase(TestCase):
             'name': "Tournament 1",
             'description': "Tournament description",
             'club': self.club,
-            #'date': make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
-            'date': datetime.datetime(2021, 12, 25, 12),
+            'date': make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
             'organizer': self.officer,
             'capacity': 2,
-            'deadline': datetime.datetime(2021, 12, 20, 12)
-            #'deadline': make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
+            'deadline': make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
         }
 
     def test_valid_application_form(self):
@@ -63,13 +61,36 @@ class TournamentCreationFormTestCase(TestCase):
 
     def test_form_must_save_correctly(self):
         form = TournamentCreationForm(data=self.form_input)
-        #print(self.form_input)
         before_count = Tournament.objects.count()
         self.assertTrue(form.is_valid())
         form.save()
         after_count = Tournament.objects.count()
-        #print(Tournament.objects.all().values("date"))
         self.assertEqual(after_count, before_count + 1)
+
+    def test_capacity_cannot_be_smaller_than_2(self):
+        self.form_input['capacity'] = 1
+        form = TournamentCreationForm(data=self.form_input)
+        before_count = Tournament.objects.count()
+        self.assertFalse(form.is_valid())
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
+
+    def test_capacity_cannot_be_greater_than_96(self):
+        self.form_input['capacity'] = 97
+        form = TournamentCreationForm(data=self.form_input)
+        before_count = Tournament.objects.count()
+        self.assertFalse(form.is_valid())
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
+
+    def test_deadline_cannot_be_after_date(self):
+        self.form_input['deadline'] = make_aware(datetime.datetime(2021, 12, 27, 12, 0), timezone.utc)
+        form = TournamentCreationForm(data=self.form_input)
+        before_count = Tournament.objects.count()
+        print(form.errors)
+        self.assertFalse(form.is_valid())
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
     #
     # def test_cannot_apply_multiple_times_same_club(self):
     #     form = MembershipApplicationForm(initial = {'user': self.user}, data=self.form_input)

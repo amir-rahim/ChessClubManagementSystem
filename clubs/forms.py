@@ -106,16 +106,16 @@ class TournamentCreationForm(forms.ModelForm):
     """Form enabling officers to create Torunaments."""
     class Meta:
         model = Tournament
-        fields = ['name', 'description', 'organizer', 'club', 'date', 'deadline', 'capacity']
+        fields = ['name', 'description', 'organizer', 'club']
         widgets = {
             'description': forms.Textarea(),
             'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
             'club': forms.HiddenInput(attrs = {'is_hidden': True})
         }
 
-    #date = forms.DateTimeField()
-    #deadline = forms.DateTimeField()
-    #capacity = forms.IntegerField()
+    date = forms.DateTimeField()
+    deadline = forms.DateTimeField()
+    capacity = forms.IntegerField()
 
     def clean(self):
         """Clean the data and generate messages for any errors."""
@@ -128,3 +128,18 @@ class TournamentCreationForm(forms.ModelForm):
             self.add_error('date', 'Tournament date must be after application deadline.')
         if capacity<2 or capacity>96:
             self.add_error('capacity', 'Capacity must be a number between 2 and 96')
+
+    def save(self):
+        """Create a new tournament."""
+
+        super().save(commit=False)
+        tournament = Tournament.objects.create(
+            name=self.cleaned_data.get('name'),
+            description=self.cleaned_data.get('description'),
+            organizer=self.cleaned_data.get('organizer'),
+            club=self.cleaned_data.get('club'),
+            deadline=self.cleaned_data.get('deadline'),
+            capacity=self.cleaned_data.get('capacity'),
+            date=self.cleaned_data.get('date')
+        )
+        return tournament
