@@ -41,7 +41,7 @@
               <div class="column" style="">
                 <h2>Gravatar:</h2>
                 {% for member in members %}
-       <img src="{{member.user.gravatar}}" class="center" width="120" height="120">
+       <img src="{{member.gravatar}}" class="center" width="120" height="120">
         
            <br>
        {% endfor %}
@@ -49,7 +49,7 @@
               <div class="column" style="">
                 <h2>Name:</h2>
                 {% for member in member %}
-                <li>{{member.user.name}}<br/>
+                <li>{{member.name}}<br/>
                  
          
                     <br>
@@ -58,7 +58,7 @@
               <div class="column" style="">
                 <h2>Username:</h2>
                 {% for member in members %}
-                <li>{{member.user.username}}<br/>
+                <li>{{member.username}}<br/>
                  
          
                     <br>
@@ -67,7 +67,7 @@
               <div class="column" style="">
                 <h2>Chess Exp:</h2>
                 {% for member in members %}
-                <li>{{member.user.name}}<br/>
+                <li>{{member.chess_experience}}<br/>
                  
          
                     <br>
@@ -76,7 +76,7 @@
               <div class="column" style="">
                 <h2>Bio:</h2>
                 {% for member in members %}
-                {{member.user.bio}}      
+                {{member.bio}}      
                  
          
                     <br>
@@ -86,7 +86,7 @@
               <div class="column" style="">
                 <h2>Number:</h2>
                 {% for member in members %}
-                {{member.user.number}}      
+                {{member.number}}      
                  
          
                     <br>
@@ -96,7 +96,7 @@
               <div class="column" style="">
                 <h2>Email:</h2>
                 {% for member in members %}
-                {{member.user.bio}}      
+                {{member.email}}      
                  
          
                     <br>
@@ -111,132 +111,128 @@
 </div>
 {% elif is_officer %}
 <div class="row">
-              <div class="column" style="">
-                <h2>Gravatar:</h2>
-                {% for member in members %}
-       <img src="{{member.user.gravatar}}" class="center" width="120" height="120">
-        
+    <div class="column" style="">
+      <h2>Gravatar:</h2>
+      {% for member in members %}
+<img src="{{member.gravatar}}" class="center" width="120" height="120">
 
-           <br>
-       {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Name:</h2>
-                {% for member in member %}
-                <li>{{member.user.name}}<br/>
-                 
-         
-                    <br>
-                {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Username:</h2>
-                {% for member in members %}
-                <li>{{member.user.username}}<br/>
-                 
-         
-                    <br>
-                {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Chess Exp:</h2>
-                {% for member in members %}
-                <li>{{member.user.name}}<br/>
-                 
-         
-                    <br>
-                {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Bio:</h2>
-                {% for member in members %}
-                {{member.user.bio}}      
-                 
-         
-                    <br>
-                {% endfor %}
-              
-              </div>
-              <div class="column" style="">
-                <h2>Number:</h2>
-                {% for member in members %}
-                {{member.user.number}}      
-                 
-         
-                    <br>
-                {% endfor %}
-              
-              </div>
-              <div class="column" style="">
-                <h2>Email:</h2>
-                {% for member in members %}
-                {{member.user.bio}}      
-                 
-         
-                    <br>
-                {% endfor %}
-              
-              </div>
-            </div>
-        
-      
-        <a href="{% url 'home' %}" >Back</a> </li>
-   </ul>
+ <br>
+{% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Name:</h2>
+      {% for member in member %}
+      <li>{{member.name}}<br/>
+       
+
+          <br>
+      {% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Username:</h2>
+      {% for member in members %}
+      <li>{{member.username}}<br/>
+       
+
+          <br>
+      {% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Chess Exp:</h2>
+      {% for member in members %}
+      <li>{{member.chess_experience}}<br/>
+       
+
+          <br>
+      {% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Bio:</h2>
+      {% for member in members %}
+      {{member.bio}}      
+       
+
+          <br>
+      {% endfor %}
+    
+    </div>
+    <div class="column" style="">
+      <h2>Number:</h2>
+      {% for member in members %}
+      {{member.number}}      
+       
+
+          <br>
+      {% endfor %}
+    
+    </div>
+    <div class="column" style="">
+      <h2>Email:</h2>
+      {% for member in members %}
+      {{member.email}}      
+       
+
+          <br>
+      {% endfor %}
+    
+    </div>
+  </div>
+
+
+<a href="{% url 'home' %}" >Back</a> </li>
+</ul>
 </div>
-
 {% else %}
 <div class="row">
-              <div class="column" style="">
-                <h2>Gravatar:</h2>
-                {% for member in members %}
-       <img src="{{member.user.gravatar}}" class="center" width="120" height="120">
-        
+    <div class="column" style="">
+      <h2>Gravatar:</h2>
+      {% for member in members %}
+<img src="{{member.gravatar}}" class="center" width="120" height="120">
 
-           <br>
-       {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Name:</h2>
-                {% for member in member %}
-                <li>{{member.user.name}}<br/>
-                 
-         
-                    <br>
-                {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Username:</h2>
-                {% for member in members %}
-                <li>{{member.user.username}}<br/>
-                 
-         
-                    <br>
-                {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Chess Exp:</h2>
-                {% for member in members %}
-                <li>{{member.user.name}}<br/>
-                 
-         
-                    <br>
-                {% endfor %}
-              </div>
-              <div class="column" style="">
-                <h2>Bio:</h2>
-                {% for member in members %}
-                {{member.user.bio}}      
-                 
-         
-                    <br>
-                {% endfor %}
-              
-              </div>
-            </div>
-        
-      
-        <a href="{% url 'home' %}" >Back</a> </li>
-   </ul>
+ <br>
+{% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Name:</h2>
+      {% for member in member %}
+      <li>{{member.name}}<br/>
+       
+
+          <br>
+      {% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Username:</h2>
+      {% for member in members %}
+      <li>{{member.username}}<br/>
+       
+
+          <br>
+      {% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Chess Exp:</h2>
+      {% for member in members %}
+      <li>{{member.chess_experience}}<br/>
+       
+
+          <br>
+      {% endfor %}
+    </div>
+    <div class="column" style="">
+      <h2>Bio:</h2>
+      {% for member in members %}
+      {{member.bio}}      
+       
+
+          <br>
+      {% endfor %}
+
+  </div>
+</div>
+
+<a href="{% url 'home' %}" >Back</a> </li>
+</ul>
 </div>
 </div>
 </div>

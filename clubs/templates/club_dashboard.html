@@ -14,9 +14,14 @@
                 <h1 class="cover-heading">{{club.name}}</h1>
                 <p class="cover-text">{{club.owner}}</p>
               {% endfor %}
-            </div>
+              <p>
+                <a href='{% url 'club_user_list' %}' class="btn btn-lg btn-secondary">
+                  Club User List
+                </a>
+              </p>
           </div>
         </div>
+      </div>
     </div>
 </div>
 <script>
