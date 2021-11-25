@@ -107,6 +107,23 @@ class Membership(models.Model):
             self.club.save()
             self.save()
 
+    
+    def __eq__(self, x):
+        if type(x) == Membership:
+            return self.user == x.user and self.club == x.club
+        elif type(x) == UserTypes:
+            if x == UserTypes.MEMBER:
+                return self.user_type == UserTypes.MEMBER or \
+                    self.user_type == UserTypes.OFFICER or \
+                    self.user_type == UserTypes.OWNER
+            elif x == UserTypes.OFFICER:
+                return self.user_type == UserTypes.OFFICER or \
+                    self.user_type == UserTypes.OWNER
+            else:
+                return self.user_type == x
+        return x == self 
+            
+
 
 class MembershipApplicationForm(forms.ModelForm):
     class Meta:

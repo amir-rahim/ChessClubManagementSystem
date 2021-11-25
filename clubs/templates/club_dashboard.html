@@ -13,15 +13,23 @@
                 <div class="card-body">
                     <h1 class="card-title">{{club.name}}</h1>
 
+                    
+                    {% if membership %}
+                        {% if membership == membership.UserTypes.NON_MEMBER %}
+                            You have applied for membership.
+                        {% else %}
+                            <p>You are a {{membership.user_type}}</p>
 
-                    {% if is_owner %}
-                        <a href="" class="btn btn-primary">Edit</a>
-                        <a href="" class="btn btn-danger">Transfer Ownership</a> 
-                    {% elif is_member %}
-                        <form action="/club/{{club.id}}/leave" method="POST" 
-                            onsubmit="return confirm('Do you really want to leave {{club.name}}')">
-                            <button type="submit" class="btn btn-danger">Leave Club</button>
-                        </form>
+                            {% if membership == member.UserTypes.Owner %}
+                                <a href="" class="btn btn-primary">Edit</a>
+                            {% else %}
+                                <form action="/club/{{club.id}}/leave" method="POST" 
+                                    onsubmit="return confirm('Do you really want to leave {{club.name}}')">
+                                    <button type="submit" class="btn btn-danger">Leave Club</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                            
                     {% else %}
                         <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
                     {% endif %}
@@ -68,25 +76,27 @@
                                         <td>{{member.user.username}}</td>
                                         <td>{{member.user.name}}</td>
                                         <td>
-                                            {% if membership.user_type == member.UserTypes.Officer or membership.user_type == member.UserTypes.Owner %}
-                                            <div class="btn-group" role="group">
-                                                <button id="btn-group-drop-{{member.user.username}}" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                  Actions
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
-                                                    {% if membership.user_type == member.UserTypes.Officer %}
-                                                        {% if member.user_type == member.UserTypes.Officer %}
-                                                            <li><a class="dropdown-item" href="#">Demote</a></li>
-                                                        {% else %}
-                                                            <li><a class="dropdown-item" href="#">Promote</a></li>
+                                            {% if membership %}
+                                                {% if membership == member.UserTypes.OFFICER %}
+                                                <div class="btn-group" role="group">
+                                                    <button id="btn-group-drop-{{member.user.username}}" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                      Actions
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
+                                                        {% if membership == member.UserTypes.OFFICER %}
+                                                            {% if member == member.UserTypes.OFFICER %}
+                                                                <li><a class="dropdown-item" href="#">Demote</a></li>
+                                                            {% else %}
+                                                                <li><a class="dropdown-item" href="#">Promote</a></li>
+                                                            {% endif %}
+
+                                                            <li><a class="dropdown-item" href="#">Transfer Ownership</a></li>
                                                         {% endif %}
 
-                                                        <li><a class="dropdown-item" href="#">Transfer Ownership</a></li>
-                                                    {% endif %}
-
-                                                    <li><a class="dropdown-item" href="#">Kick</a></li>
-                                                </ul>
-                                            </div>
+                                                        <li><a class="dropdown-item" href="#">Kick</a></li>
+                                                    </ul>
+                                                </div>
+                                                {% endif %}
                                             {% endif %}
                                         </td>
                                     </tr>
