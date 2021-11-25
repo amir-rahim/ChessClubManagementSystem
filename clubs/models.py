@@ -39,7 +39,7 @@ class Club(models.Model):
         unique=True,
         validators=[RegexValidator(
             regex=r'[a-zA-Z]w',
-            message='Club name must consist of at least three alphanumericals'
+            message='Club name must consist of at least three alpha-numeric characters'
         )])
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 

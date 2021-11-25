@@ -10,41 +10,40 @@
         <div class="row">
         <div class="col-12">
             <div class="card cover-card centered-card">
-                <img src="{{user.gravatar}}" class="center" width="120" height="120">
+                <img src="{{user.gravatar}}" class="center" width="120" height="120" style="margin-top: 10px; margin-bottom: 10px;">
                 <h1 class="cover-heading">Welcome Back, {{user.name}}! </h1>
                 <p class="cover-text">Welcome to your profile dashboard!</p>
                 <hr class="solid">
-                <p>
+                <p style="margin: 0px;">
+                    <b>See your Profile Details: </b>
                     <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
                     User Profile
                     </a>
                 </p>
                 <hr class="solid">
-            <p>
+            <p style="margin: 0px;">
+              <b>Create a brand new Chess Club: </b> 
                 <a href='{% url 'user_dashboard' %}' class="btn btn-lg btn-secondary">
                 Create Club
                 </a>
               </p>
               <hr class="solid">
-              <p>
+              <p style="margin: 0px;">
+                <b>Chess Clubs you have memberships for here: </b>
                   <a href='{% url 'club_memberships' %}' class="btn btn-lg btn-secondary">
                 Club Memberships
                 </a>
               </p>
               <hr class="solid">
-              <p>
-                <a href='{% url 'club_user_list' %}' class="btn btn-lg btn-secondary">
-                Club User List
-                </a>
-              </p>
-              <hr class="solid">
-              <p>
+              <p style="margin: 0px;">
+                <b>Clubs that are available for you to apply to: </b>
                 <a href='{% url 'available_clubs' %}' class="btn btn-lg btn-secondary">
                 Available Clubs
                 </a>
               </p>
               <hr class="solid">
               <p>
+                <b>Apply to an available club here: </b>
                 <a href='{% url 'membership_application' %}' class="btn btn-lg btn-secondary">
                 Apply for Club
                 </a>

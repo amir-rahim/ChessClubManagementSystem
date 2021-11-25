@@ -20,7 +20,7 @@
   }
 
 hr.solid {
-    border-top: 3px solid #bbb;
+    border-top: 3px solid rgb(100, 100, 100);
 }
 
 .navbar {
