@@ -132,8 +132,31 @@ def club_dashboard(request, id):
         members = Membership.objects.filter(club=club)
 
     return render(request, 'club_dashboard.html', {
-        'club': club, 
+        'club': club,
         'is_officer': is_officer,
         'is_owner': is_owner,
         'members': members
     })
+
+
+@login_required
+def my_applications(request):
+    user = request.user
+    messages = []
+    applications_info = []
+    try:
+        applications = Membership.objects.filter(user=user)
+        for application in applications:
+            application_status = application.application_status
+            if application_status == 'P':
+                application_status = "Pending"
+            elif application_status == 'A':
+                application_status = "Approved"
+            else: #'D'
+                application_status = "Denied"
+            applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
+        if len(applications) == 0:
+            messages.append("You have not applied to any club yet.")
+    except:
+        messages.append("You have not applied to any club yet.")
+    return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})

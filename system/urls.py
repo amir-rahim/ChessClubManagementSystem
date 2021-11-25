@@ -32,4 +32,5 @@ urlpatterns = [
     path('club_memberships/', views.club_memberships, name='club_memberships'),
     path('club/<int:id>', views.club_dashboard, name='club_dashboard'),
     path('club_users/', views.club_user_list, name='club_user_list'),
+    path('my_applications/', views.my_applications, name='my_applications'),
 ]
