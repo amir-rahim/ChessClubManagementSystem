@@ -117,23 +117,29 @@ def club_memberships(request):
 def club_dashboard(request, id):
     user = request.user
 
+    membership = None
+
     try:
         club = Club.objects.get(id=id)
     except:
         club = None
 
     if club is not None:
-        if not Membership.objects.filter(user=user, club=club).exists():
-            messages.add_message(request, messages.ERROR, "You are not a member of this club.")
-            return redirect('user_dashboard')
 
-        is_officer = Membership.objects.filter(user=user, club=club, user_type='OF').exists()
-        is_owner = Membership.objects.filter(user=user, club=club, user_type='OW').exists()
+ 
+
+        membership = Membership.objects.filter(user=user, club=club).first()
+
+        is_member = membership != None
+
+        if is_member:
+            is_officer = membership.user_type == "OF" or membership.user_type == "OW"
+            is_owner = membership.user_type == "OW"
+
         members = Membership.objects.filter(club=club)
 
     return render(request, 'club_dashboard.html', {
-        'club': club, 
-        'is_officer': is_officer,
-        'is_owner': is_owner,
+        'club': club,
+        'membership': membership,
         'members': members
     })

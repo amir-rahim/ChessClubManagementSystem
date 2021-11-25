@@ -1,6 +1,8 @@
 {% extends 'base_content.html' %}
 {% block content_head %}
-    
+   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+ 
 {% endblock %}
 
 {% block content %}
@@ -15,17 +17,17 @@
                     {% if is_owner %}
                         <a href="" class="btn btn-primary">Edit</a>
                         <a href="" class="btn btn-danger">Transfer Ownership</a> 
-                    {% else %}
+                    {% elif is_member %}
                         <form action="/club/{{club.id}}/leave" method="POST" 
                             onsubmit="return confirm('Do you really want to leave {{club.name}}')">
                             <button type="submit" class="btn btn-danger">Leave Club</button>
                         </form>
+                    {% else %}
+                        <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
                     {% endif %}
                 </div>
             </div>
-        </div>
 
-        <div class="col-sm-12 col-md-8">
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Details</h2>
@@ -35,17 +37,75 @@
                     </ul>
                 </div>
             </div>
+        </div>
 
+        <div class="col-sm-12 col-md-8">
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Statistics</h2>
+                </div>
+            </div>
+            {% if not member %}
             <div class="card">
                 <div class="card-body">
                     <h2>Members</h2>
-                    <ul>
-                    {% for member in members %}
-                        <li>{{member.user.name}}</li>
-                    {% endfor %}
-                    </ul>
+                    <div class="table-responsive">
+                        <table id="table-members" data-toggle="table" data-pagination="true">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Gravatar</th>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                    <tr>
+                                        <td>
+                                            <img src="{{member.user.gravatar}}" class="center" width="120" height="120">
+                                        </td>
+                                        <td>{{member.user.username}}</td>
+                                        <td>{{member.user.name}}</td>
+                                        <td>
+                                            {% if membership.user_type == member.UserTypes.Officer or membership.user_type == member.UserTypes.Owner %}
+                                            <div class="btn-group" role="group">
+                                                <button id="btn-group-drop-{{member.user.username}}" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                  Actions
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
+                                                    {% if membership.user_type == member.UserTypes.Officer %}
+                                                        {% if member.user_type == member.UserTypes.Officer %}
+                                                            <li><a class="dropdown-item" href="#">Demote</a></li>
+                                                        {% else %}
+                                                            <li><a class="dropdown-item" href="#">Promote</a></li>
+                                                        {% endif %}
+
+                                                        <li><a class="dropdown-item" href="#">Transfer Ownership</a></li>
+                                                    {% endif %}
+
+                                                    <li><a class="dropdown-item" href="#">Kick</a></li>
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+            {% endif %}
         </div>
 </div>
+
+<script>
+    const dataTable = new simpleDatatables.DataTable("#table-members", {
+	    fixedHeight: true,
+        columns: [
+            { select: [0, 3], sortable: false }
+        ]
+    })
+</script>
 {% endblock %}
