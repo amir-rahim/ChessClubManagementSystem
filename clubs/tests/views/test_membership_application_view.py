@@ -3,7 +3,8 @@ from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 from django.urls import reverse
 #from clubs.forms import
-from clubs.models import User, Club, Membership, MembershipApplicationForm
+from clubs.models import User, Club, Membership
+from clubs.forms import MembershipApplicationForm
 from clubs.tests.helpers import LogInTester, reverse_with_next
 
 class MembershipApplicationViewTestCase(TestCase, LogInTester):
@@ -33,8 +34,8 @@ class MembershipApplicationViewTestCase(TestCase, LogInTester):
         self.club.save()
         #self.club = Club.objects.get(name='Royal Chess Club')
         self.form_input = {
-            'club' : self.club.pk,
-            #'user' : [self.user.id],
+            'club' : self.club,
+            'user' : self.user,
             'personal_statement': "Hello"
         }
 
@@ -43,7 +44,7 @@ class MembershipApplicationViewTestCase(TestCase, LogInTester):
         self.assertEqual(self.url,'/membership_application/')
 
     def test_get_membership_application(self):
-        self.client.login(username="johndoe", password="Password123")
+        self.client.login(username="janedoe", password="Password123")
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
@@ -79,8 +80,8 @@ class MembershipApplicationViewTestCase(TestCase, LogInTester):
         response = self.client.get(self.url)
         #print(response)
         form = response.context['form']
-        #import pdb
-        #pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         #print(form.initial)
         #print(form['club'].initial)
         #print(form['user'].initial)

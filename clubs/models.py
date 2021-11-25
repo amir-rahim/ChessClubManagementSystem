@@ -120,7 +120,8 @@ class MembershipApplicationForm(forms.ModelForm):
 class Tournament(models.Model):
     name = models.CharField(max_length=100, blank=False, unique=True)
     description = models.CharField(max_length=1000, blank=False)
-    date = models.DateTimeField()
-    organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    capacity = models.IntegerField()
-    deadline = models.DateTimeField()
+    date = models.DateTimeField(blank=True, null=True)
+    organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
+    capacity = models.IntegerField(null=True)
+    deadline = models.DateTimeField(null=True)

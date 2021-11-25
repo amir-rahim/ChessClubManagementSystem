@@ -1,7 +1,7 @@
 """Forms for the clubs app."""
 from django import forms
 from django.core.validators import RegexValidator
-from .models import User, Membership, Club
+from .models import User, Membership, Club, Tournament
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -78,10 +78,12 @@ class MembershipApplicationForm(forms.ModelForm):
         self.fields['club'].queryset = self.queryset
 
 
-    club = forms.ModelChoiceField(
-        queryset = queryset,
-        empty_label=None,
-        to_field_name="name")
+    # club = forms.ModelChoiceField(
+    #     queryset = queryset,
+    #     empty_label=None,
+    #     to_field_name="name")
+
+    #club.queryset = queryset
 
     def clean(self):
         """Clean the data and generate messages for any errors."""
@@ -99,3 +101,30 @@ class ClubCreationForm(forms.ModelForm):
         widgets = {
             'owner': forms.HiddenInput(attrs = {'is_hidden': True})
         }
+
+class TournamentCreationForm(forms.ModelForm):
+    """Form enabling officers to create Torunaments."""
+    class Meta:
+        model = Tournament
+        fields = ['name', 'description', 'organizer', 'club', 'date', 'deadline', 'capacity']
+        widgets = {
+            'description': forms.Textarea(),
+            'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
+            'club': forms.HiddenInput(attrs = {'is_hidden': True})
+        }
+
+    #date = forms.DateTimeField()
+    #deadline = forms.DateTimeField()
+    #capacity = forms.IntegerField()
+
+    def clean(self):
+        """Clean the data and generate messages for any errors."""
+        super().clean()
+        date = self.cleaned_data.get('date')
+        deadline = self.cleaned_data.get('deadline')
+        capacity = self.cleaned_data.get('capacity')
+
+        if deadline >= date:
+            self.add_error('date', 'Tournament date must be after application deadline.')
+        if capacity<2 or capacity>96:
+            self.add_error('capacity', 'Capacity must be a number between 2 and 96')
