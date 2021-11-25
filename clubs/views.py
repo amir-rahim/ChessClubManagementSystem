@@ -145,9 +145,9 @@ def my_applications(request):
     messages = []
     applications_info = []
     try:
-        applications = Membership.objects.get(user=user)
+        applications = Membership.objects.filter(user=user)
         for application in applications:
-            application_status = applications.application_status
+            application_status = application.application_status
             if application_status == 'P':
                 application_status = "Pending"
             elif application_status == 'A':
@@ -155,6 +155,8 @@ def my_applications(request):
             else: #'D'
                 application_status = "Denied"
             applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
+        if len(applications) == 0:
+            messages.append("You have not applied to any club yet.")
     except:
         messages.append("You have not applied to any club yet.")
     return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})
