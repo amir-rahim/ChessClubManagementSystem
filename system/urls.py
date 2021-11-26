@@ -31,5 +31,4 @@ urlpatterns = [
     path('available_clubs/', views.available_clubs, name='available_clubs'),
     path('club_memberships/', views.club_memberships, name='club_memberships'),
     path('club/<int:id>', views.club_dashboard, name='club_dashboard'),
-    path('club_users/', views.club_user_list, name='club_user_list'),
 ]
