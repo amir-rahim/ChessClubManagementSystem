@@ -73,8 +73,8 @@ class Membership(models.Model):
         APPROVED = 'A'
         DENIED = 'D'
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     personal_statement = models.CharField(max_length=500, blank=False)
     application_status = models.CharField(max_length=10, choices=Application.choices, default=Application.PENDING)
     user_type = models.CharField(max_length=10, choices=UserTypes.choices, default=UserTypes.NON_MEMBER)

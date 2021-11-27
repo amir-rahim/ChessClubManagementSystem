@@ -125,15 +125,19 @@ class TournamentCreationForm(forms.ModelForm):
     """Form enabling officers to create Torunaments."""
     class Meta:
         model = Tournament
-        fields = ['name', 'description', 'organizer', 'club']
+        fields = ['name', 'description', 'club', 'organizer']
         widgets = {
             'description': forms.Textarea(),
             'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
             'club': forms.HiddenInput(attrs = {'is_hidden': True})
         }
 
-    date = forms.DateTimeField()
-    deadline = forms.DateTimeField()
+    class DateTimeInput(forms.DateTimeInput):
+        input_type = 'datetime-local'
+
+
+    date = forms.DateTimeField(widget = DateTimeInput())
+    deadline = forms.DateTimeField(widget = DateTimeInput())
     capacity = forms.IntegerField()
 
     def clean(self):
@@ -142,11 +146,15 @@ class TournamentCreationForm(forms.ModelForm):
         date = self.cleaned_data.get('date')
         deadline = self.cleaned_data.get('deadline')
         capacity = self.cleaned_data.get('capacity')
+        club = self.cleaned_data.get('club')
+        organizer = self.cleaned_data.get('organizer')
 
-        if deadline >= date:
+        if deadline != None and date != None and deadline >= date:
             self.add_error('date', 'Tournament date must be after application deadline.')
         if capacity<2 or capacity>96:
             self.add_error('capacity', 'Capacity must be a number between 2 and 96')
+        if len(Membership.objects.filter(user = organizer, club = club)) > 0 and Membership.objects.get(user = organizer, club = club).user_type != 'OF':
+            self.add_error('organizer', "You don't have sufficient permissions to create a tournament.")
 
     def save(self):
         """Create a new tournament."""

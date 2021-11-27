@@ -87,16 +87,6 @@ class TournamentCreationFormTestCase(TestCase):
         self.form_input['deadline'] = make_aware(datetime.datetime(2021, 12, 27, 12, 0), timezone.utc)
         form = TournamentCreationForm(data=self.form_input)
         before_count = Tournament.objects.count()
-        print(form.errors)
         self.assertFalse(form.is_valid())
         after_count = Tournament.objects.count()
         self.assertEqual(after_count, before_count)
-    #
-    # def test_cannot_apply_multiple_times_same_club(self):
-    #     form = MembershipApplicationForm(initial = {'user': self.user}, data=self.form_input)
-    #     before_count = Membership.objects.count()
-    #     form.save()
-    #     after_count = Membership.objects.count()
-    #     self.assertEqual(after_count, before_count + 1)
-    #     form = MembershipApplicationForm(initial = {'user': self.user}, data=self.form_input)
-    #     self.assertFalse(form.is_valid())

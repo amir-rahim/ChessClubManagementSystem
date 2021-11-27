@@ -29,5 +29,6 @@ urlpatterns = [
     path('membership_application/', views.membership_application, name='membership_application'),
     path('new_club/', views.club_creation, name='new_club'),
     path('available_clubs/', views.available_clubs, name='available_clubs'),
-    path('club/<int:club_id>', views.club_dashboard, name='club_dashboard')
+    path('club/<int:club_id>', views.club_dashboard, name='club_dashboard'),
+    path('new_tournament/', views.tournament_creation, name='new_tournament'),
 ]
