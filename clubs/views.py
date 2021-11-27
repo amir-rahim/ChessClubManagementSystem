@@ -67,7 +67,7 @@ def log_out(request):
 @login_required
 def membership_application(request):
     if request.method == 'POST':
-        form = MembershipApplicationForm(initial = {'user': request.user}, data=request.POST)
+        form = MembershipApplicationForm(data=request.POST)
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.SUCCESS, "Application sent successfully.")

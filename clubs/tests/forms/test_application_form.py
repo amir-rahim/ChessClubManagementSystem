@@ -17,7 +17,7 @@ class ApplicationFormTestCase(TestCase):
         self.club = Club.objects.get(name='Kerbal Chess Club')
         self.form_input = {
             'club' : self.club,
-            'user' : self.user,
+            'user' : self.user.pk,
             'personal_statement': "My ps"
         }
 

@@ -32,6 +32,7 @@ class TournamentModelTestCase(TestCase):
         Tournament.objects.create(
             name = "Tournament 1",
             description = "Tournament description",
+            club = self.club,
             date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
             organizer = self.officer,
             capacity = 2,
@@ -46,6 +47,7 @@ class TournamentModelTestCase(TestCase):
             Tournament.objects.create(
                 name = "Tournament 1",
                 description = "Tournament description",
+                club = self.club,
                 date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
                 organizer = self.officer,
                 capacity = 2,
@@ -55,6 +57,7 @@ class TournamentModelTestCase(TestCase):
             Tournament.objects.create(
                 name = "Tournament 1",
                 description = "Tournament description",
+                club = self.club,
                 date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
                 organizer = self.officer,
                 capacity = 2,

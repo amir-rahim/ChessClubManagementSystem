@@ -37,11 +37,10 @@ class Club(models.Model):
         max_length=100,
         blank=False,
         unique=True,
-        #validators=[RegexValidator(
-        #    regex=r'[a-zA-Z][[a-zA-Z0-9 ]+',
-        #    message='Club name must start with a letter and contain only letters, number, and spaces.'
-        #)]
-    )
+        validators=[RegexValidator(
+            regex=r'[a-zA-Z ][a-zA-Z0-9 ]+',
+            message='Club name must start with a letter and contain only letters, number, and spaces.'
+        )])
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def save(self, *args, **kwargs):
