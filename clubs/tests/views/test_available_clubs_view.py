@@ -16,7 +16,7 @@ class AvailableClubsViewTestCase(TestCase):
         self.user2 = User.objects.get(username="janedoe")
         self.url = reverse('available_clubs')
 
-    def test_user_dashboard_url(self):
+    def test_available_clubs_url(self):
         self.assertEqual(self.url,'/available_clubs/')
 
     # def test_redirect_user_not_logged_in(self):
