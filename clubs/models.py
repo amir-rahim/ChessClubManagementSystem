@@ -111,6 +111,13 @@ class Membership(models.Model):
                 self.club.save()
                 self.save()
 
+    def leave(self):
+        if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
+            self.user_type = self.UserTypes.NON_MEMBER
+            self.save()
+            return True
+        return False
+
     # Define which user types share the same identities
     USER_TYPE_IDENTITIES = {
         UserTypes.NON_MEMBER: [UserTypes.NON_MEMBER],

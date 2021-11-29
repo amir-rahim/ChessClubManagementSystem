@@ -165,6 +165,28 @@ def transfer_ownership(request, club_id, user_id):
     return HttpResponse(status = 200)
 
 @login_required
+def leave_club(request, club_id):
+    current_user = request.user
+    club = Club.objects.get(id=club_id)
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if current_user_membership.leave():
+            messages.add_message(request, messages.SUCCESS, f"Successfully left {club.name}.")
+        else:
+            raise Exception("You are not allowed to leave this club.")
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, "Error leaving club: " + str(e))
+
+        if request.GET.get('previous'):
+            return redirect(request.GET.get('previous'))
+        else:
+            return HttpResponse(status = 500)
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
 def club_dashboard(request, id):
     user = request.user
     membership = None
@@ -176,7 +198,7 @@ def club_dashboard(request, id):
 
     if club is not None: 
         membership = Membership.objects.filter(user=user, club=club).first()
-        members = Membership.objects.filter(club=club)
+        members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
 
     return render(request, 'club_dashboard.html', {
         'club': club,

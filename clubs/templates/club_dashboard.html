@@ -21,10 +21,10 @@
                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                 <a href="" class="btn btn-primary">Edit</a>
                             {% else %}
-                                <form action="/club/{{club.id}}/leave" method="POST" 
-                                    onsubmit="return confirm('Do you really want to leave {{club.name}}')">
-                                    <button type="submit" class="btn btn-danger">Leave Club</button>
-                                </form>
+                            <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
+                                    Leave Club 
+                                </a>
+
                             {% endif %}
                         {% endif %}
 
