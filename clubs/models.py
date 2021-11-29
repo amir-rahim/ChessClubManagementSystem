@@ -67,6 +67,8 @@ class Membership(models.Model):
         OFFICER = 'OF'
         OWNER = 'OW'
 
+
+
     class Application(models.TextChoices):
         PENDING = 'P'
         APPROVED = 'A'
@@ -107,22 +109,24 @@ class Membership(models.Model):
             self.club.save()
             self.save()
 
-    
-    def __eq__(self, x):
-        if type(x) == Membership:
-            return self.user == x.user and self.club == x.club
-        elif type(x) == UserTypes:
-            if x == UserTypes.MEMBER:
-                return self.user_type == UserTypes.MEMBER or \
-                    self.user_type == UserTypes.OFFICER or \
-                    self.user_type == UserTypes.OWNER
-            elif x == UserTypes.OFFICER:
-                return self.user_type == UserTypes.OFFICER or \
-                    self.user_type == UserTypes.OWNER
-            else:
-                return self.user_type == x
-        return x == self 
-            
+
+    USER_TYPE_IDENTITIES = {
+        UserTypes.NON_MEMBER: [UserTypes.NON_MEMBER],
+        UserTypes.MEMBER: [UserTypes.MEMBER]
+    }
+
+    # An Officer is a Member and an Officer
+    USER_TYPE_IDENTITIES[UserTypes.OFFICER] = USER_TYPE_IDENTITIES[UserTypes.MEMBER] + [
+        UserTypes.OFFICER
+    ]
+
+    # An Owner is a Member, an Officer, and an Owner
+    USER_TYPE_IDENTITIES[UserTypes.OWNER] = USER_TYPE_IDENTITIES[UserTypes.OFFICER] + [
+        UserTypes.OWNER
+    ]
+
+    def get_user_types(self):
+        return self.USER_TYPE_IDENTITIES[self.user_type]
 
 
 class MembershipApplicationForm(forms.ModelForm):

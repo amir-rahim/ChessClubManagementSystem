@@ -124,18 +124,8 @@ def club_dashboard(request, id):
     except:
         club = None
 
-    if club is not None:
-
- 
-
+    if club is not None: 
         membership = Membership.objects.filter(user=user, club=club).first()
-
-        is_member = membership != None
-
-        if is_member:
-            is_officer = membership.user_type == "OF" or membership.user_type == "OW"
-            is_owner = membership.user_type == "OW"
-
         members = Membership.objects.filter(club=club)
 
     return render(request, 'club_dashboard.html', {
