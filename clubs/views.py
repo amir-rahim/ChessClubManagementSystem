@@ -99,18 +99,21 @@ def club_creation(request):
     return render(request, 'new_club.html', {'form': form})
 
 @login_required
-def tournament_creation(request):
+def tournament_creation(request, club_id):
+    club = Club.objects.get(id = club_id)
     if request.method == 'POST':
-        form = TournamentCreationForm(request.POST)
+        form = TournamentCreationForm(data=request.POST)
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.SUCCESS, "Tournament created successfully.")
             return redirect('user_dashboard')
-        #else:
-        #    messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
+        else:
+            if form.errors['organizer'] != None:
+                messages.add_message(request, messages.ERROR, form.errors['organizer'])
+                return redirect('user_dashboard')
     else:
-        form = TournamentCreationForm(initial = {'organizer': request.user})
-    return render(request, 'new_tournament.html', {'form': form})
+        form = TournamentCreationForm(initial = {'organizer': request.user, 'club': club})
+    return render(request, 'new_tournament.html', {'form': form, 'club': club})
 
 def available_clubs(request):
     query = Club.objects.all()

@@ -79,12 +79,6 @@ class MembershipApplicationForm(forms.ModelForm):
         self.fields['club'].queryset = self.queryset
         self.fields['club'].empty_label = None
 
-    #queryset = None
-    #club = forms.ModelChoiceField(
-    #    queryset = queryset,
-    #    empty_label=None,
-    #    to_field_name="name")
-
     def clean(self):
         """Clean the data and generate messages for any errors."""
         super().clean()
@@ -132,6 +126,7 @@ class TournamentCreationForm(forms.ModelForm):
             'club': forms.HiddenInput(attrs = {'is_hidden': True})
         }
 
+
     class DateTimeInput(forms.DateTimeInput):
         input_type = 'datetime-local'
 
@@ -149,17 +144,18 @@ class TournamentCreationForm(forms.ModelForm):
         club = self.cleaned_data.get('club')
         organizer = self.cleaned_data.get('organizer')
 
+
         if deadline != None and date != None and deadline >= date:
             self.add_error('date', 'Tournament date must be after application deadline.')
         if capacity<2 or capacity>96:
             self.add_error('capacity', 'Capacity must be a number between 2 and 96')
-        if len(Membership.objects.filter(user = organizer, club = club)) > 0 and Membership.objects.get(user = organizer, club = club).user_type != 'OF':
+        if len(Membership.objects.filter(user = organizer, club = club)) <= 0 or Membership.objects.get(user = organizer, club = club).user_type != 'OF':
             self.add_error('organizer', "You don't have sufficient permissions to create a tournament.")
 
     def save(self):
         """Create a new tournament."""
-
         super().save(commit=False)
+
         tournament = Tournament.objects.create(
             name=self.cleaned_data.get('name'),
             description=self.cleaned_data.get('description'),

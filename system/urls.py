@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, reverse
 
 from clubs import views
 
@@ -30,5 +30,5 @@ urlpatterns = [
     path('new_club/', views.club_creation, name='new_club'),
     path('available_clubs/', views.available_clubs, name='available_clubs'),
     path('club/<int:club_id>', views.club_dashboard, name='club_dashboard'),
-    path('new_tournament/', views.tournament_creation, name='new_tournament'),
+    path('new_tournament/<int:club_id>', views.tournament_creation, name='new_tournament'),
 ]
