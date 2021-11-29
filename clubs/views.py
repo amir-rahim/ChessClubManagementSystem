@@ -116,7 +116,6 @@ def club_memberships(request):
 @login_required
 def club_dashboard(request, id):
     user = request.user
-
     membership = None
 
     try:

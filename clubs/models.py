@@ -67,8 +67,6 @@ class Membership(models.Model):
         OFFICER = 'OF'
         OWNER = 'OW'
 
-
-
     class Application(models.TextChoices):
         PENDING = 'P'
         APPROVED = 'A'
@@ -79,29 +77,29 @@ class Membership(models.Model):
     application_status = models.CharField(max_length=10, choices=Application.choices, default=Application.PENDING)
     user_type = models.CharField(max_length=10, choices=UserTypes.choices, default=UserTypes.NON_MEMBER)
 
-    def approveMembership(self):
+    def approve_membership(self):
         if self.user_type == self.UserTypes.NON_MEMBER:
             self.application_status = self.Application.APPROVED
             self.user_type = self.UserTypes.MEMBER
             self.save()
 
-    def denyMembership(self):
+    def deny_membership(self):
         if self.user_type == self.UserTypes.NON_MEMBER:
             self.application_status = self.Application.DENIED
             self.save()
 
-    def promoteToOfficer(self):
+    def promote_to_officer(self):
         if self.user_type == self.UserTypes.MEMBER:
             self.user_type = self.UserTypes.OFFICER
             self.save()
 
-    def demoteToMember(self):
+    def demote_to_member(self):
         if self.user_type == self.UserTypes.OFFICER:
             if Club.objects.filter(name=self.club.name, owner=self.user).count() == 0:
                 self.user_type = self.UserTypes.MEMBER
                 self.save()
 
-    def transferOwnership(self, new_owner):
+    def transfer_ownership(self, new_owner):
         if Membership.objects.get(user = new_owner, club = self.club).user_type == self.UserTypes.OFFICER:
             self.club.owner = new_owner
             self.user_type = self.UserTypes.OFFICER
@@ -109,7 +107,7 @@ class Membership(models.Model):
             self.club.save()
             self.save()
 
-
+    # Define which user types share the same identities
     USER_TYPE_IDENTITIES = {
         UserTypes.NON_MEMBER: [UserTypes.NON_MEMBER],
         UserTypes.MEMBER: [UserTypes.MEMBER]

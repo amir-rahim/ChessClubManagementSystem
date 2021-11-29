@@ -129,23 +129,16 @@
                                                         <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
                                                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                                                 {% if member.user_type == member.UserTypes.OFFICER %}
-                                                                    <li>
-                                                                        <a class="dropdown-item" href="#">Demote</a>
-                                                                    </li>
+                                                                    <li></li>
                                                                 {% else %}
-                                                                    <li>
-                                                                        <a class="dropdown-item" href="#">Promote</a>
-                                                                    </li>
+                                                                    <li><a class="dropdown-item" href="#">Promote</a></li>
                                                                 {% endif %}
 
-                                                                <li>
-                                                                    <a class="dropdown-item" href="#">Transfer Ownership</a>
-                                                                </li>
+                                                                <li><a class="dropdown-item" href="#">Transfer Ownership</a></li>
                                                             {% endif %}
                                                             
-                                                            <li>
-                                                                <a class="dropdown-item" href="#">Kick</a>
-                                                            </li>
+                                                            <li><a class="dropdown-item" href="#">Kick</a></li>
+
                                                         </ul>
                                                     </div>
                                                 {% endif %}
