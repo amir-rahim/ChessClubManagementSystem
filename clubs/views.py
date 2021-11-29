@@ -114,6 +114,57 @@ def club_memberships(request):
     return render(request, 'club_memberships.html', {'clubs': clubs})
 
 @login_required
+def promote_member(request, club_id, user_id):
+    current_user = request.user
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER in current_user_membership.get_user_types():
+            membership_to_promote = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_promote.promote_to_officer()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to promote users.")
+    except:
+        messages.add_message(request, messages.ERROR, "Error promoting user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def demote_member(request, club_id, user_id):
+    current_user = request.user
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER in current_user_membership.get_user_types():
+            membership_to_demote = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_demote.demote_to_member()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to demote users.")
+    except:
+        messages.add_message(request, messages.ERROR, "Error demoting user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200) 
+
+@login_required
+def transfer_ownership(request, club_id, user_id):
+    current_user = request.user
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER in current_user_membership.get_user_types():
+            user_to_transfer = User.objects.get(id=user_id)
+            current_user_membership.transfer_ownership(user_to_transfer)
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to transfer ownership.")
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, "Error transferring ownership." + str(e))
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
 def club_dashboard(request, id):
     user = request.user
     membership = None

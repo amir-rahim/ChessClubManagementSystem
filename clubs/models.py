@@ -101,11 +101,15 @@ class Membership(models.Model):
 
     def transfer_ownership(self, new_owner):
         if Membership.objects.get(user = new_owner, club = self.club).user_type == self.UserTypes.OFFICER:
-            self.club.owner = new_owner
-            self.user_type = self.UserTypes.OFFICER
-            new_owner.user_type = self.UserTypes.OWNER
-            self.club.save()
-            self.save()
+            new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
+            if new_owner_membership:
+                self.club.owner = new_owner
+                self.user_type = self.UserTypes.OFFICER
+                new_owner_membership.user_type = self.UserTypes.OWNER
+
+                new_owner_membership.save()
+                self.club.save()
+                self.save()
 
     # Define which user types share the same identities
     USER_TYPE_IDENTITIES = {

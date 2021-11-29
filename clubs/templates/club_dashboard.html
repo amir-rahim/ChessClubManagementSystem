@@ -111,9 +111,9 @@
                                         <td>{{member.user.username}}</td>
                                         <td>{{member.user.name}}</td>
                                         <td>
-                                            {% if membership.user_type == member.UserTypes.OFFICER %} 
+                                            {% if member.user_type == member.UserTypes.OFFICER %} 
                                                 <p>Officer</p>
-                                            {% elif membership.user_type == member.UserTypes.MEMBER %} 
+                                            {% elif member.user_type == member.UserTypes.MEMBER %} 
                                                 <p>Member</p>
                                             {% else %} 
                                                 <p>Owner</p>
@@ -129,16 +129,32 @@
                                                         <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
                                                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                                                 {% if member.user_type == member.UserTypes.OFFICER %}
-                                                                    <li></li>
+                                                                <li>
+                                                                    <a class="dropdown-item" 
+                                                                        href="{% url 'demote_member' club.id member.user.id %}?next={{ request.get_full_path }}">
+                                                                        Demote
+                                                                    </a>
+                                                                </li>
                                                                 {% else %}
-                                                                    <li><a class="dropdown-item" href="#">Promote</a></li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" 
+                                                                            href="{% url 'promote_member' club.id member.user.id %}?next={{ request.get_full_path }}">
+                                                                            Promote
+                                                                        </a>
+                                                                    </li>
                                                                 {% endif %}
 
-                                                                <li><a class="dropdown-item" href="#">Transfer Ownership</a></li>
+                                                                <li>
+                                                                        <a class="dropdown-item" 
+                                                                           href="{% url 'transfer_ownership' club.id member.user.id %}?next={{ request.get_full_path }}">
+                                                                            Transfer Ownership 
+                                                                        </a>
+                                                                    </li>
                                                             {% endif %}
                                                             
-                                                            <li><a class="dropdown-item" href="#">Kick</a></li>
-
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">Kick</a>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 {% endif %}
