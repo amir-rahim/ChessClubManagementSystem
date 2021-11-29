@@ -140,9 +140,11 @@ AUTH_USER_MODEL = 'clubs.User'
 # URL where @login_prohibited redirects to
 REDIRECT_URL_WHEN_LOGGED_IN = 'user_dashboard'
 
-# Message level tags should use Bootrap terms
+# Rename message tags for Bootstrap alerts
 MESSAGE_TAGS = {
-    message_constants.DEBUG: 'dark',
-    message_constants.ERROR: 'danger',
-
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'danger'
 }

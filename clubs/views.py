@@ -8,6 +8,9 @@ from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm
 from .helpers import login_prohibited
 
+from .models import User
+
+
 # Create your views here.
 
 @login_prohibited
@@ -63,6 +66,12 @@ def user_profile(request):
 def log_out(request):
     logout(request)
     return redirect('home')
+
+
+def club_user_list(request):
+    model = User
+    user = User.objects.all()
+    return render(request, 'club_user_list.html', {'users': user  })
 
 @login_required
 def membership_application(request):
@@ -124,11 +133,123 @@ def available_clubs(request):
     return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
 
 @login_required
-def club_dashboard(request, club_id):
-    club_info = []
+def club_memberships(request):
+    memberships = Membership.objects.filter(user=request.user)
+    clubs = [membership.club for membership in memberships]
+    return render(request, 'club_memberships.html', {'clubs': clubs})
+
+@login_required
+def promote_member(request, club_id, user_id):
+    current_user = request.user
     try:
-        club = Club.objects.get(id=club_id)
-        club_info.append({"name":club.name, "owner":club.owner})
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER in current_user_membership.get_user_types():
+            membership_to_promote = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_promote.promote_to_officer()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to promote users.")
     except:
-        club_info.append({"name":"Club does not exist", "owner":""})
-    return render(request, 'club_dashboard.html', {'club_info': club_info})
+        messages.add_message(request, messages.ERROR, "Error promoting user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def demote_member(request, club_id, user_id):
+    current_user = request.user
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER in current_user_membership.get_user_types():
+            membership_to_demote = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_demote.demote_to_member()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to demote users.")
+    except:
+        messages.add_message(request, messages.ERROR, "Error demoting user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200) 
+
+@login_required
+def transfer_ownership(request, club_id, user_id):
+    current_user = request.user
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER in current_user_membership.get_user_types():
+            user_to_transfer = User.objects.get(id=user_id)
+            current_user_membership.transfer_ownership(user_to_transfer)
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to transfer ownership.")
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, "Error transferring ownership." + str(e))
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def leave_club(request, club_id):
+    current_user = request.user
+    club = Club.objects.get(id=club_id)
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if current_user_membership.leave():
+            messages.add_message(request, messages.SUCCESS, f"Successfully left {club.name}.")
+        else:
+            raise Exception("You are not allowed to leave this club.")
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, "Error leaving club: " + str(e))
+
+        if request.GET.get('previous'):
+            return redirect(request.GET.get('previous'))
+        else:
+            return HttpResponse(status = 500)
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def club_dashboard(request, id):
+    user = request.user
+    membership = None
+
+    try:
+        club = Club.objects.get(id=id)
+    except:
+        club = None
+
+    if club is not None: 
+        membership = Membership.objects.filter(user=user, club=club).first()
+        members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
+
+    return render(request, 'club_dashboard.html', {
+        'club': club,
+        'membership': membership,
+        'members': members
+    })
+
+
+@login_required
+def my_applications(request):
+    user = request.user
+    messages = []
+    applications_info = []
+    try:
+        applications = Membership.objects.filter(user=user)
+        for application in applications:
+            application_status = application.application_status
+            if application_status == 'P':
+                application_status = "Pending"
+            elif application_status == 'A':
+                application_status = "Approved"
+            else: #'D'
+                application_status = "Denied"
+            applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
+        if len(applications) == 0:
+            messages.append("You have not applied to any club yet.")
+    except:
+        messages.append("You have not applied to any club yet.")
+    return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})
