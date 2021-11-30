@@ -74,4 +74,4 @@ class ClubDashboardViewTestCase(TestCase):
         self.assertEqual(len(applications), 1)
         self.assertContains(response, "<h2>Pending applications</h2>")
         self.assertNotContains(response, "<p>No pending applications</p>")
-        self.assertContains(response, "<th scope=\"col\">Jane Doe</th>")
+        self.assertContains(response, "<th scope=\"col\" width=\"50%\">Jane Doe</th>")

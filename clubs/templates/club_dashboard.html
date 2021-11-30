@@ -97,16 +97,16 @@
                     <tbody>
                       {% for application in applications %}
                       <tr>
-                        <th scope="col">{{application.user.name}}</th>
-                        <td>
+                        <th scope="col" width="50%">{{application.user.name}}</th>
+                        <td width="25%">
                           <!-- Change 'leave_club' to 'accept_application' once implemented -->
-                          <a class="btn btn-success" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={{ request.get_full_path }}">
+                          <a class="btn btn-success" href="{% url 'accept_membership' application.id %}?next={{ request.get_full_path }}">
                                 Accept
                           </a>
                         </td>
-                        <td>
+                        <td width="25%">
                           <!-- Change 'leave_club' to 'reject_application' once implemented -->
-                          <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={{ request.get_full_path }}">
+                          <a class="btn btn-danger" href="{% url 'reject_membership' application.id %}?next={{ request.get_full_path }}">
                                 Reject
                           </a>
                         </td>

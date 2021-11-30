@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.http import HttpResponse
 
 from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm
@@ -230,3 +231,20 @@ def my_applications(request):
     except:
         messages.append("You have not applied to any club yet.")
     return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})
+
+
+@login_required
+def accept_membership(request, membership_id):
+    membership = Membership.objects.get(id=membership_id)
+    membership.approve_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def reject_membership(request, membership_id):
+    membership = Membership.objects.get(id=membership_id)
+    membership.deny_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
