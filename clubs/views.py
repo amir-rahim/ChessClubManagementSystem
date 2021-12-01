@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 
 from .models import Membership, Club, User
-from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm
 from .helpers import login_prohibited
 
 from .models import User
@@ -61,7 +61,11 @@ def user_dashboard(request):
 
 @login_required
 def user_profile(request):
-    data = {'user': request.user}
+    if request.method == 'POST':
+        membership = Membership.objects.get(pk = request.POST['membership'])
+        data = {'user' : membership.user, 'membership' : membership}
+    else : 
+        data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
 
 def log_out(request):
@@ -77,14 +81,21 @@ def club_user_list(request):
 @login_required
 def membership_application(request):
     if request.method == 'POST':
-        form = MembershipApplicationForm(request.POST)
+        form = MembershipApplicationForm(data=request.POST)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.SUCCESS, "Application sent successfully.")
             return redirect('user_dashboard')
         else:
-            messages.add_message(request, messages.ERROR, "You already applied for this club. Please apply to a different one.")
+            if form.data.get('personal_statement').strip() == "":
+                messages.add_message(request, messages.ERROR, "Please enter a valid personal statement.")
+            else:
+                messages.add_message(request, messages.ERROR, "There is an error with the form, please try again.")
     else:
         form = MembershipApplicationForm(initial = {'user': request.user})
+        if form.fields['club'].queryset.count() == 0:
+            messages.add_message(request, messages.ERROR, "Cannot apply to any club. You already applied to every club available.")
+            return redirect('user_dashboard')
     return render(request, 'apply.html', {'form': form})
 
 @login_required
@@ -93,12 +104,30 @@ def club_creation(request):
         form = ClubCreationForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.SUCCESS, "Club created successfully.")
             return redirect('user_dashboard')
-        #else:
-        #    messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
+        else:
+            messages.add_message(request, messages.ERROR, "This club name is already taken, please choose another one.")
     else:
         form = ClubCreationForm(initial = {'owner': request.user})
     return render(request, 'new_club.html', {'form': form})
+
+@login_required
+def tournament_creation(request, club_id):
+    club = Club.objects.get(id = club_id)
+    if request.method == 'POST':
+        form = TournamentCreationForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, "Tournament created successfully.")
+            return redirect('user_dashboard')
+        else:
+            if form.errors['organizer'] != None:
+                messages.add_message(request, messages.ERROR, form.errors['organizer'])
+                return redirect('user_dashboard')
+    else:
+        form = TournamentCreationForm(initial = {'organizer': request.user, 'club': club})
+    return render(request, 'new_tournament.html', {'form': form, 'club': club})
 
 def available_clubs(request):
     query = Club.objects.all()
@@ -188,12 +217,12 @@ def leave_club(request, club_id):
     return HttpResponse(status = 200)
 
 @login_required
-def club_dashboard(request, id):
+def club_dashboard(request, club_id):
     user = request.user
     membership = None
 
     try:
-        club = Club.objects.get(id=id)
+        club = Club.objects.get(id=club_id)
     except:
         club = None
 

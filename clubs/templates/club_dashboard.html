@@ -1,10 +1,4 @@
 {% extends 'base_content.html' %}
-{% block content_head %}
-   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-
-{% endblock %}
-
 {% block content %}
 <div class="container">
     <div class="row">
@@ -13,23 +7,23 @@
                 <div class="card-body">
                     <h1 class="card-title">{{club.name}}</h1>
                     {% if membership %}
-                        {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %}
-                            You have applied for membership.
-                        {% else %}
-                            <p>You are a {{membership.user_type}}</p>
+                    {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %}
+                    You have applied for membership.
+                    {% else %}
+                    <p>You are a {{membership.user_type}}</p>
+                    {% if membership.UserTypes.OWNER in membership.get_user_types %}
+                        <a href="" class="btn btn-primary">Edit</a>
+                    {% else %}
+                    <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
+                            Leave Club
+                        </a>
 
-                            {% if membership.UserTypes.OWNER in membership.get_user_types %}
-                                <a href="" class="btn btn-primary">Edit</a>
-                            {% else %}
-                            <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
-                                    Leave Club
-                                </a>
 
-                            {% endif %}
-                        {% endif %}
+                    {% endif %}
+                    {% endif %}
 
                     {% else %}
-                        <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
+                    <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
                     {% endif %}
                 </div>
             </div>
@@ -196,10 +190,18 @@
                                                             </li>
                                                         </ul>
                                                     </div>
+
                                                 {% endif %}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
+
+                                                <li>
+                                                    <a class="dropdown-item" href="#">Kick</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -208,14 +210,27 @@
             </div>
             {% endif %}
         </div>
-</div>
+    </div>
 
-<script>
-    const dataTable = new simpleDatatables.DataTable("#table-members", {
-	    fixedHeight: true,
-        columns: [
-            { select: [0, 4], sortable: false }
-        ]
-    })
-</script>
-{% endblock %}
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#table-members", {
+            fixedHeight: true,
+            columns: [
+                { select: [0, 4], sortable: false }
+            ]
+        })
+    </script>
+    <style>
+        .user-link {
+            background-color: transparent;
+            text-decoration: underline;
+            border: none;
+            color: blue;
+            cursor: pointer;
+        }
+
+        user-link:focus {
+            outline: none;
+        }
+    </style>
+    {% endblock %}

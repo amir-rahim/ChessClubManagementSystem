@@ -6,7 +6,8 @@
       "club": 1,
       "user": 1,
       "user_type": "OW",
-      "application_status": 2
+      "application_status": "A",
+      "personal_statement": "Owner"
     }
   },
   {
@@ -16,7 +17,8 @@
       "club": 2,
       "user": 3,
       "user_type": "OW",
-      "application_status": 2
+      "application_status": "A",
+      "personal_statement": "Owner"
     }
   },
   {
