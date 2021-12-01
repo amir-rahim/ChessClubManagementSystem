@@ -226,11 +226,9 @@ def my_applications(request):
             else: #'D'
                 application_status = "Denied"
             applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
-        if len(applications) == 0:
-            messages.append("You have not applied to any club yet.")
     except:
-        messages.append("You have not applied to any club yet.")
-    return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})
+        pass
+    return render(request, 'my_applications.html', {'applications_info': applications_info})
 
 
 @login_required

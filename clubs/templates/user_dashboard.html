@@ -16,13 +16,15 @@
                 <hr class="solid">
                 <p style="margin: 0px;">
                     <b>See your Profile Details: </b>
+                    <br>
                     <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
                     User Profile
                     </a>
                 </p>
                 <hr class="solid">
             <p style="margin: 0px;">
-              <b>Create a brand new Chess Club: </b> 
+              <b>Create a brand new Chess Club: </b>
+              <br>
                 <a href='{% url 'new_club' %}' class="btn btn-lg btn-secondary">
                 Create Club
                 </a>
@@ -30,6 +32,7 @@
               <hr class="solid">
               <p style="margin: 0px;">
                 <b>Chess Clubs you have memberships for here: </b>
+                <br>
                   <a href='{% url 'club_memberships' %}' class="btn btn-lg btn-secondary">
                 Club Memberships
                 </a>
@@ -37,19 +40,23 @@
               <hr class="solid">
               <p style="margin: 0px;">
                 <b>Clubs that are available for you to apply to: </b>
+                <br>
                 <a href='{% url 'available_clubs' %}' class="btn btn-lg btn-secondary">
                 Available Clubs
                 </a>
               </p>
               <hr class="solid">
               <p>
-                <b>Apply to an available club here: </b>
+                <b>Apply to an available Chess Club here: </b>
+                <br>
                 <a href='{% url 'membership_application' %}' class="btn btn-lg btn-secondary">
                 Apply for Club
                 </a>
               </p>
               <hr class="solid">
               <p>
+                <b>Find a record of your applications to Chess Clubs here: </b>
+                <br>
                 <a href='{% url 'my_applications' %}' class="btn btn-lg btn-secondary">
                 My Applications
                 </a>
