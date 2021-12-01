@@ -1,8 +1,8 @@
 {% extends 'base_content.html' %}
 {% block content_head %}
-   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
- 
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -13,23 +13,24 @@
                 <div class="card-body">
                     <h1 class="card-title">{{club.name}}</h1>
                     {% if membership %}
-                        {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %}
-                            You have applied for membership.
-                        {% else %}
-                            <p>You are a {{membership.user_type}}</p>
+                    {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %}
+                    You have applied for membership.
+                    {% else %}
+                    <p>You are a {{membership.user_type}}</p>
 
-                            {% if membership.UserTypes.OWNER in membership.get_user_types %}
-                                <a href="" class="btn btn-primary">Edit</a>
-                            {% else %}
-                            <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
-                                    Leave Club 
-                                </a>
+                    {% if membership.UserTypes.OWNER in membership.get_user_types %}
+                    <a href="" class="btn btn-primary">Edit</a>
+                    {% else %}
+                    <a class="btn btn-danger"
+                        href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
+                        Leave Club
+                    </a>
 
-                            {% endif %}
-                        {% endif %}
+                    {% endif %}
+                    {% endif %}
 
                     {% else %}
-                        <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
+                    <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
                     {% endif %}
                 </div>
             </div>
@@ -68,7 +69,7 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Statistics</h2>
-                    
+
                     <table>
                         <tbody>
                             <tr>
@@ -104,63 +105,72 @@
                             </thead>
                             <tbody>
                                 {% for member in members %}
-                                    <tr>
-                                        <td>
-                                            <img src="{{member.user.gravatar}}" class="center" width="60" height="60">
-                                        </td>
-                                        <td>{{member.user.username}}</td>
-                                        <td>{{member.user.name}}</td>
-                                        <td>
-                                            {% if member.user_type == member.UserTypes.OFFICER %} 
-                                                <p>Officer</p>
-                                            {% elif member.user_type == member.UserTypes.MEMBER %} 
-                                                <p>Member</p>
-                                            {% else %} 
-                                                <p>Owner</p>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if membership and membership != member %}
-                                                {% if membership.UserTypes.OFFICER in membership.get_user_types %}
-                                                    <div class="btn-group" role="group">
-                                                        <button id="btn-group-drop-{{member.user.username}}" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                          Actions
-                                                        </button>
-                                                        <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
-                                                            {% if membership.UserTypes.OWNER in membership.get_user_types %}
-                                                                {% if member.user_type == member.UserTypes.OFFICER %}
-                                                                <li>
-                                                                    <a class="dropdown-item" 
-                                                                        href="{% url 'demote_member' club.id member.user.id %}?next={{ request.get_full_path }}">
-                                                                        Demote
-                                                                    </a>
-                                                                </li>
-                                                                {% else %}
-                                                                    <li>
-                                                                        <a class="dropdown-item" 
-                                                                            href="{% url 'promote_member' club.id member.user.id %}?next={{ request.get_full_path }}">
-                                                                            Promote
-                                                                        </a>
-                                                                    </li>
-                                                                {% endif %}
-
-                                                                <li>
-                                                                        <a class="dropdown-item" 
-                                                                           href="{% url 'transfer_ownership' club.id member.user.id %}?next={{ request.get_full_path }}">
-                                                                            Transfer Ownership 
-                                                                        </a>
-                                                                    </li>
-                                                            {% endif %}
-                                                            
-                                                            <li>
-                                                                <a class="dropdown-item" href="#">Kick</a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                <tr>
+                                    <td>
+                                        <img src="{{member.user.gravatar}}" class="center" width="60" height="60">
+                                    </td>
+                                    <td>
+                                        <form action="{% url 'user_profile'%}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="membership" value="{{member.pk}}">
+                                            <input type="submit" value="{{member.user.username}}" class="user-link" />
+                                        </form>
+                                    </td>
+                                    <td>{{member.user.name}}</td>
+                                    <td>
+                                        {% if member.user_type == member.UserTypes.OFFICER %}
+                                        <p>Officer</p>
+                                        {% elif member.user_type == member.UserTypes.MEMBER %}
+                                        <p>Member</p>
+                                        {% else %}
+                                        <p>Owner</p>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if membership and membership != member %}
+                                        {% if membership.UserTypes.OFFICER in membership.get_user_types %}
+                                        <div class="btn-group" role="group">
+                                            <button id="btn-group-drop-{{member.user.username}}" type="button"
+                                                class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                Actions
+                                            </button>
+                                            <ul class="dropdown-menu"
+                                                aria-labelledby="btn-group-drop-{{member.user.username}}">
+                                                {% if membership.UserTypes.OWNER in membership.get_user_types %}
+                                                {% if member.user_type == member.UserTypes.OFFICER %}
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{% url 'demote_member' club.id member.user.id %}?next={{ request.get_full_path }}">
+                                                        Demote
+                                                    </a>
+                                                </li>
+                                                {% else %}
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{% url 'promote_member' club.id member.user.id %}?next={{ request.get_full_path }}">
+                                                        Promote
+                                                    </a>
+                                                </li>
                                                 {% endif %}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
+
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{% url 'transfer_ownership' club.id member.user.id %}?next={{ request.get_full_path }}">
+                                                        Transfer Ownership
+                                                    </a>
+                                                </li>
+                                                {% endif %}
+
+                                                <li>
+                                                    <a class="dropdown-item" href="#">Kick</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -169,14 +179,27 @@
             </div>
             {% endif %}
         </div>
-</div>
+    </div>
 
-<script>
-    const dataTable = new simpleDatatables.DataTable("#table-members", {
-	    fixedHeight: true,
-        columns: [
-            { select: [0, 4], sortable: false }
-        ]
-    })
-</script>
-{% endblock %}
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#table-members", {
+            fixedHeight: true,
+            columns: [
+                { select: [0, 4], sortable: false }
+            ]
+        })
+    </script>
+    <style>
+        .user-link {
+            background-color: transparent;
+            text-decoration: underline;
+            border: none;
+            color: blue;
+            cursor: pointer;
+        }
+
+        user-link:focus {
+            outline: none;
+        }
+    </style>
+    {% endblock %}

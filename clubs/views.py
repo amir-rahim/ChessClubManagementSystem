@@ -60,7 +60,11 @@ def user_dashboard(request):
 
 @login_required
 def user_profile(request):
-    data = {'user': request.user}
+    if request.method == 'POST':
+        membership = Membership.objects.get(pk = request.POST['membership'])
+        data = {'user' : membership.user, 'membership' : membership}
+    else : 
+        data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
 
 def log_out(request):
