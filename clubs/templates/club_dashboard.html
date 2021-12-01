@@ -108,7 +108,13 @@
                                         <td>
                                             <img src="{{member.user.gravatar}}" class="center" width="60" height="60">
                                         </td>
-                                        <td>{{member.user.username}}</td>
+                                        <td>
+                                            <form action = "{% url 'user_profile'%}" method = "POST">
+                                                {% csrf_token %}
+                                                <input type = "hidden" name = "membership" value = "{{member.pk}}">
+                                                <input type = "submit" value = "{{member.user.username}}"/>
+                                            </form>
+                                            </td>
                                         <td>{{member.user.name}}</td>
                                         <td>
                                             {% if member.user_type == member.UserTypes.OFFICER %} 

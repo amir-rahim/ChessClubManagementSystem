@@ -21,10 +21,15 @@
                     </p>
                     <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
                     <h4 class="cover-text">Email: </h4><p>{{user.email}}</p>
-                    <h4 class="cover-text">Chess Experience: </h4><p>*experience goes here*</p>
+                    {{user_type}}
+                    {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
+                    <h4 class="cover-text">Chess Experience: </h4><p>*experience goes here*</p> 
+                    {% endif %}
                     <h4 class="cover-text">Bio: </h4><p>*bio goes here*</p>
                 </section>
                 <hr class="solid">
+
+                {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
                 <section>
                     <h2 class="cover-heading">Contact Details</h2>
                     <hr class="solid">
@@ -32,11 +37,14 @@
                     <h4 class="cover-text">Phone Number: </h4><p>*Phone Number goes here*<p/>
                 </section>
                 <hr class="solid">
+                {% endif %} 
+                {% if my_profile != None and my_profile == True%}
                 <p>
                     <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
                         Edit Profile
                     </a>
                 </p>
+                {% endif %} 
             </div>
         </div>
       </div>
