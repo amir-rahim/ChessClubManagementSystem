@@ -1,91 +1,56 @@
 {% extends 'base_content.html' %}
-{% block content_head %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"></script>
-{% endblock %}
-
 {% block content %}
-<div id="vanta-bg">
-    <div class="container">
-        <div class="row">
-        <div class="col-12">
-            <div class="card cover-card centered-card">
-                <img src="{{user.gravatar}}" class="center" width="120" height="120" style="margin-top: 10px; margin-bottom: 10px;">
-                <h1 class="cover-heading">Welcome Back, {{user.name}}! </h1>
-                <p class="cover-text">Welcome to your profile dashboard!</p>
-                <hr class="solid">
-                <p style="margin: 0px;">
-                    <b>See your Profile Details: </b>
-                    <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
-                    User Profile
-                    </a>
-                </p>
-                <hr class="solid">
-            <p style="margin: 0px;">
-              <b>Create a brand new Chess Club: </b> 
-                <a href='{% url 'new_club' %}' class="btn btn-lg btn-secondary">
-                Create Club
-                </a>
-              </p>
-              <hr class="solid">
-              <p style="margin: 0px;">
-                <b>Chess Clubs you have memberships for here: </b>
-                  <a href='{% url 'club_memberships' %}' class="btn btn-lg btn-secondary">
-                Club Memberships
-                </a>
-              </p>
-              <hr class="solid">
-              <p style="margin: 0px;">
-                <b>Clubs that are available for you to apply to: </b>
-                <a href='{% url 'available_clubs' %}' class="btn btn-lg btn-secondary">
-                Available Clubs
-                </a>
-              </p>
-              <hr class="solid">
-              <p>
-                <b>Apply to an available club here: </b>
-                <a href='{% url 'membership_application' %}' class="btn btn-lg btn-secondary">
-                Apply for Club
-                </a>
-              </p>
-              <hr class="solid">
-              <p>
-                <a href='{% url 'my_applications' %}' class="btn btn-lg btn-secondary">
-                My Applications
-                </a>
-              </p>
-            </div>
-          </div>
+<div class="container">
+    <div class="row">
+    <div class="col-12">
+        <div class="card cover-card centered-card">
+          <img src="{{user.gravatar}}" class="center" width="120" height="120" style="margin-top: 10px; margin-bottom: 10px;">
+          <h1 class="cover-heading">Welcome Back, {{user.name}}! </h1>
+          <p class="cover-text" style="margin: 0px;">Welcome to your profile dashboard!</p>
+          <hr class="solid">
+          <p><b>See your Profile Details:</b></p>
+          <p style="margin: 0px;">
+              <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
+              User Profile
+              </a>
+          </p>
+          <hr class="solid">
+          <p><b>Create a brand new Chess Club:</b></p>
+          <p style="margin: 0px;">
+              <a href='{% url 'new_club' %}' class="btn btn-lg btn-secondary">
+              Create Club
+            </a>
+          </p>
+          <hr class="solid">
+          <p><b>Chess Clubs you have memberships for here:</b></p>
+          <p style="margin: 0px;">
+              <a href='{% url 'club_memberships' %}' class="btn btn-lg btn-secondary">
+            Club Memberships
+            </a>
+          </p>
+          <hr class="solid">
+          <p><b>Clubs that are available for you to apply to:</b></p>
+          <p style="margin: 0px;">
+            <a href='{% url 'available_clubs' %}' class="btn btn-lg btn-secondary">
+            Available Clubs
+            </a>
+          </p>
+          <hr class="solid">
+          <p><b>Apply to an available club here:</b></p>
+          <p style="margin: 0px;">
+            <a href='{% url 'membership_application' %}' class="btn btn-lg btn-secondary">
+            Apply for Club
+            </a>
+          </p>
+          <hr class="solid">
+          <p><b>See your Applications here:</b></p>
+          <p>
+            <a href='{% url 'my_applications' %}' class="btn btn-lg btn-secondary">
+            My Applications
+            </a>
+          </p>
         </div>
+      </div>
     </div>
 </div>
-<script>
-VANTA.DOTS({
-  el: "#vanta-bg",
-  mouseControls: true,
-  touchControls: true,
-  gyroControls: false,
-  minHeight: 200.00,
-  minWidth: 200.00,
-  scale: 1.00,
-  scaleMobile: 1.00,
-  color: 0xa0a0a0,
-  color2: 0xffffff,
-  backgroundColor: 0xffffff,
-  size: 3.10
-})
-</script>
-<style>
-.navbar {
-    position: fixed;
-    top: 0;
-    z-index: 100;
-    width: 100%;
-}
-.alert {
-  position: relative;
-  top: 50pt;
-  z-index: 100;
-}
-</style>
 {% endblock %}
