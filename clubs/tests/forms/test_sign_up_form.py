@@ -13,6 +13,8 @@ class SignUpFormTestCase(TestCase):
             'name': 'Jane Doe',
             'username': 'janedoe',
             'email': 'janedoe@example.org',
+            'public_bio': 'Welcome to my profile!',
+            'chess_experience': 'B',
             'new_password': 'Password123',
             'password_confirmation': 'Password123'
         }

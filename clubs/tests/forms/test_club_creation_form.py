@@ -16,7 +16,10 @@ class ApplicationFormTestCase(TestCase):
         self.user = User.objects.get(username='johndoe')
         self.form_input = {
             'name' : "New club 1",
-            'owner' : self.user.pk
+            'owner' : self.user.pk,
+            'location': "London",
+            'mission_statement' : "Hello!",
+            'description' : "This is a new club!"
         }
 
     def test_valid_application_form(self):
