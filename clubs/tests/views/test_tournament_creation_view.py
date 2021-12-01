@@ -22,8 +22,8 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
         self.officer = User.objects.get(username='janedoe')
         self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
-        self.officer_membership.approveMembership()
-        self.officer_membership.promoteToOfficer()
+        self.officer_membership.approve_membership()
+        self.officer_membership.promote_to_officer()
         self.form_input = {
             'name': "Tournament 1",
             'description': "Tournament description",
