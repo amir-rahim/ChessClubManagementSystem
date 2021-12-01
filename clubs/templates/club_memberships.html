@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row">
     <div class="col-12">
-        <div class="card cover-card">
+        <div class="card cover-card centered-card">
             <div class="card-body">
                 <h1 class="cover-heading">Club Memberships</h1>
                 <p class="cover-text">Find the clubs you have memberships for here!</p>
@@ -15,8 +15,8 @@
                         <a href="/club/{{club.id}}" class="btn btn-lg btn-secondary">
                           <b>{{club.name}}</b>
                         </a>
-                        Owner: {{club.owner}}
                       </p>
+                      <p><b>Owner:</b> {{club.owner}}</p>
                     {% endfor %}
                 {% else %}
                     <hr class="solid">

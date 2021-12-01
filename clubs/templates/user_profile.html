@@ -21,6 +21,7 @@
                     </p>
                     <h4 class="cover-text">Userame: </h4><p>{{user.username}}</p>
                     <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
+                    {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
                     <h4 class="cover-text">Chess Experience: </h4>
                         {% if user.chess_experience == "B" %}
                             <p>Beginner</p>
@@ -33,8 +34,11 @@
                         {% elif user.chess_experience == "G" %}
                             <p>Grand Master (GM)</p>
                         {% endif %}
+                    {% endif %}
                     <h4 class="cover-text">Public Bio: </h4><p>{{user.public_bio}}</p>
                 </section>
+              
+                {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
                 <hr class="solid">
                 <section>
                     <h2 class="cover-heading">Contact Details</h2>
@@ -42,11 +46,14 @@
                     <h4 class="cover-text">Email: </h3><p>{{user.email}}<p/>
                 </section>
                 <hr class="solid">
+                {% endif %} 
+                {% if my_profile != None and my_profile == True%}
                 <p>
                     <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
                         Edit Profile
                     </a>
                 </p>
+                {% endif %} 
             </div>
         </div>
       </div>
