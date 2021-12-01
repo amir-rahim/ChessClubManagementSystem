@@ -61,7 +61,6 @@ def user_dashboard(request):
 @login_required
 def user_profile(request):
     if request.method == 'POST':
-        print (request.POST['membership'])
         membership = Membership.objects.get(pk = request.POST['membership'])
         data = {'user' : membership.user, 'membership' : membership}
     else : 
