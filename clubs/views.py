@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.http import HttpResponse
 
 from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm
@@ -174,7 +175,7 @@ def demote_member(request, club_id, user_id):
 
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
-    return HttpResponse(status = 200) 
+    return HttpResponse(status = 200)
 
 @login_required
 def transfer_ownership(request, club_id, user_id):
@@ -225,14 +226,16 @@ def club_dashboard(request, club_id):
     except:
         club = None
 
-    if club is not None: 
+    if club is not None:
         membership = Membership.objects.filter(user=user, club=club).first()
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
+        applications = Membership.objects.filter(club=club, application_status='P')
 
     return render(request, 'club_dashboard.html', {
         'club': club,
         'membership': membership,
-        'members': members
+        'members': members,
+        'applications': applications
     })
 
 
@@ -252,8 +255,23 @@ def my_applications(request):
             else: #'D'
                 application_status = "Denied"
             applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
-        if len(applications) == 0:
-            messages.append("You have not applied to any club yet.")
     except:
-        messages.append("You have not applied to any club yet.")
-    return render(request, 'my_applications.html', {'applications_info': applications_info, 'messages': messages})
+        pass
+    return render(request, 'my_applications.html', {'applications_info': applications_info})
+
+
+@login_required
+def accept_membership(request, membership_id):
+    membership = Membership.objects.get(id=membership_id)
+    membership.approve_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def reject_membership(request, membership_id):
+    membership = Membership.objects.get(id=membership_id)
+    membership.deny_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)

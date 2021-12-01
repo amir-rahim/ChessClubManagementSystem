@@ -31,6 +31,7 @@ class AvailableClubsViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'available_clubs.html')
         list_of_clubs = list(response.context['list_of_clubs'])
         self.assertEqual(len(list_of_clubs), 0)
+        self.assertContains(response, "<p>There are no available clubs at the moment.</p>")
 
     def test_single_club(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -44,6 +45,7 @@ class AvailableClubsViewTestCase(TestCase):
         self.assertEqual(len(list_of_clubs), 1)
         self.assertEqual(list_of_clubs[0]["name"], "New club 1")
         self.assertEqual(list_of_clubs[0]["owner"], self.user.name)
+        self.assertNotContains(response, "<p>There are no available clubs at the moment.</p>")
 
     def test_multiple_clubs(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -61,3 +63,4 @@ class AvailableClubsViewTestCase(TestCase):
         self.assertEqual(list_of_clubs[0]["owner"], self.user.name)
         self.assertEqual(list_of_clubs[1]["name"], "New club 2")
         self.assertEqual(list_of_clubs[1]["owner"], self.user2.name)
+        self.assertNotContains(response, "<p>There are no available clubs at the moment.</p>")
