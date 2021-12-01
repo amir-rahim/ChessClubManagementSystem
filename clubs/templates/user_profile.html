@@ -35,15 +35,17 @@
                             <p>Grand Master (GM)</p>
                         {% endif %}
                     {% endif %}
-                    <h4 class="cover-text">Public Bio: </h4><p>{{user.public_bio}}</p>
+                    <h4 class="cover-text">Public Bio: </h4>
+                    <p>{{user.public_bio}}</p>
                 </section>
               
-                {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
+                {% if membership.UserTypes.OFFICER in membership.get_user_types or membership.UserTypes.OWNER in membership.get_user_types or my_profile != None and my_profile == True %}
                 <hr class="solid">
                 <section>
                     <h2 class="cover-heading">Contact Details</h2>
                     <hr class="solid">
-                    <h4 class="cover-text">Email: </h3><p>{{user.email}}<p/>
+                    <h4 class="cover-text">Email: </h4>
+                    <p>{{user.email}}<p/>
                 </section>
                 <hr class="solid">
                 {% endif %} 

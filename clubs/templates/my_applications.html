@@ -1,12 +1,12 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<div class="container">
-    <div class="row">
-    <div class="col-12">
-        <div class="card cover-card">
-          <div class="card-body">
-            <h1 class="cover-heading">My applications</h1>
-            <p class="cover-text">Your Pending, Approved and Denied club applications</p>
+<div class="container vh-100">
+  <div class="row h-100">
+  <div class="col-12">
+      <div class="card cover-card centered-card">
+          <h1 class="cover-heading">My applications</h1>
+          <p class="cover-text">Your Pending, Approved and Denied club applications</p>
+          {% if applications_info %}
             {% for application in applications_info %}
               <hr class="solid">
               <p>
@@ -14,15 +14,14 @@
                   <b>{{application.club_name}}</b>
                 </a>
               </p>
-              <p>Application status: {{application.application_status}}</p>
+              <p><b>Application status:</b> {{application.application_status}}</p>
             {% endfor %}
-            {% for message in messages %}
+            {% else %}
               <hr class="solid">
-              <p>{{message}}</p>
-            {% endfor %}
-          </div>
-        </div>
+              <p>You have not applied to any club yet.</p>
+            {% endif %}
       </div>
     </div>
+  </div>
 </div>
 {% endblock %}
