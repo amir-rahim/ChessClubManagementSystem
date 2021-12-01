@@ -212,12 +212,12 @@ def leave_club(request, club_id):
     return HttpResponse(status = 200)
 
 @login_required
-def club_dashboard(request, id):
+def club_dashboard(request, club_id):
     user = request.user
     membership = None
 
     try:
-        club = Club.objects.get(id=id)
+        club = Club.objects.get(id=club_id)
     except:
         club = None
 
