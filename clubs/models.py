@@ -10,6 +10,13 @@ from libgravatar import Gravatar
 class User(AbstractUser):
     """User model used for authentication."""
 
+    class Experience(models.TextChoices):
+        BEGINNER = 'B'
+        INTERMEDIATE = 'I'
+        ADVANCED = 'A'
+        MASTER = 'M'
+        GRANDMASTER = 'G'
+
     username = models.CharField(
         max_length=30,
         unique=True,
@@ -25,6 +32,8 @@ class User(AbstractUser):
     )
     name = models.CharField(max_length=100, blank=False)
     email = models.EmailField(unique=True, blank=False)
+    public_bio = models.CharField(max_length=250, blank=False)
+    chess_experience = models.CharField(max_length=1, choices=Experience.choices, default=Experience.BEGINNER)
 
     def gravatar(self, size=120):
         """Return a URL to the user's gravatar."""
@@ -42,6 +51,10 @@ class Club(models.Model):
             message='Club name must start with a letter and contain only letters, number, and spaces.'
         )])
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    location=models.CharField(max_length=100, blank=False)
+    mission_statement=models.CharField(max_length=200, blank=False)
+    description=models.CharField(max_length=500, blank=False)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

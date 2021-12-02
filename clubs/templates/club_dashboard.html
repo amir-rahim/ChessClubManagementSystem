@@ -32,17 +32,35 @@
 
             <div class="card cover-card">
                 <div class="card-body">
-                    <h2>Details</h2>
+                    <h2>Club Details</h2>
 
                     <table>
                         <tbody>
                             <tr>
-                                <th scope="col">Club Name</th>
-                                <td>{{club.name}}</th>
+                                <th scope="col">Club Location</th>
+                                <td>{{club.location}}</th>
+                            </tr>
+                            <tr>
+                                <th scope="col">Club Mission Statement</th>
+                                <td>{{club.mission_statement}}</th>
                             </tr>
                             <tr>
                                 <th scope="col">Club Description</th>
-                                <td>*Description*</th>
+                                <td>{{club.description}}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Owner Details</h2>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th scope="col">Owner Gravatar</th>
+                                <td><img src="{{user.gravatar}}" class="center" width="120" height="120"/> </th>
                             </tr>
                             <tr>
                                 <th scope="col">Owner Username</th>
@@ -53,8 +71,8 @@
                                 <td>{{club.owner.name}}</th>
                             </tr>
                             <tr>
-                                <th scope="col">Owner Description</th>
-                                <td>*Description*</th>
+                                <th scope="col">Owner Public Bio</th>
+                                <td>{{club.owner.public_bio}}</th>
                             </tr>
                         </tbody>
                     </table>
@@ -69,11 +87,11 @@
                         <tbody>
                             <tr>
                                 <th scope="col">Number of Members</th>
-                                <td>*number*</th>
+                                <td>{{ members|length }}</th>
                             </tr>
                             <tr>
                                 <th scope="col">Number of Officers</th>
-                                <td>*number*</th>
+                                <td>{{ officers|length }}</th>
                             </tr>
                         </tbody>
                     </table>

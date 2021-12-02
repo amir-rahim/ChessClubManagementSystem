@@ -229,12 +229,14 @@ def club_dashboard(request, club_id):
     if club is not None:
         membership = Membership.objects.filter(user=user, club=club).first()
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
+        officers = Membership.objects.filter(club=club).filter(user_type = Membership.UserTypes.OFFICER)
         applications = Membership.objects.filter(club=club, application_status='P')
 
     return render(request, 'club_dashboard.html', {
         'club': club,
         'membership': membership,
         'members': members,
+        'officers': officers,
         'applications': applications
     })
 
