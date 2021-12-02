@@ -1,8 +1,4 @@
 {% extends 'base_content.html' %}
-{% block content_head %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"></script>
-{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -51,7 +47,7 @@
                 {% endif %} 
                 {% if my_profile != None and my_profile == True%}
                 <p>
-                    <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
+                    <a href='{% url 'edit_user_profile' %}' class="btn btn-lg btn-secondary">
                         Edit Profile
                     </a>
                 </p>

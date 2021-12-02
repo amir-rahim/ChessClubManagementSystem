@@ -1,0 +1,24 @@
+{% extends 'base_content.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h1 class="cover-heading">Edit Profile</h1>
+                    <form action="{% url 'edit_user_profile' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                        {% include 'partials/bootstrap_form.html' with form=form %}
+                        <input type="submit" value="Edit Profile" class="btn btn-primary">
+                    </form>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
