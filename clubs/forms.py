@@ -56,6 +56,19 @@ class SignUpForm(forms.ModelForm):
         )
         return user
 
+class EditProfileForm(forms.ModelForm):
+    """Form enabling users to edit their profile."""
+
+    class Meta:
+        """Form options."""
+
+        model = User
+        fields = ['username', 'name', 'email', 'public_bio', 'chess_experience']
+        widgets = {
+            'public_bio': forms.Textarea(),
+        }
+    
+
 
 class MembershipApplicationForm(forms.ModelForm):
     """Form enabling logged user to apply for a membership."""
