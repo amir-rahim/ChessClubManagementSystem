@@ -67,13 +67,11 @@ class MembershipApplicationForm(forms.ModelForm):
         super(MembershipApplicationForm, self).__init__(*args, **kwargs)
         self.fields['club'].label_from_instance = lambda instance: instance.name
 
-        if(self.data.get('user') != None):
-            self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = User.objects.get(id=self.data.get('user'))).values('club'))
-        elif (self.initial.get('user') != None):
+        if (self.initial.get('user') != None):
             self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
             self.data['user'] = self.initial['user']
         else:
-            self.queryset = Club.objects.all()
+            self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = User.objects.get(id=self.data.get('user'))).values('club'))
 
 
         self.fields['club'].queryset = self.queryset
@@ -83,21 +81,15 @@ class MembershipApplicationForm(forms.ModelForm):
         """Clean the data and generate messages for any errors."""
         super().clean()
         club = self.cleaned_data.get('club')
-        if(self.cleaned_data.get('user') != None):
-            user = self.cleaned_data.get('user')
-        elif (self.initial.get('user') != None):
-            user = self.initial.get('user')
+        user = self.cleaned_data.get('user')
+
 
     def save(self):
         """Create a new membership."""
         super().save(commit=False)
-        if(self.cleaned_data.get('user') != None):
-            user = self.cleaned_data.get('user')
-        elif (self.initial.get('user') != None):
-            user = self.initial.get('user')
 
         membership = Membership.objects.create(
-            user = user,
+            user = self.cleaned_data.get('user'),
             club = self.cleaned_data.get('club'),
             personal_statement = self.cleaned_data.get('personal_statement')
 
