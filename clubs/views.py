@@ -59,7 +59,7 @@ def user_dashboard(request):
     return render(request, 'user_dashboard.html', data)
 
 @login_required
-def user_profile(request): 
+def user_profile(request):
     data = {'user': request.user}
     return render(request, 'user_profile.html', data)
 
@@ -82,7 +82,7 @@ def membership_application(request):
             messages.add_message(request, messages.SUCCESS, "Application sent successfully.")
             return redirect('user_dashboard')
         else:
-            if form.data.get('personal_statement').strip() == "":
+            if form.data.get('personal_statement') and form.data.get('personal_statement').strip() == "":
                 messages.add_message(request, messages.ERROR, "Please enter a valid personal statement.")
             else:
                 messages.add_message(request, messages.ERROR, "There is an error with the form, please try again.")

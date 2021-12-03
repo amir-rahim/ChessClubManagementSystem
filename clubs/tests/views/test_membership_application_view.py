@@ -46,30 +46,31 @@ class MembershipApplicationViewTestCase(TestCase, LogInTester):
         redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
-    #
-    # def test_owner_cannot_apply_own_club(self):
-    #     self.client.login(username="johndoe", password="Password123")
-    #     response = self.client.get(self.url)
-    #     form = response.context['form']
-    #     form.cleaned_data = self.form_input
-    #     form.data = self.form_input
-    #     ##form.save()
-    #     self.assertFalse(form.is_valid())
 
-    #def test_owner_cannot_apply_own_club(self):
-    #    self.client.login(username="johndoe", password="Password123")
-    #    response = self.client.get(self.url)
-    #    print(response)
-    #    form = response.context['form']
-    #    form.cleaned_data = self.form_input
-        #form.save()
-    #    self.assertFalse(form.is_valid())
+    def test_not_valid_membership_application(self):
+        self.client.login(username="janedoe", password="Password123")
+        self.form_input.pop('personal_statement')
+        before_count = Membership.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Membership.objects.count()
+        self.assertEqual(after_count, before_count)
 
-    # def test_form_shows_all_clubs(self):
-    #     self.client.login(username="johndoe", password="Password123")
-    #     response = self.client.get(self.url)
-    #     form = response.context['form']
-    #     self.assertEqual(len(form['club'].field.queryset), Club.objects.count())
+    def test_canno_fill_personal_statement_with_spaces(self):
+        self.client.login(username="janedoe", password="Password123")
+        self.form_input['personal_statement'] = "     "
+        before_count = Membership.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Membership.objects.count()
+        self.assertEqual(after_count, before_count)
+
+    def test_redirects_when_applied_to_every_club(self):
+        for club in Club.objects.all():
+            if Membership.objects.filter(user = self.applicant, club = club).count() <= 0:
+                Membership.objects.create(user = self.applicant, club = club)
+        self.client.login(username="janedoe", password="Password123")
+        response = self.client.get(self.url)
+        response_url = reverse('user_dashboard')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
 
     def test_apply_to_club(self):
         self.client.login(username="janedoe", password="Password123")
@@ -77,19 +78,3 @@ class MembershipApplicationViewTestCase(TestCase, LogInTester):
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Membership.objects.count()
         self.assertEqual(after_count, before_count + 1)
-
-    # def test_cannot_apply_twice(self):
-    #     self.client.login(username="janedoe", password="Password123")
-    #     response = self.client.get(self.url)
-    #     form = response.context['form']
-    #     form.cleaned_data = self.form_input
-    #     before_count = Membership.objects.count()
-    #     form.save()
-    #     after_count = Membership.objects.count()
-    #     self.assertEqual(after_count, before_count + 1)
-
-        #response = self.client.get(self.url)
-        #form = response.context['form']
-        #form.cleaned_data = self.form_input
-        #form.save()
-        #self.assertFalse(form.is_valid())
