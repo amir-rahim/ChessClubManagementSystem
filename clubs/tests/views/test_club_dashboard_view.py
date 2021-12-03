@@ -16,7 +16,7 @@ class ClubDashboardViewTestCase(TestCase):
     def setUp(self):
         self.club = Club.objects.get(id=1)
         self.user = User.objects.get(username='johndoe')
-        self.officer = User.objects.get(username='jonhatandoe')
+        self.officer = User.objects.get(username='jonathandoe')
 
     def test_get_club_dashboard_view(self):
         self.client.login(username=self.user.username, password="Password123")

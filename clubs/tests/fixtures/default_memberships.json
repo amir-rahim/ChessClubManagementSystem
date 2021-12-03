@@ -1,4 +1,4 @@
-[
+ [
   {
     "model": "clubs.membership",
     "pk": 1,
@@ -39,6 +39,16 @@
       "user": 3,
       "user_type": "OF",
       "application_status": 2
+    }
+  },
+  {
+    "model": "clubs.membership",
+    "pk": 5,
+    "fields": {
+      "club": 1,
+      "user": 4,
+      "user_type": "NM",
+      "application_status": 1
     }
   }
 ]
