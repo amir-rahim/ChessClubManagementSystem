@@ -117,7 +117,7 @@ def tournament_creation(request, club_id):
             messages.add_message(request, messages.SUCCESS, "Tournament created successfully.")
             return redirect('user_dashboard')
         else:
-            if form.errors['organizer'] != None:
+            if 'organizer' in form.errors:
                 messages.add_message(request, messages.ERROR, form.errors['organizer'])
                 return redirect('user_dashboard')
     else:
