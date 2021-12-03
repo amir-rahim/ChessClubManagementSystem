@@ -153,6 +153,17 @@ class Membership(models.Model):
         return self.USER_TYPE_IDENTITIES[self.user_type]
 
 
+    USER_TYPE_NAMES = {
+        UserTypes.NON_MEMBER: "a Non-Member",
+        UserTypes.MEMBER: "a Member",
+        UserTypes.OFFICER: "an Officer",
+        UserTypes.OWNER: "the Owner"
+    }
+
+    def get_user_type_name(self):
+        return self.USER_TYPE_NAMES[self.user_type]
+
+
 class MembershipApplicationForm(forms.ModelForm):
     class Meta:
         model = Membership

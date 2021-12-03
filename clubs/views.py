@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import HttpResponse
+from django.db.models import Exists, Q, OuterRef
 
 from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm
@@ -130,17 +131,22 @@ def tournament_creation(request, club_id):
     return render(request, 'new_tournament.html', {'form': form, 'club': club})
 
 def available_clubs(request):
-    query = Club.objects.all()
-    list_of_clubs = []
-    for club in query:
-        owner = club.owner
-        list_of_clubs.append({"name":club.name, "owner":owner.name, "club_id":club.id})
-    return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
+    # Select clubs the user is not a member of
+    subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))
+    clubs = Club.objects.filter(
+        ~Q(Exists(subquery)) |
+        Q(Exists(subquery.filter(user_type=Membership.UserTypes.NON_MEMBER)))
+    )
+    return render(request, 'available_clubs.html', {'clubs': clubs})
 
 @login_required
 def club_memberships(request):
-    memberships = Membership.objects.filter(user=request.user)
-    clubs = [membership.club for membership in memberships]
+    # Select clubs the user is a member of
+    subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))
+    clubs = Club.objects.filter(
+        Q(Exists(subquery)) &
+        ~Q(Exists(subquery.filter(user_type=Membership.UserTypes.NON_MEMBER)))
+    )
     return render(request, 'club_memberships.html', {'clubs': clubs})
 
 @login_required
