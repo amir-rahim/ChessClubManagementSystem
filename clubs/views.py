@@ -59,7 +59,7 @@ def user_dashboard(request):
     return render(request, 'user_dashboard.html', data)
 
 @login_required
-def user_profile(request):
+def user_profile(request): 
     data = {'user': request.user}
     return render(request, 'user_profile.html', data)
 
@@ -170,7 +170,7 @@ def demote_member(request, club_id, user_id):
 
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
-    return HttpResponse(status = 200) 
+    return HttpResponse(status = 200)
 
 @login_required
 def transfer_ownership(request, club_id, user_id):
@@ -221,7 +221,7 @@ def club_dashboard(request, club_id):
     except:
         club = None
 
-    if club is not None: 
+    if club is not None:
         membership = Membership.objects.filter(user=user, club=club).first()
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
 
