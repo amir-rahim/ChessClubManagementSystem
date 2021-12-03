@@ -19,7 +19,7 @@ class ClubCreationViewTestCase(TestCase, LogInTester):
         self.user = User.objects.get(username='johndoe')
         self.form_input = {
             'name' : "My new club",
-            'owner' : self.user
+            'owner' : [self.user.pk],
         }
 
     def test_club_creation_url(self):
@@ -41,3 +41,22 @@ class ClubCreationViewTestCase(TestCase, LogInTester):
         redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_create_club(self):
+        self.client.login(username="johndoe", password="Password123")
+        before_count = Club.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Club.objects.count()
+        self.assertEqual(after_count, before_count+1)
+        response_url = reverse('user_dashboard')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+
+    def test_cannot_create_club_named_with_already_taken_name(self):
+        self.client.login(username="johndoe", password="Password123")
+        self.form_input['name']="Royal Chess Club"
+        before_count = Club.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Club.objects.count()
+        self.assertEqual(after_count, before_count)
+        response_url = reverse('user_dashboard')
+        self.assertEqual(response.status_code, 200)
