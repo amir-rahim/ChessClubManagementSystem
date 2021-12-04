@@ -68,7 +68,17 @@ class EditProfileForm(forms.ModelForm):
             'public_bio': forms.Textarea(),
         }
     
+class EditClubDetailsForm(forms.ModelForm):
+    """Form enabling owners to edit their club details."""
 
+    class Meta:
+        """Form options."""
+
+        model = Club
+        fields = ['name', 'owner', 'location', 'mission_statement', 'description']
+        widgets = {
+            'owner': forms.HiddenInput(attrs = {'is_hidden': True})
+        }
 
 class MembershipApplicationForm(forms.ModelForm):
     """Form enabling logged user to apply for a membership."""
