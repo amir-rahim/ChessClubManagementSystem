@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 
 from .models import Membership, Club, User
-from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm
 from .helpers import login_prohibited
 
 from .models import User
@@ -67,6 +67,23 @@ def user_profile(request):
     else : 
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
+
+@login_required
+def edit_user_profile(request):
+    current_user = request.user
+    if request.method == 'POST':
+        form = EditProfileForm(instance=current_user, data=request.POST)
+
+        if form.is_valid():
+            messages.add_message(request, messages.SUCCESS, "Profile updated!")
+            form.save()
+            redirect_url = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
+            return redirect(redirect_url)
+
+    else:
+        form = EditProfileForm(instance=current_user)
+
+    return render(request, 'edit_user_profile.html', {'form': form})
 
 def log_out(request):
     logout(request)
