@@ -110,7 +110,7 @@ class UserModelTestCase(TestCase):
     def test_leave_club(self):
         membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         membership.leave()
-        self.assertEqual(membership.user_type, Membership.UserTypes.NON_MEMBER)
+        self.assertEqual(Membership.objects.filter(id = membership.id).count(), 0)
 
     def test_owner_cannot_leave_club(self):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
