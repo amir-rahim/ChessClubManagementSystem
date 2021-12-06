@@ -65,7 +65,7 @@ def user_profile(request):
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
         data = {'user' : membership.user, 'membership' : membership}
-    else : 
+    else :
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
 
@@ -108,9 +108,9 @@ def change_password(request):
                 messages.add_message(request, messages.ERROR, "Password has not been updated as current password is incorrect! Try again!")
         else:
                 messages.add_message(request, messages.ERROR, "Password has not been updated as form is incorrect! Try again!")
-    
+
     form = ChangePasswordForm()
-    
+
     return render(request, 'change_password.html', {'form': form})
 
 def log_out(request):
@@ -359,6 +359,28 @@ def accept_membership(request, membership_id):
 def reject_membership(request, membership_id):
     membership = Membership.objects.get(id=membership_id)
     membership.deny_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def join_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    join_tournament_message = tournament.join_tournament(user)
+    if join_tournament_message:
+        messages.add_message(request, messages.ERROR, join_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def leave_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    leave_tournament_message = tournament.leave_tournament(user)
+    if leave_tournament_message:
+        messages.add_message(request, messages.ERROR, leave_tournament_message)
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)
