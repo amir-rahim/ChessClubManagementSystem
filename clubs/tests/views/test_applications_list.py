@@ -34,8 +34,7 @@ class MyApplicationsViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'my_applications.html')
         list_of_applications = list(response.context['applications_info'])
         self.assertEqual(len(list_of_applications), 0)
-        messages = list(response.context['messages'])
-        self.assertEqual(len(messages), 1)
+        self.assertContains(response, "<p>You have not applied to any club yet.</p>")
 
     def test_single_application(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -47,8 +46,7 @@ class MyApplicationsViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'my_applications.html')
         list_of_applications = list(response.context['applications_info'])
         self.assertEqual(len(list_of_applications), 1)
-        messages = list(response.context['messages'])
-        self.assertEqual(len(messages), 0)
+        self.assertNotContains(response, "<p>You have not applied to any club yet.</p>")
 
     def test_multiple_applications(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -62,8 +60,7 @@ class MyApplicationsViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'my_applications.html')
         list_of_applications = list(response.context['applications_info'])
         self.assertEqual(len(list_of_applications), 2)
-        messages = list(response.context['messages'])
-        self.assertEqual(len(messages), 0)
+        self.assertNotContains(response, "<p>You have not applied to any club yet.</p>")
 
     def test_application_from_other_user(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -75,5 +72,4 @@ class MyApplicationsViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'my_applications.html')
         list_of_applications = list(response.context['applications_info'])
         self.assertEqual(len(list_of_applications), 0)
-        messages = list(response.context['messages'])
-        self.assertEqual(len(messages), 1)
+        self.assertContains(response, "<p>You have not applied to any club yet.</p>")

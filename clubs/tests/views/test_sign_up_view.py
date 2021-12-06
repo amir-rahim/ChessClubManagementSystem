@@ -19,6 +19,8 @@ class SignUpViewTestCase(TestCase, LogInTester):
             'name': 'Janet Doe',
             'username': 'janetdoe',
             'email': 'janetdoe@example.org',
+            'public_bio': 'This is my profile!',
+            'chess_experience': 'I',
             'new_password': 'Password123',
             'password_confirmation': 'Password123'
         }

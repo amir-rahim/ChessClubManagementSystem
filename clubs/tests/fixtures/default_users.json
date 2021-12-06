@@ -6,6 +6,8 @@
             "name": "John Doe",
             "username": "johndoe",
             "email": "johndoe@example.com",
+            "public_bio": "Hello!",
+            "chess_experience": "G",
             "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
             "is_active": true
         }
@@ -17,6 +19,8 @@
             "name": "Jane Doe",
             "username": "janedoe",
             "email": "janedoe@example.com",
+            "public_bio": "Welcome!",
+            "chess_experience": "G",
             "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
             "is_active": true
         }
@@ -28,6 +32,8 @@
             "name": "Jonhatan Doe",
             "username": "jonhatandoe",
             "email": "jonhatandoe@example.com",
+            "public_bio": "Hola!",
+            "chess_experience": "G",
             "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
             "is_active": true
         }

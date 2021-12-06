@@ -1,8 +1,4 @@
 {% extends 'base_content.html' %}
-{% block content_head %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"></script>
-{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -19,24 +15,46 @@
                     <p>
                         <img src="{{user.gravatar}}" class="center" width="120" height="120"/> 
                     </p>
+                    <h4 class="cover-text">Userame: </h4><p>{{user.username}}</p>
                     <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
-                    <h4 class="cover-text">Email: </h4><p>{{user.email}}</p>
-                    <h4 class="cover-text">Chess Experience: </h4><p>*experience goes here*</p>
-                    <h4 class="cover-text">Bio: </h4><p>*bio goes here*</p>
+                    {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
+                    <h4 class="cover-text">Chess Experience: </h4>
+                        {% if user.chess_experience == "B" %}
+                            <p>Beginner</p>
+                        {% elif user.chess_experience == "I" %}
+                            <p>Intermediate</p>
+                        {% elif user.chess_experience == "A" %}
+                            <p>Advanced</p>
+                        {% elif user.chess_experience == "M" %}
+                            <p>Master (IM/CM)</p>
+                        {% elif user.chess_experience == "G" %}
+                            <p>Grand Master (GM)</p>
+                        {% endif %}
+                    {% endif %}
+                    <h4 class="cover-text">Public Bio: </h4>
+                    <p>{{user.public_bio}}</p>
                 </section>
+              
+                {% if membership.UserTypes.OFFICER in membership.get_user_types or membership.UserTypes.OWNER in membership.get_user_types or my_profile != None and my_profile == True %}
                 <hr class="solid">
                 <section>
                     <h2 class="cover-heading">Contact Details</h2>
                     <hr class="solid">
-                    <h4 class="cover-text">Email: </h3><p>{{user.email}}<p/>
-                    <h4 class="cover-text">Phone Number: </h4><p>*Phone Number goes here*<p/>
+                    <h4 class="cover-text">Email: </h4>
+                    <p>{{user.email}}<p/>
                 </section>
                 <hr class="solid">
+                {% endif %} 
+                {% if my_profile != None and my_profile == True%}
                 <p>
-                    <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
+                    <a href='{% url 'edit_user_profile' %}' class="btn btn-lg btn-secondary">
                         Edit Profile
                     </a>
+                    <a href='{% url 'change_password' %}' class="btn btn-lg btn-danger">
+                        Change Password
+                    </a>
                 </p>
+                {% endif %} 
             </div>
         </div>
       </div>

@@ -17,7 +17,10 @@ class SignUpForm(forms.ModelForm):
         """Form options."""
 
         model = User
-        fields = ['username', 'name', 'email']
+        fields = ['username', 'name', 'email', 'public_bio', 'chess_experience']
+        widgets = {
+            'public_bio': forms.Textarea(),
+        }
 
     new_password = forms.CharField(
         label='Password',
@@ -47,10 +50,65 @@ class SignUpForm(forms.ModelForm):
             username=self.cleaned_data.get('username'),
             name=self.cleaned_data.get('name'),
             email=self.cleaned_data.get('email'),
-            password=self.cleaned_data.get('new_password')
+            password=self.cleaned_data.get('new_password'),
+            public_bio=self.cleaned_data.get('public_bio'),
+            chess_experience=self.cleaned_data.get('chess_experience')
         )
         return user
 
+class EditProfileForm(forms.ModelForm):
+    """Form enabling users to edit their profile."""
+
+    class Meta:
+        """Form options."""
+
+        model = User
+        fields = ['username', 'name', 'email', 'public_bio', 'chess_experience']
+        widgets = {
+            'public_bio': forms.Textarea(),
+        }
+
+class ChangePasswordForm(forms.ModelForm):
+    """Form enabling users to change their password."""
+    
+    class Meta:
+        """Form options."""
+
+        model = User
+        fields = []
+
+    current_password = forms.CharField(label='Current password', widget=forms.PasswordInput())
+    new_password = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(),
+        validators=[RegexValidator(
+            regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
+            message='Password must contain an uppercase character, a lowercase '
+                    'character and a number'
+            )]
+    )
+    password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
+
+    def clean(self):
+        """Clean the data and generate messages for any errors."""
+
+        super().clean()
+        new_password = self.cleaned_data.get('new_password')
+        password_confirmation = self.cleaned_data.get('password_confirmation')
+        if new_password != password_confirmation:
+            self.add_error('password_confirmation', 'Confirmation does not match password.')
+
+class EditClubDetailsForm(forms.ModelForm):
+    """Form enabling owners to edit their club details."""
+
+    class Meta:
+        """Form options."""
+
+        model = Club
+        fields = ['name', 'owner', 'location', 'mission_statement', 'description']
+        widgets = {
+            'owner': forms.HiddenInput(attrs = {'is_hidden': True})
+        }
 
 class MembershipApplicationForm(forms.ModelForm):
     """Form enabling logged user to apply for a membership."""
@@ -102,7 +160,7 @@ class ClubCreationForm(forms.ModelForm):
     """Form enabling logged user to create a new club."""
     class Meta:
         model = Club
-        fields = ['name', 'owner']
+        fields = ['name', 'owner', 'location', 'mission_statement', 'description']
         widgets = {
             'owner': forms.HiddenInput(attrs = {'is_hidden': True})
         }

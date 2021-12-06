@@ -4,6 +4,9 @@
     "pk": 1,
     "fields": {
       "name": "Kerbal Chess Club",
+      "location": "New York",
+      "mission_statement": "Best Club in the World!",
+      "description": "Welcome to our club! Who keeps the best players around!",
       "owner": 1
     }
   },
@@ -12,6 +15,9 @@
     "pk": 2,
     "fields": {
       "name": "Royal Chess Club",
+      "location": "London",
+      "mission_statement": "Best Club in the UK!",
+      "description": "Welcome to our club! We just are amazing!",
       "owner": 3
     }
   }
