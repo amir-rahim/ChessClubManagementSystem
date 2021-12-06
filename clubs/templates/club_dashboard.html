@@ -170,7 +170,7 @@
                                                             {% endif %}
 
                                                             <li>
-                                                                <a class="dropdown-item" href="#">Kick</a>
+                                                                <a class="dropdown-item" href="{% url 'kick_member' club.id member.user.id %}?next={{ request.get_full_path }}">Kick</a>
                                                             </li>
                                                         </ul>
                                                     </div>
