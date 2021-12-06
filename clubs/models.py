@@ -167,3 +167,9 @@ class Tournament(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     capacity = models.IntegerField(null=True)
     deadline = models.DateTimeField(null=True)
+
+class TournamentParticipation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False)
+    class Meta:
+        unique_together = ("user", "tournament")
