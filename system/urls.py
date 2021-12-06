@@ -21,22 +21,35 @@ from clubs import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
+
     path('user_dashboard/', views.user_dashboard, name='user_dashboard'),
     path('user_profile/', views.user_profile, name='user_profile'),
+    path('user_profile/edit', views.edit_user_profile, name='edit_user_profile'),
+    path('user_profile/change_password', views.change_password, name='change_password'),
+
     path('log_in/', views.log_in, name='log_in'),
     path('log_out/', views.log_out, name='log_out'),
     path('sign_up/', views.sign_up, name='sign_up'),
+
     path('membership_application/', views.membership_application, name='membership_application'),
+
     path('new_club/', views.club_creation, name='new_club'),
     path('available_clubs/', views.available_clubs, name='available_clubs'),
     path('club/<int:club_id>', views.club_dashboard, name='club_dashboard'),
-    path('new_tournament/<int:club_id>', views.tournament_creation, name='new_tournament'),
+    
     path('club_memberships/', views.club_memberships, name='club_memberships'),
     path('my_applications/', views.my_applications, name='my_applications'),
+
     path('club/<int:club_id>/<int:user_id>/promote', views.promote_member, name='promote_member'),
     path('club/<int:club_id>/<int:user_id>/demote', views.demote_member, name='demote_member'),
+    path('club/<int:club_id>/<int:user_id>/kick', views.kick_member, name='kick_member'),
+
+    path('club/<int:club_id>/edit', views.edit_club, name='edit_club'),
     path('club/<int:club_id>/leave', views.leave_club, name='leave_club'),
     path('club/<int:club_id>/transfer_ownership/<int:user_id>', views.transfer_ownership, name='transfer_ownership'),
+    
     path('membership/<int:membership_id>/approve', views.accept_membership, name='accept_membership'),
-    path('membership/<int:membership_id>/deny', views.reject_membership, name='reject_membership')
+    path('membership/<int:membership_id>/deny', views.reject_membership, name='reject_membership'),
+
+    path('new_tournament/<int:club_id>', views.tournament_creation, name='new_tournament')
 ]

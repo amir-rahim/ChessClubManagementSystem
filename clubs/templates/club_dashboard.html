@@ -20,7 +20,9 @@
                         {% else %}
                         <p>You are {{membership.get_user_type_name}}.</p>
                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
-                            <a href="" class="btn btn-primary">Edit</a>
+                            <a href="{% url 'edit_club' club.id %}?next={% url 'club_dashboard' club.id %}" class="btn btn-primary">
+                                Edit
+                            </a>
                             {% else %}
                             <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
                                 Leave Club
@@ -102,49 +104,11 @@
                 </div>
             </div>
 
-
-            {% if membership.UserTypes.OFFICER in membership.get_user_types %}
-              <div class="card cover-card">
-                <div class="card-body">
-                  <h2>Pending applications</h2>
-
-                  {% if applications %}
-
-                  <table>
-                    <tbody>
-                      {% for application in applications %}
-                      <tr>
-                        <th scope="col" width="50%">{{application.user.name}}</th>
-                        <td width="25%">
-                          <!-- Change 'leave_club' to 'accept_application' once implemented -->
-                          <a class="btn btn-success" href="{% url 'accept_membership' application.id %}?next={{ request.get_full_path }}">
-                                Accept
-                          </a>
-                        </td>
-                        <td width="25%">
-                          <!-- Change 'leave_club' to 'reject_application' once implemented -->
-                          <a class="btn btn-danger" href="{% url 'reject_membership' application.id %}?next={{ request.get_full_path }}">
-                                Reject
-                          </a>
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-
-                  {% else %}
-                  <p>No pending applications</p>
-                  {% endif %}
-
-                </div>
-              </div>
-            {% endif %}
-
         </div>
 
         <div class="col-sm-12 col-md-8">
             {% if not member %}
-            <div class="card">
+            <div class="card cover-card">
                 <div class="card-body">
                     <h2>Members</h2>
                     <div class="table-responsive">
@@ -209,7 +173,7 @@
                                                             {% endif %}
 
                                                             <li>
-                                                                <a class="dropdown-item" href="#">Kick</a>
+                                                                <a class="dropdown-item" href="{% url 'kick_member' club.id member.user.id %}?next={{ request.get_full_path }}">Kick</a>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -226,6 +190,42 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+            {% if membership.UserTypes.OFFICER in membership.get_user_types %}
+              <div class="card cover-card">
+                <div class="card-body">
+                  <h2>Pending applications</h2>
+
+                  {% if applications %}
+
+                  <table>
+                    <tbody>
+                      {% for application in applications %}
+                      <tr>
+                        <th scope="col" width="50%">{{application.user.name}}</th>
+                        <td width="25%">
+                          <!-- Change 'leave_club' to 'accept_application' once implemented -->
+                          <a class="btn btn-success" href="{% url 'accept_membership' application.id %}?next={{ request.get_full_path }}">
+                                Accept
+                          </a>
+                        </td>
+                        <td width="25%">
+                          <!-- Change 'leave_club' to 'reject_application' once implemented -->
+                          <a class="btn btn-danger" href="{% url 'reject_membership' application.id %}?next={{ request.get_full_path }}">
+                                Reject
+                          </a>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+
+                  {% else %}
+                  <p>No pending applications</p>
+                  {% endif %}
+
+                </div>
+              </div>
             {% endif %}
         </div>
     </div>

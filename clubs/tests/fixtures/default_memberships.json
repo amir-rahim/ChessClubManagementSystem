@@ -28,7 +28,7 @@
       "club": 2,
       "user": 1,
       "user_type": "MB",
-      "application_status": 2
+      "application_status": "A"
     }
   },
   {
@@ -38,7 +38,7 @@
       "club": 1,
       "user": 3,
       "user_type": "OF",
-      "application_status": 2
+      "application_status": "A"
     }
   },
   {

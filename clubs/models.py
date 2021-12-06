@@ -47,7 +47,7 @@ class Club(models.Model):
         blank=False,
         unique=True,
         validators=[RegexValidator(
-            regex=r'[a-zA-Z ][a-zA-Z0-9 ]+',
+            regex=r'^[a-zA-Z][a-zA-Z0-9 ]+',
             message='Club name must start with a letter and contain only letters, number, and spaces.'
         )])
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -126,10 +126,15 @@ class Membership(models.Model):
                 self.club.save()
                 self.save()
 
+    def kick_member(self):
+        if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
+            self.delete()
+            return True
+        return False
+
     def leave(self):
         if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
-            self.user_type = self.UserTypes.NON_MEMBER
-            self.save()
+            self.delete()
             return True
         return False
 
@@ -178,3 +183,9 @@ class Tournament(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     capacity = models.IntegerField(null=True)
     deadline = models.DateTimeField(null=True)
+
+class TournamentParticipation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False)
+    class Meta:
+        unique_together = ("user", "tournament")

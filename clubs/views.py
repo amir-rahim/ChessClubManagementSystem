@@ -3,11 +3,12 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
 
 from .models import Membership, Club, User
-from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm
+from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
 
 from .models import User
@@ -69,6 +70,50 @@ def user_profile(request):
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
 
+@login_required
+def edit_user_profile(request):
+    current_user = request.user
+
+    if request.method == 'POST':
+        form = EditProfileForm(instance=current_user, data=request.POST)
+
+        if form.is_valid():
+            messages.add_message(request, messages.SUCCESS, "Profile updated!")
+            form.save()
+            redirect_url = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
+            return redirect(redirect_url)
+
+    else:
+        form = EditProfileForm(instance=current_user)
+
+    return render(request, 'edit_user_profile.html', {'form': form})
+
+@login_required
+def change_password(request):
+    current_user = request.user
+
+    if request.method == 'POST':
+        form = ChangePasswordForm(data=request.POST)
+
+        if form.is_valid():
+            password = form.cleaned_data.get('current_password')
+
+            if current_user.check_password(password):
+                new_password = form.cleaned_data.get('new_password')
+                current_user.set_password(new_password)
+                current_user.save()
+                login(request, current_user)
+                messages.add_message(request, messages.SUCCESS, "Password updated!")
+                return redirect('user_profile')
+            else:
+                messages.add_message(request, messages.ERROR, "Password has not been updated as current password is incorrect! Try again!")
+        else:
+                messages.add_message(request, messages.ERROR, "Password has not been updated as form is incorrect! Try again!")
+    
+    form = ChangePasswordForm()
+    
+    return render(request, 'change_password.html', {'form': form})
+
 def log_out(request):
     logout(request)
     return redirect('home')
@@ -106,6 +151,45 @@ def club_creation(request):
     else:
         form = ClubCreationForm(initial = {'owner': request.user})
     return render(request, 'new_club.html', {'form': form})
+
+@login_required
+def edit_club(request, club_id):
+
+    current_user = request.user
+
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+    except:
+        current_user_membership = None
+
+    if current_user_membership is None:
+        messages.add_message(request, messages.ERROR, "Must be an owner and apart of this club to edit details!")
+        return redirect('user_dashboard')
+
+    if current_user_membership.user_type != "OW":
+        messages.add_message(request, messages.ERROR, "Must be an owner to edit details!")
+        return redirect('club_dashboard', club_id)
+
+    try:
+        current_club = Club.objects.get(id=club_id)
+    except:
+        current_club = None
+
+    if request.method == 'POST':
+        form = EditClubDetailsForm(instance=current_club, data=request.POST)
+
+        if form.is_valid():
+            messages.add_message(request, messages.SUCCESS, "Club updated!")
+            form.save()
+            redirect_url = request.POST.get('next') or reverse('club_dashboard', kwargs={'club_id':current_club.id})
+            return redirect(redirect_url)
+        else:
+            messages.add_message(request, messages.ERROR, "There is an error, please try again.")
+
+    else:
+        form = EditClubDetailsForm(instance=current_club)
+
+    return render(request, 'edit_club.html', {'form': form, 'club': current_club})
 
 @login_required
 def tournament_creation(request, club_id):
@@ -173,6 +257,23 @@ def demote_member(request, club_id, user_id):
             messages.add_message(request, messages.ERROR, "You are not allowed to demote users.")
     except:
         messages.add_message(request, messages.ERROR, "Error demoting user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def kick_member(request, club_id, user_id):
+    current_user = User.objects.get(id=user_id)
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER or Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
+            membership_to_kick = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_kick.kick_member()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to kick users.")
+    except:
+        messages.add_message(request, messages.ERROR, "Error kicking user.")
 
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
