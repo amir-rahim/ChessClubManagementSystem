@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership
-from clubs.tests.helpers import reverse_with_next
+from clubs.tests.helpers import reverse_with_query
 
 class ClubDashboardViewTestCase(TestCase):
     """Tests of the home view"""
@@ -28,7 +28,7 @@ class ClubDashboardViewTestCase(TestCase):
 
     def test_club_dashboard_view_redirects_not_logged_in(self):
         url = reverse('club_dashboard', kwargs={'club_id': self.club.id})
-        redirect_url = reverse_with_next('log_in', url)
+        redirect_url = reverse_with_query('log_in', query_kwargs={'next': url})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
@@ -75,3 +75,5 @@ class ClubDashboardViewTestCase(TestCase):
         self.assertContains(response, "<h2>Pending applications</h2>")
         self.assertNotContains(response, "<p>No pending applications</p>")
         self.assertContains(response, "<th scope=\"col\" width=\"50%\">Jane Doe</th>")
+
+    

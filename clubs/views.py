@@ -73,12 +73,6 @@ def log_out(request):
     logout(request)
     return redirect('home')
 
-
-def club_user_list(request):
-    model = User
-    user = User.objects.all()
-    return render(request, 'club_user_list.html', {'users': user  })
-
 @login_required
 def membership_application(request):
     if request.method == 'POST':
@@ -130,6 +124,7 @@ def tournament_creation(request, club_id):
         form = TournamentCreationForm(initial = {'organizer': request.user, 'club': club})
     return render(request, 'new_tournament.html', {'form': form, 'club': club})
 
+@login_required
 def available_clubs(request):
     # Select clubs the user is not a member of
     subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))

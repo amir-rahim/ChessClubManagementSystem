@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership, Tournament
 from clubs.forms import TournamentCreationForm
-from clubs.tests.helpers import LogInTester, reverse_with_next
+from clubs.tests.helpers import LogInTester, reverse_with_query
 from django.utils.timezone import make_aware
 from django.utils import timezone
 import datetime
@@ -51,7 +51,7 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         self.assertFalse(form.is_bound)
 
     def test_get_tournament_creation_redirects_when_not_logged_in(self):
-        redirect_url = reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_query('log_in', query_kwargs={'next': self.url})
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 

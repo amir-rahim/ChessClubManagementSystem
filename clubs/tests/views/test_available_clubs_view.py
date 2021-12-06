@@ -15,7 +15,6 @@ class AvailableClubsViewTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(username="johndoe")
-        self.user_no_memberships = User.objects.get(username="juliedoe")
         self.user_non_member = User.objects.get(username="janedoe")
         self.url = reverse('available_clubs')
 
@@ -46,7 +45,10 @@ class AvailableClubsViewTestCase(TestCase):
         self.assertIn(Club.objects.get(name="Royal Chess Club"), clubs)
 
     def test_multiple_clubs(self):
-        self.client.login(username=self.user_no_memberships.username, password='Password123')
+        new_user = User.objects.create_user(username='newuser', password='Password123', name="new user")
+        new_user.save()
+
+        self.client.login(username=new_user.username, password='Password123')
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)

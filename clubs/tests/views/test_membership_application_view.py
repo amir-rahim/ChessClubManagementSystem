@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership
 from clubs.forms import MembershipApplicationForm
-from clubs.tests.helpers import LogInTester, reverse_with_next
+from clubs.tests.helpers import LogInTester, reverse_with_query
 
 class MembershipApplicationViewTestCase(TestCase, LogInTester):
     """Tests of the membership application view."""
@@ -43,7 +43,7 @@ class MembershipApplicationViewTestCase(TestCase, LogInTester):
         self.assertFalse(form.is_bound)
 
     def test_get_membership_application_redirects_when_not_logged_in(self):
-        redirect_url = reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_query('log_in', query_kwargs={'next': self.url})
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
     #
