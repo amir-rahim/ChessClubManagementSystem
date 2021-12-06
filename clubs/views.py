@@ -263,6 +263,23 @@ def demote_member(request, club_id, user_id):
     return HttpResponse(status = 200)
 
 @login_required
+def kick_member(request, club_id, user_id):
+    current_user = User.objects.get(id=user_id)
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER or Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
+            membership_to_kick = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_kick.kick_member()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to kick users.")
+    except:
+        messages.add_message(request, messages.ERROR, "Error kicking user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
 def transfer_ownership(request, club_id, user_id):
     current_user = request.user
     try:
