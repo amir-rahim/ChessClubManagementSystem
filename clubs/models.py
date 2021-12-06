@@ -126,10 +126,15 @@ class Membership(models.Model):
                 self.club.save()
                 self.save()
 
+    def kick_member(self):
+        if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
+            self.delete()
+            return True
+        return False
+
     def leave(self):
         if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
-            self.user_type = self.UserTypes.NON_MEMBER
-            self.save()
+            self.delete()
             return True
         return False
 
