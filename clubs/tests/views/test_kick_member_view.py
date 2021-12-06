@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership
-from clubs.tests.helpers import reverse_with_next
+from clubs.tests.helpers import reverse_with_query
 
 class KickMemberTestCase(TestCase):
     """Testing of the kick member functionalities"""
@@ -15,7 +15,7 @@ class KickMemberTestCase(TestCase):
 
     def setUp(self):
         self.club = Club.objects.get(id=2)
-        self.owner = User.objects.get(username="jonhatandoe")
+        self.owner = User.objects.get(username="jonathandoe")
         self.user = User.objects.get(username="johndoe")
         self.membership = Membership.objects.get(user=self.user, club=self.club)
 

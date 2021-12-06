@@ -25,6 +25,8 @@ class PromoteDemoteViewTestCase(TestCase):
         url = reverse('promote_member', kwargs={'club_id': self.club.id, 'user_id': self.member.id})
         response = self.client.get(url)
 
+        self.assertEqual(response.status_code, 200)
+
         member_membership = Membership.objects.get(user=self.member, club=self.club)
         self.assertTrue(member_membership.user_type == Membership.UserTypes.OFFICER)
 
@@ -46,6 +48,8 @@ class PromoteDemoteViewTestCase(TestCase):
         url = reverse('promote_member', kwargs={'club_id': self.club.id, 'user_id': self.member.id})
         response = self.client.get(url)
 
+        self.assertEqual(response.status_code, 200)
+
         member_membership = Membership.objects.get(user=self.member, club=self.club)
         self.assertTrue(member_membership.user_type == Membership.UserTypes.MEMBER)
 
@@ -57,7 +61,8 @@ class PromoteDemoteViewTestCase(TestCase):
         url = reverse('promote_member', kwargs={'club_id': self.club.id, 'user_id': 100})
         response = self.client.get(url)
 
-        self.assertTrue(len(list(get_messages(response.wsgi_request))) == 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(len(list(get_messages(response.wsgi_request))) == 0)
 
     def test_demote_user(self):
         self.test_promote_user()
@@ -65,6 +70,7 @@ class PromoteDemoteViewTestCase(TestCase):
         url = reverse('demote_member', kwargs={'club_id': self.club.id, 'user_id': self.member.id})
         response = self.client.get(url)
 
+        self.assertEqual(response.status_code, 200)
         member_membership = Membership.objects.get(user=self.member, club=self.club)
         self.assertTrue(member_membership.user_type == Membership.UserTypes.MEMBER)
 
@@ -86,6 +92,7 @@ class PromoteDemoteViewTestCase(TestCase):
         url = reverse('demote_member', kwargs={'club_id': self.club.id, 'user_id': self.owner.id})
         response = self.client.get(url)
 
+        self.assertEqual(response.status_code, 200)
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
         self.assertTrue(owner_membership.user_type == Membership.UserTypes.OWNER)
 
@@ -97,4 +104,5 @@ class PromoteDemoteViewTestCase(TestCase):
         url = reverse('demote_member', kwargs={'club_id': self.club.id, 'user_id': 100})
         response = self.client.get(url)
 
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(len(list(get_messages(response.wsgi_request))) == 1)

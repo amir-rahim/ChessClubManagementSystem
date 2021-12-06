@@ -290,7 +290,7 @@ def transfer_ownership(request, club_id, user_id):
         else:
             messages.add_message(request, messages.ERROR, "You are not allowed to transfer ownership.")
     except Exception as e:
-        messages.add_message(request, messages.ERROR, "Error transferring ownership." + str(e))
+        messages.add_message(request, messages.ERROR, str(e))
 
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
@@ -299,8 +299,8 @@ def transfer_ownership(request, club_id, user_id):
 @login_required
 def leave_club(request, club_id):
     current_user = request.user
-    club = Club.objects.get(id=club_id)
     try:
+        club = Club.objects.get(id=club_id)
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
         if current_user_membership.leave():
             messages.add_message(request, messages.SUCCESS, f"Successfully left {club.name}.")
