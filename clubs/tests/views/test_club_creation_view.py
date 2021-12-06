@@ -20,6 +20,9 @@ class ClubCreationViewTestCase(TestCase, LogInTester):
         self.form_input = {
             'name' : "My new club",
             'owner' : [self.user.pk],
+            'location': "London, UK",
+            'mission_statement': "My new club Statement",
+            'description': "My new club description"
         }
 
     def test_club_creation_url(self):
