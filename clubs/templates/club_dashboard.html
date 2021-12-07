@@ -140,7 +140,7 @@
                     </div>
                 </div>
             </div>
-            {% if not user.UserTypes.NON_MEMBER %}
+            {% if membership and not membership.user_type == membership.UserTypes.NON_MEMBER %}
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Members</h2>
