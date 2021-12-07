@@ -169,6 +169,9 @@ class ClubCreationForm(forms.ModelForm):
 class TournamentCreationForm(forms.ModelForm):
     """Form enabling officers to create Torunaments."""
 
+    class DateTimeInput(forms.DateTimeInput):
+        input_type = 'datetime-local'
+
     class Meta:
         model = Tournament
         fields = ['name', 'description', 'club', 'organizer', 'coorganizers']
@@ -179,11 +182,9 @@ class TournamentCreationForm(forms.ModelForm):
             'coorganizers': forms.CheckboxSelectMultiple()
         }
 
-    class DateTimeInput(forms.DateTimeInput):
-        input_type = 'datetime-local'
-
     def __init__(self, *args, **kwargs):
         super(TournamentCreationForm, self).__init__(*args, **kwargs)
+        self.fields['coorganizers'].label_from_instance = lambda instance: instance.name
         """Querying database and retrieving all users which can create Torunaments (ie: all officers and owners at a club)"""
         if (self.initial.get('club') != None):
             self.data['club'] = self.initial['club']
