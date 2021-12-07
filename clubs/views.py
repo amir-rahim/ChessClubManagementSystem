@@ -64,8 +64,9 @@ def user_dashboard(request):
 def user_profile(request):
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
-        data = {'user' : membership.user, 'membership' : membership}
-    else : 
+        user = User.objects.get(pk = request.POST['user'])
+        data = {'user' : user, 'membership' : membership}
+    else :
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
 
@@ -108,9 +109,9 @@ def change_password(request):
                 messages.add_message(request, messages.ERROR, "Password has not been updated as current password is incorrect! Try again!")
         else:
                 messages.add_message(request, messages.ERROR, "Password has not been updated as form is incorrect! Try again!")
-    
+
     form = ChangePasswordForm()
-    
+
     return render(request, 'change_password.html', {'form': form})
 
 def log_out(request):
