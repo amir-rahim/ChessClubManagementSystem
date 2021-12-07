@@ -21,9 +21,9 @@ class UserProfileViewTestCase(TestCase):
 
 
         self.url = reverse('user_profile')
-        self.data = {'membership' : self.membership1.pk}
-        self.data3 = {'membership' : self.membership3.pk}
-        self.data4 = {'membership' : self.membership4.pk}
+        self.data = {'user':self.membership2.user.pk, 'membership' : self.membership1.pk}
+        self.data3 = {'user':self.membership1.user.pk,'membership' : self.membership3.pk}
+        self.data4 = {'user':self.membership1.user.pk,'membership' : self.membership4.pk}
 
 
     def test_post_request(self):

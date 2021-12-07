@@ -1,9 +1,10 @@
 {% extends 'base_content.html' %}
+
 {% block content_head %}
    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-
 {% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
@@ -89,11 +90,11 @@
                         <tbody>
                             <tr>
                                 <th scope="col">Number of Members</th>
-                                <td>{{ members|length }}</th>
+                                <td>{{ members|length }}</td>
                             </tr>
                             <tr>
                                 <th scope="col">Number of Officers</th>
-                                <td>{{ officers|length }}</th>
+                                <td>{{ officers|length }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -172,13 +173,21 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if membership and membership != member %}
+                                              {% if membership and membership != member %}
                                                 {% if membership.UserTypes.OFFICER in membership.get_user_types %}
                                                     <div class="btn-group" role="group">
                                                         <button id="btn-group-drop-{{member.user.username}}" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                                           Actions
                                                         </button>
                                                         <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
+                                                          <li>
+                                                            <form action="{% url 'user_profile'%}" method="POST">
+                                                              {% csrf_token %}
+                                                              <input type="hidden" name="user" value="{{member.user.pk}}">
+                                                              <input type="hidden" name="membership" value="{{membership.pk}}">
+                                                              <input type="submit" value="View Profile" class="dropdown-item" />
+                                                            </form>
+                                                          </li>
                                                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                                                 {% if member.user_type == member.UserTypes.OFFICER %}
                                                                 <li>
@@ -209,7 +218,13 @@
                                                             </li>
                                                         </ul>
                                                     </div>
-
+                                                {% else %}
+                                                  <form action="{% url 'user_profile'%}" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="user" value="{{member.user.pk}}">
+                                                    <input type="hidden" name="membership" value="{{membership.pk}}">
+                                                    <input type="submit" value="View Profile" class="btn btn-secondary" />
+                                                  </form>
                                                 {% endif %}
                                             </ul>
                                         </div>

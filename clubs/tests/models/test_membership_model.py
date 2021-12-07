@@ -26,6 +26,19 @@ class UserModelTestCase(TestCase):
         self.assertEqual(membership.application_status, Membership.Application.APPROVED)
         self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
 
+    def test_cannot_approve_approved_membership(self):
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
+        self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
+        membership.approve_membership()
+        self.assertEqual(membership.application_status, Membership.Application.APPROVED)
+        self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
+
+    def test_cannot_deny_membership_to_member(self):
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
+        membership.deny_membership()
+        self.assertEqual(membership.application_status, Membership.Application.APPROVED)
+        self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
+
     def test_deny_membership(self):
         membership = Membership.objects.create(user=self.applicant, club=self.club)
         self.assertEqual(membership.application_status, Membership.Application.PENDING)
@@ -35,34 +48,30 @@ class UserModelTestCase(TestCase):
         self.assertEqual(membership.user_type, Membership.UserTypes.NON_MEMBER)
 
     def test_promote_member_to_officer(self):
-        membership = Membership.objects.create(user=self.applicant, club=self.club)
-        membership.approve_membership()
-        self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         membership.promote_to_officer()
         self.assertEqual(membership.user_type, Membership.UserTypes.OFFICER)
 
-    def test_demote_officer_to_member(self):
-        membership = Membership.objects.create(user=self.applicant, club=self.club)
-        membership.approve_membership()
-        self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
+    def test_cannot_promote_owner_to_officer(self):
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="OW", application_status="A")
         membership.promote_to_officer()
+        self.assertEqual(membership.user_type, Membership.UserTypes.OWNER)
+
+    def test_demote_officer_to_member(self):
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="OF", application_status="A")
         self.assertEqual(membership.user_type, Membership.UserTypes.OFFICER)
         membership.demote_to_member()
         self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
 
     def test_cannot_demote_member_to_member(self):
-        membership = Membership.objects.create(user=self.applicant, club=self.club)
-        membership.approve_membership()
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
         membership.demote_to_member()
         self.assertEqual(membership.user_type, Membership.UserTypes.MEMBER)
 
     def test_transfer_ownership_to_officer(self):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
-        new_membership = Membership.objects.create(user=self.applicant, club=self.club)
-
-        new_membership.approve_membership()
-        new_membership.promote_to_officer()
+        new_membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="OF", application_status="A")
 
         self.assertEqual(new_membership.user_type, Membership.UserTypes.OFFICER)
         self.assertEqual(Membership.objects.get(user = self.applicant, club = self.club), new_membership)
@@ -78,8 +87,7 @@ class UserModelTestCase(TestCase):
 
     def test_cannot_transfer_ownership_to_member(self):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
-        membership = Membership.objects.create(user=self.applicant, club=self.club)
-        membership.approve_membership()
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         self.assertEqual(self.club.owner, membership.club.owner)
         owner_membership.transfer_ownership(new_owner = self.applicant)
         self.assertNotEqual(self.club.owner, self.applicant)
@@ -92,11 +100,19 @@ class UserModelTestCase(TestCase):
 
     def test_transfer_ownership_and_demote_to_member(self):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
-        new_membership = Membership.objects.create(user=self.applicant, club=self.club)
-        new_membership.approve_membership()
-        new_membership.promote_to_officer()
+        new_membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="OF", application_status="A")
         owner_membership.transfer_ownership(new_owner = self.applicant)
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=2)
         self.assertEqual(self.club.owner, self.applicant)
         owner_membership.demote_to_member()
         self.assertEqual(owner_membership.user_type, Membership.UserTypes.MEMBER)
+
+    def test_leave_club(self):
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
+        membership.leave()
+        self.assertEqual(Membership.objects.filter(id = membership.id).count(), 0)
+
+    def test_owner_cannot_leave_club(self):
+        owner_membership = Membership.objects.get(user=self.owner, club=self.club)
+        owner_membership.leave()
+        self.assertEqual(owner_membership.user_type, Membership.UserTypes.OWNER)
