@@ -109,22 +109,20 @@ class Membership(models.Model):
             self.save()
 
     def demote_to_member(self):
-        if self.user_type == self.UserTypes.OFFICER:
-            if Club.objects.filter(name=self.club.name, owner=self.user).count() == 0:
+        if self.user_type == self.UserTypes.OFFICER and Club.objects.filter(name=self.club.name, owner=self.user).count() == 0:
                 self.user_type = self.UserTypes.MEMBER
                 self.save()
 
     def transfer_ownership(self, new_owner):
         if Membership.objects.get(user = new_owner, club = self.club).user_type == self.UserTypes.OFFICER:
             new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
-            if new_owner_membership:
-                self.club.owner = new_owner
-                self.user_type = self.UserTypes.OFFICER
-                new_owner_membership.user_type = self.UserTypes.OWNER
+            self.club.owner = new_owner
+            self.user_type = self.UserTypes.OFFICER
+            new_owner_membership.user_type = self.UserTypes.OWNER
 
-                new_owner_membership.save()
-                self.club.save()
-                self.save()
+            new_owner_membership.save()
+            self.club.save()
+            self.save()
 
     def kick_member(self):
         if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
