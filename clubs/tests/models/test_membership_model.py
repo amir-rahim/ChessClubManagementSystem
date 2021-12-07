@@ -89,7 +89,8 @@ class UserModelTestCase(TestCase):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
         membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         self.assertEqual(self.club.owner, membership.club.owner)
-        owner_membership.transfer_ownership(new_owner = self.applicant)
+        with self.assertRaises(Exception):
+            owner_membership.transfer_ownership(new_owner = self.applicant)
         self.assertNotEqual(self.club.owner, self.applicant)
         self.assertEqual(self.club.owner, self.owner)
 

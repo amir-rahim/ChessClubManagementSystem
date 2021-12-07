@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from clubs.forms import LogInForm
 from clubs.models import User
-from clubs.tests.helpers import LogInTester, reverse_with_next
+from clubs.tests.helpers import LogInTester, reverse_with_query
 
 class LogInViewTestCase(TestCase, LogInTester):
     """Tests of the log in view."""
@@ -37,7 +37,7 @@ class LogInViewTestCase(TestCase, LogInTester):
 
     def test_get_log_in_with_redirect(self):
         destination_url = reverse('user_dashboard')
-        self.url = reverse_with_next('log_in', destination_url)
+        self.url = reverse_with_query('log_in', query_kwargs={'next': destination_url})
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)

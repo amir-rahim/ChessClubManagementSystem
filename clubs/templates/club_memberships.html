@@ -1,5 +1,8 @@
 {% extends 'base_content.html' %}
-
+{% block content_head %}
+   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+{% endblock %}
 {% block content %}
 <div class="container">
     <div class="row">
@@ -9,15 +12,24 @@
                 <h1 class="cover-heading">Club Memberships</h1>
                 <p class="cover-text">Find the clubs you have memberships for here!</p>
                 {% if clubs %}
-                    {% for club in clubs %}
-                      <hr class="solid">
-                      <p>
-                        <a href="/club/{{club.id}}" class="btn btn-lg btn-secondary">
-                          <b>{{club.name}}</b>
-                        </a>
-                      </p>
-                      <p><b>Owner:</b> {{club.owner}}</p>
-                    {% endfor %}
+                    <div class="table-responsive">
+                         <table class="table table-hover" id="table-clubs" data-toggle="table" data-pagination="true">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Club Name</th>
+                                    <th scope="col">Owner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for club in clubs %}
+                                    <tr onclick="window.location='{% url 'club_dashboard' club.id %}';">
+                                        <td>{{club.name}}</td>
+                                        <td>{{club.owner}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
                     <hr class="solid">
                     <p>No clubs memberships, you can apply to clubs <a href={% url 'membership_application' %}>here</a></p>
@@ -27,4 +39,11 @@
       </div>
     </div>
 </div>
+
+<script>
+    const dataTable = new simpleDatatables.DataTable("#table-clubs", {
+        fixedHeight: true,
+        columns: []
+    })
+</script>
 {% endblock %}

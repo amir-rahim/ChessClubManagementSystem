@@ -114,15 +114,21 @@ class Membership(models.Model):
                 self.save()
 
     def transfer_ownership(self, new_owner):
-        if Membership.objects.get(user = new_owner, club = self.club).user_type == self.UserTypes.OFFICER:
-            new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
-            self.club.owner = new_owner
-            self.user_type = self.UserTypes.OFFICER
-            new_owner_membership.user_type = self.UserTypes.OWNER
+        new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
+        if new_owner_membership is None:
+            raise Exception("User is not a member of the club.")
+        else:
+            if new_owner_membership.user_type == self.UserTypes.OFFICER:
+                self.club.owner = new_owner
+                self.user_type = self.UserTypes.OFFICER
+                new_owner_membership.user_type = self.UserTypes.OWNER
 
-            new_owner_membership.save()
-            self.club.save()
-            self.save()
+                new_owner_membership.save()
+                self.club.save()
+                self.save()
+            else:
+                raise Exception("Member must be an officer to transfer ownership.")
+
 
     def kick_member(self):
         if self.user_type in [self.UserTypes.MEMBER, self.UserTypes.OFFICER]:
@@ -154,6 +160,17 @@ class Membership(models.Model):
 
     def get_user_types(self):
         return self.USER_TYPE_IDENTITIES[self.user_type]
+
+
+    USER_TYPE_NAMES = {
+        UserTypes.NON_MEMBER: "a Non-Member",
+        UserTypes.MEMBER: "a Member",
+        UserTypes.OFFICER: "an Officer",
+        UserTypes.OWNER: "the Owner"
+    }
+
+    def get_user_type_name(self):
+        return self.USER_TYPE_NAMES[self.user_type]
 
 
 class MembershipApplicationForm(forms.ModelForm):

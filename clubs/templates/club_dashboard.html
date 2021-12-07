@@ -2,7 +2,6 @@
 {% block content_head %}
    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-
 {% endblock %}
 {% block content %}
 <div class="container">
@@ -13,9 +12,13 @@
                     <h1 class="card-title">{{club.name}}</h1>
                     {% if membership %}
                         {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %}
-                        You have applied for membership.
+                            {% if membership.application_status == membership.Application.PENDING %}
+                                You have applied for membership.
+                            {% elif membership.application_status == membership.Application.DENIED %}
+                                Your application for membership has been denied.
+                            {% endif %}
                         {% else %}
-                        <p>You are a {{membership.user_type}}</p>
+                        <p>You are {{membership.get_user_type_name}}.</p>
                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                             <a href="{% url 'edit_club' club.id %}?next={% url 'club_dashboard' club.id %}" class="btn btn-primary">
                                 Edit

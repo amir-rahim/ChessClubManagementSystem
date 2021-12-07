@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
+from django.db.models import Exists, Q, OuterRef
 
 from .models import Membership, Club, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
@@ -119,12 +120,6 @@ def log_out(request):
     return redirect('home')
 
 @login_required
-def club_user_list(request):
-    model = User
-    user = User.objects.all()
-    return render(request, 'club_user_list.html', {'users': user  })
-
-@login_required
 def membership_application(request):
     if request.method == 'POST':
         form = MembershipApplicationForm(data=request.POST)
@@ -216,17 +211,22 @@ def tournament_creation(request, club_id):
 
 @login_required
 def available_clubs(request):
-    query = Club.objects.all()
-    list_of_clubs = []
-    for club in query:
-        owner = club.owner
-        list_of_clubs.append({"name":club.name, "owner":owner.name, "club_id":club.id})
-    return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
+    # Select clubs the user is not a member of
+    subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))
+    clubs = Club.objects.filter(
+        ~Q(Exists(subquery)) |
+        Q(Exists(subquery.filter(user_type=Membership.UserTypes.NON_MEMBER)))
+    )
+    return render(request, 'available_clubs.html', {'clubs': clubs})
 
 @login_required
 def club_memberships(request):
-    memberships = Membership.objects.filter(user=request.user)
-    clubs = [membership.club for membership in memberships]
+    # Select clubs the user is a member of
+    subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))
+    clubs = Club.objects.filter(
+        Q(Exists(subquery)) &
+        ~Q(Exists(subquery.filter(user_type=Membership.UserTypes.NON_MEMBER)))
+    )
     return render(request, 'club_memberships.html', {'clubs': clubs})
 
 @login_required
@@ -291,7 +291,7 @@ def transfer_ownership(request, club_id, user_id):
         else:
             messages.add_message(request, messages.ERROR, "You are not allowed to transfer ownership.")
     except Exception as e:
-        messages.add_message(request, messages.ERROR, "Error transferring ownership." + str(e))
+        messages.add_message(request, messages.ERROR, str(e))
 
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
@@ -300,8 +300,8 @@ def transfer_ownership(request, club_id, user_id):
 @login_required
 def leave_club(request, club_id):
     current_user = request.user
-    club = Club.objects.get(id=club_id)
     try:
+        club = Club.objects.get(id=club_id)
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
         if current_user_membership.leave():
             messages.add_message(request, messages.SUCCESS, f"Successfully left {club.name}.")
