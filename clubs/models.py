@@ -109,8 +109,7 @@ class Membership(models.Model):
             self.save()
 
     def demote_to_member(self):
-        if self.user_type == self.UserTypes.OFFICER:
-            if Club.objects.filter(name=self.club.name, owner=self.user).count() == 0:
+        if self.user_type == self.UserTypes.OFFICER and Club.objects.filter(name=self.club.name, owner=self.user).count() == 0:
                 self.user_type = self.UserTypes.MEMBER
                 self.save()
 
@@ -129,7 +128,6 @@ class Membership(models.Model):
                 self.save()
             else:
                 raise Exception("Member must be an officer to transfer ownership.")
-
 
 
     def kick_member(self):

@@ -65,8 +65,9 @@ def user_dashboard(request):
 def user_profile(request):
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
-        data = {'user' : membership.user, 'membership' : membership}
-    else : 
+        user = User.objects.get(pk = request.POST['user'])
+        data = {'user' : user, 'membership' : membership}
+    else :
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
 
@@ -109,9 +110,9 @@ def change_password(request):
                 messages.add_message(request, messages.ERROR, "Password has not been updated as current password is incorrect! Try again!")
         else:
                 messages.add_message(request, messages.ERROR, "Password has not been updated as form is incorrect! Try again!")
-    
+
     form = ChangePasswordForm()
-    
+
     return render(request, 'change_password.html', {'form': form})
 
 def log_out(request):
@@ -127,7 +128,7 @@ def membership_application(request):
             messages.add_message(request, messages.SUCCESS, "Application sent successfully.")
             return redirect('user_dashboard')
         else:
-            if form.data.get('personal_statement').strip() == "":
+            if form.data.get('personal_statement') and form.data.get('personal_statement').strip() == "":
                 messages.add_message(request, messages.ERROR, "Please enter a valid personal statement.")
             else:
                 messages.add_message(request, messages.ERROR, "There is an error with the form, please try again.")
@@ -201,7 +202,7 @@ def tournament_creation(request, club_id):
             messages.add_message(request, messages.SUCCESS, "Tournament created successfully.")
             return redirect('user_dashboard')
         else:
-            if form.errors['organizer'] != None:
+            if 'organizer' in form.errors:
                 messages.add_message(request, messages.ERROR, form.errors['organizer'])
                 return redirect('user_dashboard')
     else:

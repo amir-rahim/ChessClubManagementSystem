@@ -61,43 +61,24 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Tournament.objects.count()
         self.assertEqual(after_count, before_count + 1)
-    # #
-    # # def test_owner_cannot_apply_own_club(self):
-    # #     self.client.login(username="johndoe", password="Password123")
-    # #     response = self.client.get(self.url)
-    # #     form = response.context['form']
-    # #     form.cleaned_data = self.form_input
-    # #     form.data = self.form_input
-    # #     ##form.save()
-    # #     self.assertFalse(form.is_valid())
-    #
-    # def test_owner_cannot_apply_own_club(self):
-    #     self.client.login(username="johndoe", password="Password123")
-    #     response = self.client.get(self.url)
-    #     form = response.context['form']
-    #     form.cleaned_data = self.form_input
-    #     #form.save()
-    #     self.assertFalse(form.is_valid())
-    #
-    # # def test_form_shows_all_clubs(self):
-    # #     self.client.login(username="johndoe", password="Password123")
-    # #     response = self.client.get(self.url)
-    # #     form = response.context['form']
-    # #     self.assertEqual(len(form['club'].field.queryset), Club.objects.count())
-    #
-    #
-    # # def test_cannot_apply_twice(self):
-    # #     self.client.login(username="janedoe", password="Password123")
-    # #     response = self.client.get(self.url)
-    # #     form = response.context['form']
-    # #     form.cleaned_data = self.form_input
-    # #     before_count = Membership.objects.count()
-    # #     form.save()
-    # #     after_count = Membership.objects.count()
-    # #     self.assertEqual(after_count, before_count + 1)
-    #
-    #     #response = self.client.get(self.url)
-    #     #form = response.context['form']
-    #     #form.cleaned_data = self.form_input
-    #     #form.save()
-    #     #self.assertFalse(form.is_valid())
+        response_url = reverse('user_dashboard')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+
+    def test_not_valid_tournament(self):
+        self.form_input['capacity'] = 1
+        self.client.login(username="janedoe", password="Password123")
+        before_count = Tournament.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
+        self.assertEqual(response.status_code, 200)
+
+    def test_member_cannot_create_torunament(self):
+        self.form_input['organizer'] = User.objects.get(username="johndoe")
+        self.client.login(username="janedoe", password="Password123")
+        before_count = Tournament.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
+        response_url = reverse('user_dashboard')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
