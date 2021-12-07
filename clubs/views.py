@@ -333,13 +333,16 @@ def club_dashboard(request, club_id):
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
         officers = Membership.objects.filter(club=club).filter(user_type = Membership.UserTypes.OFFICER)
         applications = Membership.objects.filter(club=club, application_status='P')
+        tournaments = Tournament.objects.filter(club=club)
 
     return render(request, 'club_dashboard.html', {
         'club': club,
         'membership': membership,
         'members': members,
         'officers': officers,
-        'applications': applications
+        'applications': applications,
+        'user': user,
+        'tournaments': tournaments
     })
 
 @login_required
