@@ -7,11 +7,17 @@
     {% if form.is_bound %}
       {% if field.errors and not field.is_hidden%}
         {% render_field field class="form-control is-invalid" %}
+      {% elif field.field.widget.input_type == 'checkbox' %}
+          {{field}}
       {% else %}
         {% render_field field class="form-control is-valid" %}
       {% endif %}
     {% else %}
-      {% render_field field class="form-control" %}
+      {% if field.field.widget.input_type == 'checkbox' %}
+        {{field}}
+      {% else %}
+        {% render_field field class="form-control" %}
+      {% endif %}
     {% endif %}
     {% if not field.is_hidden %}
       <div class="valid-feedback">

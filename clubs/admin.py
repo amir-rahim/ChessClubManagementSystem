@@ -29,3 +29,5 @@ class TorunamentAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'name', 'organizer'
     ]
+
+    filter_horizontal = ('coorganizers',)

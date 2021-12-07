@@ -168,20 +168,24 @@ class ClubCreationForm(forms.ModelForm):
 
 class TournamentCreationForm(forms.ModelForm):
     """Form enabling officers to create Torunaments."""
+
     class Meta:
         model = Tournament
-        fields = ['name', 'description', 'club', 'organizer']
+        fields = ['name', 'description', 'club', 'organizer', 'coorganizers']
         widgets = {
             'description': forms.Textarea(),
             'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
-            'club': forms.HiddenInput(attrs = {'is_hidden': True})
+            'club': forms.HiddenInput(attrs = {'is_hidden': True}),
         }
-
 
     class DateTimeInput(forms.DateTimeInput):
         input_type = 'datetime-local'
 
 
+    coorganizers = forms.ModelMultipleChoiceField(queryset=User.objects.all(), widget=forms.CheckboxSelectMultiple)
+    #    queryset=User.objects.all(),
+    #    widget=forms.CheckboxSelectMultiple
+    #)
     date = forms.DateTimeField(widget = DateTimeInput())
     deadline = forms.DateTimeField(widget = DateTimeInput())
     capacity = forms.IntegerField()
@@ -214,6 +218,9 @@ class TournamentCreationForm(forms.ModelForm):
             club=self.cleaned_data.get('club'),
             deadline=self.cleaned_data.get('deadline'),
             capacity=self.cleaned_data.get('capacity'),
-            date=self.cleaned_data.get('date')
+            date=self.cleaned_data.get('date'),
         )
+        for c in self.cleaned_data.get('coorganizers'):
+            tournament.coorganizers.add(c)
+        tournament.save()
         return tournament
