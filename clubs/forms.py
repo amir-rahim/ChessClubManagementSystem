@@ -176,16 +176,29 @@ class TournamentCreationForm(forms.ModelForm):
             'description': forms.Textarea(),
             'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
             'club': forms.HiddenInput(attrs = {'is_hidden': True}),
+            'coorganizers': forms.CheckboxSelectMultiple()
         }
 
     class DateTimeInput(forms.DateTimeInput):
         input_type = 'datetime-local'
 
+    def __init__(self, *args, **kwargs):
+        super(TournamentCreationForm, self).__init__(*args, **kwargs)
+        """Querying database and retrieving all users which can create Torunaments (ie: all officers and owners at a club)"""
+        if (self.initial.get('club') != None):
+            self.data['club'] = self.initial['club']
+            self.data['organizer'] = self.initial['organizer']
 
-    coorganizers = forms.ModelMultipleChoiceField(queryset=User.objects.all(), widget=forms.CheckboxSelectMultiple)
-    #    queryset=User.objects.all(),
-    #    widget=forms.CheckboxSelectMultiple
-    #)
+        """Displaying all officers and owners which can co-organize"""
+        self.fields['coorganizers'].queryset = User.objects.filter(id__in =
+                Membership.objects.filter(
+                    club=self.data.get('club'),
+                    user_type__in = [Membership.UserTypes.OWNER, Membership.UserTypes.OFFICER]
+                )
+                .exclude(user = self.data.get('organizer'))
+                .values('user')
+            )
+
     date = forms.DateTimeField(widget = DateTimeInput())
     deadline = forms.DateTimeField(widget = DateTimeInput())
     capacity = forms.IntegerField()
