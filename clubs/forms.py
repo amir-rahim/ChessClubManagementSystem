@@ -70,7 +70,7 @@ class EditProfileForm(forms.ModelForm):
 
 class ChangePasswordForm(forms.ModelForm):
     """Form enabling users to change their password."""
-    
+
     class Meta:
         """Form options."""
 
@@ -125,13 +125,14 @@ class MembershipApplicationForm(forms.ModelForm):
         super(MembershipApplicationForm, self).__init__(*args, **kwargs)
         self.fields['club'].label_from_instance = lambda instance: instance.name
 
+        """Querying database and retrieving all clubs which a user can apply for (ie: all clubs the user is not a member, officer, or owner at)"""
         if (self.initial.get('user') != None):
             self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = self.initial['user'].id).values('club'))
             self.data['user'] = self.initial['user']
         else:
             self.queryset = Club.objects.exclude(id__in = Membership.objects.filter(user = User.objects.get(id=self.data.get('user'))).values('club'))
 
-
+        """Displaying all available clubs to the user"""
         self.fields['club'].queryset = self.queryset
         self.fields['club'].empty_label = None
 
