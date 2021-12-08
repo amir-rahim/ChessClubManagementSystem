@@ -206,9 +206,9 @@ class Match(models.Model):
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
 
-    white = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    black = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False)
+    white_player = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name="+")
+    black_player = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name="+")
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
     result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
     stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.ELIMINATION)
 
@@ -219,8 +219,8 @@ class Match(models.Model):
     }
 
     def get_match_award_for_user(user):
-        if user != white and user != black:
-            return Exception("User not participant in match")
+        if user != white_player and user != black_player:
+            raise ValueError("User not participant in match")
 
         if result == MatchResultTypes.PENDING:
             return 0
@@ -228,7 +228,7 @@ class Match(models.Model):
         if result == MatchResultTypes.DRAW:
             return MATCH_AWARDS["DRAW"]
         else:
-            if user == white:
+            if user == white_player:
                 if result == MatchResultTypes.WHITE_WIN:
                     return MATCH_AWARDS["WIN"]
                 else:
@@ -238,4 +238,9 @@ class Match(models.Model):
                     return MATCH_AWARDS["WIN"]
                 else:
                     return MATCH_AWARDS["LOSS"]
+
+class Group(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="groups")
+    players = models.ManyToManyField(User)
+
 
