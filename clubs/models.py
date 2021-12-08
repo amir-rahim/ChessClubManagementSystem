@@ -193,3 +193,49 @@ class TournamentParticipation(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False)
     class Meta:
         unique_together = ("user", "tournament")
+
+
+class Match(models.Model):
+    class MatchResultTypes(models.TextChoices):
+        PENDING = 'P'
+        WHITE_WIN = 'W'
+        DRAW = 'D'
+        BLACK_WIN = 'B'
+
+    class StageTypes(models.TextChoices):
+        ELIMINATION = 'E'
+        GROUP_STAGES = 'G'
+
+    white = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    black = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False)
+    result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
+    stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.ELIMINATION)
+
+    MATCH_AWARDS = {
+        "WIN": 1,
+        "DRAW": 0.5,
+        "LOSS": 0
+    }
+
+    def get_match_award_for_user(user):
+        if user != white and user != black:
+            return Exception("User not participant in match")
+
+        if result == MatchResultTypes.PENDING:
+            return 0
+
+        if result == MatchResultTypes.DRAW:
+            return MATCH_AWARDS["DRAW"]
+        else:
+            if user == white:
+                if result == MatchResultTypes.WHITE_WIN:
+                    return MATCH_AWARDS["WIN"]
+                else:
+                    return MATCH_AWARDS["LOSS"]
+            else:
+                if result == MatchResultTypes.BLACK_WIN:
+                    return MATCH_AWARDS["WIN"]
+                else:
+                    return MATCH_AWARDS["LOSS"]
+
