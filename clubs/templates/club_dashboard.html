@@ -1,8 +1,10 @@
 {% extends 'base_content.html' %}
+
 {% block content_head %}
    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 {% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
@@ -42,16 +44,16 @@
                     <table>
                         <tbody>
                             <tr>
-                                <th scope="col">Club Location</th>
-                                <td>{{club.location}}</td>
+                                <th scope="col">Location</th>
+                                <td>{{club.location}}</th>
                             </tr>
                             <tr>
-                                <th scope="col">Club Mission Statement</th>
-                                <td>{{club.mission_statement}}</td>
+                                <th scope="col">Mission Statement</th>
+                                <td>{{club.mission_statement}}</th>
                             </tr>
                             <tr>
-                                <th scope="col">Club Description</th>
-                                <td>{{club.description}}</td>
+                                <th scope="col">Description</th>
+                                <td>{{club.description}}</th>
                             </tr>
                         </tbody>
                     </table>
@@ -65,19 +67,19 @@
                         <tbody>
                             <tr>
                                 <th scope="col">Owner Gravatar</th>
-                                <td><img src="{{user.gravatar}}" class="center" width="120" height="120"/> </td>
+                                <td><img src="{{club.owner.gravatar}}" class="center" width="120" height="120"/> </th>
                             </tr>
                             <tr>
-                                <th scope="col">Owner Username</th>
-                                <td>{{club.owner}}</td>
+                                <th scope="col">Username</th>
+                                <td>{{club.owner}}</th>
                             </tr>
                             <tr>
-                                <th scope="col">Owner Name</th>
-                                <td>{{club.owner.name}}</td>
+                                <th scope="col">Name</th>
+                                <td>{{club.owner.name}}</th>
                             </tr>
                             <tr>
-                                <th scope="col">Owner Public Bio</th>
-                                <td>{{club.owner.public_bio}}</td>
+                                <th scope="col">Public Bio</th>
+                                <td>{{club.owner.public_bio}}</th>
                             </tr>
                         </tbody>
                     </table>
@@ -107,7 +109,42 @@
         </div>
 
         <div class="col-sm-12 col-md-8">
-            {% if not member %}
+            <div class="card cover-card">
+                <div class="card-body">
+                    {% if membership.UserTypes.OFFICER or membership.UserTypes.OWNER in membership.get_user_types %}
+                    <h2>Tournaments <a href="{% url 'new_tournament' club.id %}?next={{ request.get_full_path }}" class="btn btn-primary">Create Tournament</a></h2>
+                    {% else %}
+                    <h2>Tournaments</h2>
+                    {% endif %}
+                    <div class="table-responsive">
+                        <table id="table-tournaments" data-toggle="table" data-pagination="true">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Tournament Name</th>
+                                    <th scope="col">Organizer Name</th>
+                                    <th scope="col">Capacity</th>
+                                    <th scope="col">Deadline</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tournament in tournaments %}
+                                    <tr>
+                                        <td>{{tournament.name}}</td>
+                                        <td>{{tournament.organizer.name}}</td>
+                                        <td>{{tournament.capacity}}</td>
+                                        <td>{{tournament.deadline}}</td>
+                                        <td><a href="{% url 'tournament_dashboard' tournament.id %}" class="btn btn-primary">
+                                            View
+                                        </a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% if membership and not membership.user_type == membership.UserTypes.NON_MEMBER %}
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Members</h2>
@@ -245,6 +282,13 @@
     </div>
 
     <script>
+        const tournamentDataTable = new simpleDatatables.DataTable("#table-tournaments", {
+            fixedHeight: true,
+            columns: [
+                { select: [0, 4], sortable: false }
+            ]
+        })
+
         const dataTable = new simpleDatatables.DataTable("#table-members", {
             fixedHeight: true,
             columns: [
@@ -265,4 +309,4 @@
             outline: none;
         }
     </style>
-    {% endblock %}
+{% endblock %}

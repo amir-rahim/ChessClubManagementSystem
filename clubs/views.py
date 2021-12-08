@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
 
-from .models import Membership, Club, User
+from .models import Membership, Club, Tournament, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
 
@@ -334,15 +334,35 @@ def club_dashboard(request, club_id):
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
         officers = Membership.objects.filter(club=club).filter(user_type = Membership.UserTypes.OFFICER)
         applications = Membership.objects.filter(club=club, application_status='P')
+        tournaments = Tournament.objects.filter(club=club)
 
     return render(request, 'club_dashboard.html', {
         'club': club,
         'membership': membership,
         'members': members,
         'officers': officers,
-        'applications': applications
+        'applications': applications,
+        'user': user,
+        'tournaments': tournaments
     })
 
+@login_required
+def tournament_dashboard(request, tournament_id):
+    user = request.user
+
+    try:
+        tournament = Tournament.objects.get(id=tournament_id)
+    except:
+        tournament = None
+
+    if tournament is not None:
+        club = tournament.club
+
+    return render(request, 'tournament_dashboard.html', {
+        'club': club,
+        'tournament': tournament,
+        'user': user
+    })
 
 @login_required
 def my_applications(request):
