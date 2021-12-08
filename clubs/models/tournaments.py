@@ -30,8 +30,8 @@ class Match(models.Model):
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
 
-    white_player = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name="+")
-    black_player = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name="+")
+    white_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
+    black_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
     result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
     stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.ELIMINATION)
@@ -42,26 +42,26 @@ class Match(models.Model):
         "LOSS": 0
     }
 
-    def get_match_award_for_user(user):
-        if user != white_player and user != black_player:
+    def get_match_award_for_user(self, user):
+        if user != self.white_player and user != self.black_player:
             raise ValueError("User not participant in match")
 
-        if result == MatchResultTypes.PENDING:
+        if self.result == self.MatchResultTypes.PENDING:
             return 0
 
-        if result == MatchResultTypes.DRAW:
-            return MATCH_AWARDS["DRAW"]
+        if self.result == self.MatchResultTypes.DRAW:
+            return self.MATCH_AWARDS["DRAW"]
         else:
-            if user == white_player:
-                if result == MatchResultTypes.WHITE_WIN:
-                    return MATCH_AWARDS["WIN"]
+            if user == self.white_player:
+                if self.result == self.MatchResultTypes.WHITE_WIN:
+                    return self.MATCH_AWARDS["WIN"]
                 else:
-                    return MATCH_AWARDS["LOSS"]
+                    return self.MATCH_AWARDS["LOSS"]
             else:
-                if result == MatchResultTypes.BLACK_WIN:
-                    return MATCH_AWARDS["WIN"]
+                if self.result == self.MatchResultTypes.BLACK_WIN:
+                    return self.MATCH_AWARDS["WIN"]
                 else:
-                    return MATCH_AWARDS["LOSS"]
+                    return self.MATCH_AWARDS["LOSS"]
 
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="groups")
