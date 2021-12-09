@@ -12,12 +12,14 @@
                 <div class="card cover-card">
                     <div class="card-body">
                         <h1 class="card-title">{{tournament.name}}</h1>
-                        <a class="btn btn-primary" href="#">
-                            Join Tournament
-                        </a>
-                        <a class="btn btn-danger" href="#">
-                            Leave Tournament
-                        </a>
+                        {% if tournament.organizer != user %}
+                          {% if participants_count < tournament.capacity and not is_signed_up %}
+                            <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
+                          {% endif %}
+                          {% if is_signed_up %}
+                            <a class="btn btn-danger" href="{% url 'leave_tournament' tournament.id %}?next={{ request.get_full_path }}">Leave Tournament</a>
+                          {% endif %}
+                        {% endif %}
                     </div>
                 </div>
 

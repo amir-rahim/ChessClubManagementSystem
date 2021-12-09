@@ -7,11 +7,9 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
 
-from .models import Membership, Club, Tournament, User, Match
+from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
-
-from .models import User
 
 
 
@@ -66,8 +64,7 @@ def user_dashboard(request):
 def user_profile(request):
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
-        user = User.objects.get(pk = request.POST['user'])
-        data = {'user' : user, 'membership' : membership}
+        data = {'user' : membership.user, 'membership' : membership}
     else :
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)
@@ -368,14 +365,26 @@ def tournament_dashboard(request, tournament_id):
 
     if tournament is not None:
         club = tournament.club
+        participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
         games = Match.objects.filter(tournament=tournament)
+        
+        try:
+            TournamentParticipation.objects.get(tournament=tournament, user=user)
+            is_signed_up = True
+        except:
+            is_signed_up = False
 
-    return render(request, 'tournament_dashboard.html', {
-        'club': club,
-        'tournament': tournament,
-        'user': user,
-        'games': games
-    })
+        return render(request, 'tournament_dashboard.html', {
+            'club': club,
+            'tournament': tournament,
+            'user': user,
+            'games': games,
+            'participants_count': participants_count,
+            'is_signed_up': is_signed_up
+        })
+
+    else:
+        return redirect('user_dashboard')
 
 @login_required
 def my_applications(request):
@@ -410,6 +419,28 @@ def accept_membership(request, membership_id):
 def reject_membership(request, membership_id):
     membership = Membership.objects.get(id=membership_id)
     membership.deny_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def join_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    join_tournament_message = tournament.join_tournament(user)
+    if join_tournament_message:
+        messages.add_message(request, messages.ERROR, join_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def leave_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    leave_tournament_message = tournament.leave_tournament(user)
+    if leave_tournament_message:
+        messages.add_message(request, messages.ERROR, leave_tournament_message)
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)
