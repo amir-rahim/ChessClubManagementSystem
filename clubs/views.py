@@ -69,7 +69,7 @@ def user_profile(request):
         data = {'user' : user, 'membership' : membership}
     else :
         data = {'user': request.user, "my_profile" : True}
-    return render(request, 'user_profile.html', data)
+    return render(request, 'user_profile.html', data,)
 
 @login_required
 def edit_user_profile(request):
