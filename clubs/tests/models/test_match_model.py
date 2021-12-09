@@ -7,7 +7,7 @@ from django.utils import timezone
 import datetime
 
 class MatchModelTestCase(TestCase):
-    """Unit tests for the TournamentParticipation model."""
+    """Unit tests for the Match model."""
 
     fixtures = [
         'clubs/tests/fixtures/default_users.json',
