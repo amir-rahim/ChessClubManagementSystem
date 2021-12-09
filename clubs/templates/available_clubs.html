@@ -1,5 +1,8 @@
 {% extends 'base_content.html' %}
-
+{% block content_head %}
+   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+{% endblock %}
 {% block content %}
 <div class="container">
     <div class="row">
@@ -8,16 +11,25 @@
             <div class="card-body">
                 <h1 class="cover-heading">Available clubs</h1>
                 <p class="cover-text">Find the club you are looking for here!</p>
-                {% if list_of_clubs %}
-                  {% for club in list_of_clubs %}
-                    <hr class="solid">
-                    <p>
-                      <a href="/club/{{club.club_id}}" class="btn btn-lg btn-secondary">
-                        <b>{{club.name}}</b>
-                      </a>
-                    </p>
-                    <p><b>Owner:</b> {{club.owner}}</p>
-                  {% endfor %}
+                {% if clubs %}
+                  <div class="table-responsive">
+                         <table class="table table-hover" id="table-clubs" data-toggle="table" data-pagination="true">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Club Name</th>
+                                    <th scope="col">Owner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for club in clubs %}
+                                    <tr onclick="window.location='{% url 'club_dashboard' club.id %}';">
+                                        <td>{{club.name}}</td>
+                                        <td>{{club.owner.name}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>                
                 {% else %}
                   <hr class="solid">
                   <p>There are no available clubs at the moment.</p>
@@ -27,4 +39,10 @@
       </div>
     </div>
 </div>
+<script>
+const dataTable = new simpleDatatables.DataTable("#table-clubs", {
+    fixedHeight: true,
+    columns: []
+})
+</script>
 {% endblock %}

@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from clubs.forms import EditClubDetailsForm
 from clubs.models import User, Club
-from clubs.tests.helpers import LogInTester, reverse_with_next
+from clubs.tests.helpers import LogInTester, reverse_with_query
 
 class EditClubDetailsTest(TestCase):
     """Test suite for the edit club details view."""
@@ -40,7 +40,7 @@ class EditClubDetailsTest(TestCase):
         self.assertEqual(form.instance, self.club)
 
     def test_club_edit_redirects_when_not_owner(self):
-        redirect_url = reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_query('log_in', query_kwargs={'next': self.url})
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
@@ -63,7 +63,7 @@ class EditClubDetailsTest(TestCase):
         self.assertEqual(self.club.description, "Welcome to our club! Who keeps the best players around!")
 
     def test_unsuccessful_profile_update_due_not_owner(self):
-        self.client.login(username='jonhatandoe', password='Password123')
+        self.client.login(username='jonathandoe', password='Password123')
         before_count = Club.objects.count()
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Club.objects.count()
@@ -110,6 +110,6 @@ class EditClubDetailsTest(TestCase):
         self.assertEqual(self.club.description, "This is a new club!")
 
     def test_edit_club_redirects_when_not_logged_in(self):
-        redirect_url = reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_query('log_in', query_kwargs={'next': self.url})
         response = self.client.post(self.url, self.form_input)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

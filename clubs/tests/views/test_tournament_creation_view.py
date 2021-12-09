@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership, Tournament
 from clubs.forms import TournamentCreationForm
-from clubs.tests.helpers import LogInTester, reverse_with_next
+from clubs.tests.helpers import LogInTester, reverse_with_query
 from django.utils.timezone import make_aware
 from django.utils import timezone
 import datetime
@@ -51,7 +51,7 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         self.assertFalse(form.is_bound)
 
     def test_get_tournament_creation_redirects_when_not_logged_in(self):
-        redirect_url = reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_query('log_in', query_kwargs={'next': self.url})
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
@@ -61,43 +61,24 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Tournament.objects.count()
         self.assertEqual(after_count, before_count + 1)
-    # #
-    # # def test_owner_cannot_apply_own_club(self):
-    # #     self.client.login(username="johndoe", password="Password123")
-    # #     response = self.client.get(self.url)
-    # #     form = response.context['form']
-    # #     form.cleaned_data = self.form_input
-    # #     form.data = self.form_input
-    # #     ##form.save()
-    # #     self.assertFalse(form.is_valid())
-    #
-    # def test_owner_cannot_apply_own_club(self):
-    #     self.client.login(username="johndoe", password="Password123")
-    #     response = self.client.get(self.url)
-    #     form = response.context['form']
-    #     form.cleaned_data = self.form_input
-    #     #form.save()
-    #     self.assertFalse(form.is_valid())
-    #
-    # # def test_form_shows_all_clubs(self):
-    # #     self.client.login(username="johndoe", password="Password123")
-    # #     response = self.client.get(self.url)
-    # #     form = response.context['form']
-    # #     self.assertEqual(len(form['club'].field.queryset), Club.objects.count())
-    #
-    #
-    # # def test_cannot_apply_twice(self):
-    # #     self.client.login(username="janedoe", password="Password123")
-    # #     response = self.client.get(self.url)
-    # #     form = response.context['form']
-    # #     form.cleaned_data = self.form_input
-    # #     before_count = Membership.objects.count()
-    # #     form.save()
-    # #     after_count = Membership.objects.count()
-    # #     self.assertEqual(after_count, before_count + 1)
-    #
-    #     #response = self.client.get(self.url)
-    #     #form = response.context['form']
-    #     #form.cleaned_data = self.form_input
-    #     #form.save()
-    #     #self.assertFalse(form.is_valid())
+        response_url = reverse('user_dashboard')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+
+    def test_not_valid_tournament(self):
+        self.form_input['capacity'] = 1
+        self.client.login(username="janedoe", password="Password123")
+        before_count = Tournament.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
+        self.assertEqual(response.status_code, 200)
+
+    def test_member_cannot_create_torunament(self):
+        self.form_input['organizer'] = User.objects.get(username="johndoe")
+        self.client.login(username="janedoe", password="Password123")
+        before_count = Tournament.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count)
+        response_url = reverse('user_dashboard')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)

@@ -1,0 +1,77 @@
+ [
+  {
+    "model": "clubs.tournament",
+    "pk": 1,
+    "fields": {
+      "name": "Tournament 1",
+      "description": "Tournament description",
+      "club": 1,
+      "organizer": 3,
+      "capacity": 16,
+      "deadline": "2023-01-01T00:00:00.000Z"
+    }
+  },
+  {
+        "model": "clubs.user",
+        "pk": 6,
+        "fields": {
+            "name": "Alice Smith",
+            "username": "alicesmith",
+            "email": "alicesmith@example.com",
+            "public_bio": "Alice!",
+            "chess_experience": "G",
+            "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+            "is_active": true
+        }
+    },
+    {
+        "model": "clubs.membership",
+        "pk": 6,
+        "fields": {
+          "club": 1,
+          "user": 6,
+          "user_type": "MB",
+          "application_status": "A"
+        }
+    },
+    {
+        "model": "clubs.tournamentparticipation",
+        "pk": 1,
+        "fields": {
+            "user": 6,
+            "tournament": 1
+        }
+    },
+    {
+        "model": "clubs.user",
+        "pk": 7,
+        "fields": {
+            "name": "Bob Smith",
+            "username": "bobsmith",
+            "email": "bobsmith@example.com",
+            "public_bio": "Bob!",
+            "chess_experience": "G",
+            "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+            "is_active": true
+        }
+    },
+    {
+        "model": "clubs.membership",
+        "pk": 7,
+        "fields": {
+          "club": 1,
+          "user": 7,
+          "user_type": "MB",
+          "application_status": "A"
+        }
+    },
+    {
+        "model": "clubs.tournamentparticipation",
+        "pk": 1,
+        "fields": {
+            "user": 7,
+            "tournament": 1
+        }
+    }
+    
+]

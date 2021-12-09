@@ -1,0 +1,206 @@
+{% extends 'base_content.html' %}
+{% block content_head %}
+   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
+{% endblock %}
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-4">
+                <div class="card cover-card">
+                    <div class="card-body">
+                        <h1 class="card-title">{{tournament.name}}</h1>
+                        <a class="btn btn-primary" href="#">
+                            Join Tournament
+                        </a>
+                        <a class="btn btn-danger" href="#">
+                            Leave Tournament
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card cover-card">
+                    <div class="card-body">
+                        <h2>Tournament Details</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Description</th>
+                                    <td>{{tournament.description}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Deadline</th>
+                                    <td>{{tournament.deadline}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <td>{{tournament.date}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Capacity</th>
+                                    <td>{{tournament.capacity}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card cover-card">
+                    <div class="card-body">
+                        <h2>Club Details</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <td>{{club.name}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Location</th>
+                                    <td>{{club.location}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Mission Statement</th>
+                                    <td>{{club.mission_statement}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Description</th>
+                                    <td>{{club.description}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card cover-card">
+                    <div class="card-body">
+                        <h2>Organizer Details</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Owner Gravatar</th>
+                                    <td><img src="{{tournament.organizer.gravatar}}" class="center" width="120" height="120"/> </th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <td>{{tournament.organizer.username}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <td>{{tournament.organizer.name}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Public Bio</th>
+                                    <td>{{tournament.organizer.public_bio}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-8">
+                <div class="card cover-card">
+                    <div class="card-body">
+                        <h1 class="card-title">Schedule/Results</h1>
+                        <div class="table-responsive">
+                            <table id="table-schedule" data-toggle="table" data-pagination="true">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">White Player</th>
+                                        <th scope="col">Black Player</th>
+                                        <th scope="col">Stage</th>
+                                        <th scope="col">Result</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for schedule in games %}
+                                        <tr>
+                                            <td>{{schedule.name}}</td>
+                                            <td>{{schedule.name}}</td>
+                                            <td>{{schedule.capacity}}</td>
+                                            <td>{{schedule.deadline}}</td>
+                                            <td><a href="{% url 'tournament_dashboard' tournament.id %}" class="btn btn-primary">
+                                                View
+                                            </a></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card cover-card">
+                    <div class="card-body">
+                        <h1 class="card-title">Participants</h1>
+                        <div class="table-responsive">
+                            <table id="table-participants" data-toggle="table" data-pagination="true">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Gravatar</th>
+                                        <th scope="col">Username</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Member Type</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in participants %}
+                                    <tr>
+                                        <td>
+                                            <img src="{{member.user.gravatar}}" class="center" width="60" height="60">
+                                        </td>
+                                        <td>{{member.user.username}}</td>
+                                        <td>{{member.user.name}}</td>
+                                        <td>
+                                            {% if member.user_type == member.UserTypes.OFFICER %}
+                                                <p>Officer</p>
+                                            {% elif member.user_type == member.UserTypes.MEMBER %}
+                                                <p>Member</p>
+                                            {% else %}
+                                                <p>Owner</p>
+                                            {% endif %}
+                                        </td>
+                                        <td></td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const participantsDataTable = new simpleDatatables.DataTable("#table-participants", {
+            fixedHeight: true,
+            columns: [
+                { select: [4], sortable: false }
+            ]
+        })
+        const scheduleDataTable = new simpleDatatables.DataTable("#table-schedule", {
+            fixedHeight: true,
+            columns: [
+                { select: [4], sortable: false }
+            ]
+        })
+    </script>
+    <style>
+        .user-link {
+            background-color: transparent;
+            text-decoration: underline;
+            border: none;
+            color: blue;
+            cursor: pointer;
+        }
+
+        user-link:focus {
+            outline: none;
+        }
+    </style>
+
+{% endblock %}

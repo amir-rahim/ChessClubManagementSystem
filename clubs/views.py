@@ -5,8 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
+from django.db.models import Exists, Q, OuterRef
 
-from .models import Membership, Club, User
+from .models import Membership, Club, Tournament, User
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
 
@@ -118,12 +119,6 @@ def log_out(request):
     return redirect('home')
 
 @login_required
-def club_user_list(request):
-    model = User
-    user = User.objects.all()
-    return render(request, 'club_user_list.html', {'users': user  })
-
-@login_required
 def membership_application(request):
     if request.method == 'POST':
         form = MembershipApplicationForm(data=request.POST)
@@ -132,7 +127,7 @@ def membership_application(request):
             messages.add_message(request, messages.SUCCESS, "Application sent successfully.")
             return redirect('user_dashboard')
         else:
-            if form.data.get('personal_statement').strip() == "":
+            if form.data.get('personal_statement') and form.data.get('personal_statement').strip() == "":
                 messages.add_message(request, messages.ERROR, "Please enter a valid personal statement.")
             else:
                 messages.add_message(request, messages.ERROR, "There is an error with the form, please try again.")
@@ -206,7 +201,7 @@ def tournament_creation(request, club_id):
             messages.add_message(request, messages.SUCCESS, "Tournament created successfully.")
             return redirect('user_dashboard')
         else:
-            if form.errors['organizer'] != None:
+            if 'organizer' in form.errors:
                 messages.add_message(request, messages.ERROR, form.errors['organizer'])
                 return redirect('user_dashboard')
     else:
@@ -215,17 +210,22 @@ def tournament_creation(request, club_id):
 
 @login_required
 def available_clubs(request):
-    query = Club.objects.all()
-    list_of_clubs = []
-    for club in query:
-        owner = club.owner
-        list_of_clubs.append({"name":club.name, "owner":owner.name, "club_id":club.id})
-    return render(request, 'available_clubs.html', {'list_of_clubs': list_of_clubs})
+    # Select clubs the user is not a member of
+    subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))
+    clubs = Club.objects.filter(
+        ~Q(Exists(subquery)) |
+        Q(Exists(subquery.filter(user_type=Membership.UserTypes.NON_MEMBER)))
+    )
+    return render(request, 'available_clubs.html', {'clubs': clubs})
 
 @login_required
 def club_memberships(request):
-    memberships = Membership.objects.filter(user=request.user)
-    clubs = [membership.club for membership in memberships]
+    # Select clubs the user is a member of
+    subquery = Membership.objects.filter(user=request.user.pk, club=OuterRef('pk'))
+    clubs = Club.objects.filter(
+        Q(Exists(subquery)) &
+        ~Q(Exists(subquery.filter(user_type=Membership.UserTypes.NON_MEMBER)))
+    )
     return render(request, 'club_memberships.html', {'clubs': clubs})
 
 @login_required
@@ -263,6 +263,23 @@ def demote_member(request, club_id, user_id):
     return HttpResponse(status = 200)
 
 @login_required
+def kick_member(request, club_id, user_id):
+    current_user = User.objects.get(id=user_id)
+    try:
+        current_user_membership = Membership.objects.get(user=current_user, club=club_id)
+        if Membership.UserTypes.OWNER or Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
+            membership_to_kick = Membership.objects.get(club = club_id, user=user_id)
+            membership_to_kick.kick_member()
+        else:
+            messages.add_message(request, messages.ERROR, "You are not allowed to kick users.")
+    except:
+        messages.add_message(request, messages.ERROR, "Error kicking user.")
+
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
 def transfer_ownership(request, club_id, user_id):
     current_user = request.user
     try:
@@ -273,7 +290,7 @@ def transfer_ownership(request, club_id, user_id):
         else:
             messages.add_message(request, messages.ERROR, "You are not allowed to transfer ownership.")
     except Exception as e:
-        messages.add_message(request, messages.ERROR, "Error transferring ownership." + str(e))
+        messages.add_message(request, messages.ERROR, str(e))
 
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
@@ -282,8 +299,8 @@ def transfer_ownership(request, club_id, user_id):
 @login_required
 def leave_club(request, club_id):
     current_user = request.user
-    club = Club.objects.get(id=club_id)
     try:
+        club = Club.objects.get(id=club_id)
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
         if current_user_membership.leave():
             messages.add_message(request, messages.SUCCESS, f"Successfully left {club.name}.")
@@ -316,15 +333,35 @@ def club_dashboard(request, club_id):
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
         officers = Membership.objects.filter(club=club).filter(user_type = Membership.UserTypes.OFFICER)
         applications = Membership.objects.filter(club=club, application_status='P')
+        tournaments = Tournament.objects.filter(club=club)
 
     return render(request, 'club_dashboard.html', {
         'club': club,
         'membership': membership,
         'members': members,
         'officers': officers,
-        'applications': applications
+        'applications': applications,
+        'user': user,
+        'tournaments': tournaments
     })
 
+@login_required
+def tournament_dashboard(request, tournament_id):
+    user = request.user
+
+    try:
+        tournament = Tournament.objects.get(id=tournament_id)
+    except:
+        tournament = None
+
+    if tournament is not None:
+        club = tournament.club
+
+    return render(request, 'tournament_dashboard.html', {
+        'club': club,
+        'tournament': tournament,
+        'user': user
+    })
 
 @login_required
 def my_applications(request):

@@ -1,0 +1,17 @@
+Users:
+    1: johndoe
+    2: janedoe
+    3: johnathandoe
+    4: janetdoe
+
+Clubs:
+    1: Kerbal Chess Club
+        Members:
+            - johndoe, 1 (OW)
+            - jonathandoe, 3 (OF)
+
+    2: Royal Chess Club
+        Members:
+            - jonathandoe, 3 (OW)
+            - johndoe, 1 (MB)
+            - janedoe, 2 (NM, Pending)

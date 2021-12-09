@@ -22,7 +22,7 @@ class TournamentModelTestCase(TestCase):
         self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
         self.officer_membership.approve_membership()
         self.officer_membership.promote_to_officer()
-        self.member = User.objects.get(username='jonhatandoe')
+        self.member = User.objects.get(username='jonathandoe')
         self.tournament = Tournament.objects.create(
             name = "Tournament 1",
             description = "Tournament description",
