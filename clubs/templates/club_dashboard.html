@@ -111,7 +111,7 @@
         <div class="col-sm-12 col-md-8">
             <div class="card cover-card">
                 <div class="card-body">
-                    {% if membership.UserTypes.OFFICER or membership.UserTypes.OWNER in membership.get_user_types %}
+                    {% if membership.UserTypes.OFFICER in membership.get_user_types %}
                     <h2>Tournaments <a href="{% url 'new_tournament' club.id %}?next={{ request.get_full_path }}" class="btn btn-primary">Create Tournament</a></h2>
                     {% else %}
                     <h2>Tournaments</h2>
@@ -285,7 +285,7 @@
         const tournamentDataTable = new simpleDatatables.DataTable("#table-tournaments", {
             fixedHeight: true,
             columns: [
-                { select: [0, 4], sortable: false }
+                { select: [4], sortable: false }
             ]
         })
 
