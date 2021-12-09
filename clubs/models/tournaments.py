@@ -5,6 +5,7 @@ from .clubs import Club
 
 class Tournament(models.Model):
     class StageTypes(models.TextChoices):
+        SIGNUP = 'S'
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
 
@@ -15,7 +16,7 @@ class Tournament(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     capacity = models.IntegerField(null=True)
     deadline = models.DateTimeField(null=True)
-    stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.ELIMINATION)
+    stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.SIGNUP)
 
 class TournamentParticipation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
