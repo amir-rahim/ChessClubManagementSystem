@@ -4,6 +4,10 @@ from .clubs import Club
 
 
 class Tournament(models.Model):
+    class StageTypes(models.TextChoices):
+        ELIMINATION = 'E'
+        GROUP_STAGES = 'G'
+
     name = models.CharField(max_length=100, blank=False, unique=True)
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
@@ -11,6 +15,7 @@ class Tournament(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     capacity = models.IntegerField(null=True)
     deadline = models.DateTimeField(null=True)
+    stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.ELIMINATION)
 
 class TournamentParticipation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
@@ -26,15 +31,11 @@ class Match(models.Model):
         DRAW = 'D'
         BLACK_WIN = 'B'
 
-    class StageTypes(models.TextChoices):
-        ELIMINATION = 'E'
-        GROUP_STAGES = 'G'
-
     white_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     black_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
     result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
-    stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.ELIMINATION)
+    stage = models.CharField(max_length=1, choices=Tournament.StageTypes.choices, default=Tournament.StageTypes.ELIMINATION)
 
     MATCH_AWARDS = {
         "WIN": 1,
