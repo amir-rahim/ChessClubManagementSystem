@@ -13,6 +13,7 @@ class Tournament(models.Model):
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    coorganizers = models.ManyToManyField(User, related_name="coorganizers")
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     capacity = models.IntegerField(null=True)
     deadline = models.DateTimeField(null=True)
@@ -68,4 +69,3 @@ class Match(models.Model):
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="groups")
     players = models.ManyToManyField(User)
-
