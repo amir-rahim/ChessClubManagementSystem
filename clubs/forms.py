@@ -218,7 +218,7 @@ class TournamentCreationForm(forms.ModelForm):
             self.add_error('date', 'Tournament date must be after application deadline.')
         if capacity<2 or capacity>96:
             self.add_error('capacity', 'Capacity must be a number between 2 and 96')
-        if len(Membership.objects.filter(user = organizer, club = club)) <= 0 or Membership.objects.get(user = organizer, club = club).user_type != 'OF':
+        if len(Membership.objects.filter(user = organizer, club = club)) <= 0 or Membership.objects.get(user = organizer, club = club).user_type != Membership.UserTypes.OFFICER or Membership.objects.get(user = organizer, club = club).user_type != Membership.UserTypes.OWNER:
             self.add_error('organizer', "You don't have sufficient permissions to create a tournament.")
 
     def save(self):
