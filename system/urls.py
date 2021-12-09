@@ -35,7 +35,7 @@ urlpatterns = [
     path('new_club/', views.club_creation, name='new_club'),
     path('available_clubs/', views.available_clubs, name='available_clubs'),
     path('club/<int:club_id>', views.club_dashboard, name='club_dashboard'),
-    
+
     path('club_memberships/', views.club_memberships, name='club_memberships'),
     path('my_applications/', views.my_applications, name='my_applications'),
 
@@ -49,9 +49,12 @@ urlpatterns = [
     path('tournament/<int:tournament_id>', views.tournament_dashboard, name='tournament_dashboard'),
 
     path('club/<int:club_id>/transfer_ownership/<int:user_id>', views.transfer_ownership, name='transfer_ownership'),
-    
+
     path('membership/<int:membership_id>/approve', views.accept_membership, name='accept_membership'),
     path('membership/<int:membership_id>/deny', views.reject_membership, name='reject_membership'),
 
-    path('new_tournament/<int:club_id>', views.tournament_creation, name='new_tournament')
+    path('new_tournament/<int:club_id>', views.tournament_creation, name='new_tournament'),
+
+    path('tournament/<int:tournament_id>/join', views.join_tournament, name='join_tournament'),
+    path('tournament/<int:tournament_id>/leave', views.leave_tournament, name='leave_tournament')
 ]

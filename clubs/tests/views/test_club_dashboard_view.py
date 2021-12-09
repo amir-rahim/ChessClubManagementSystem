@@ -5,7 +5,7 @@ from clubs.models import User, Club, Membership
 from clubs.tests.helpers import reverse_with_query
 
 class ClubDashboardViewTestCase(TestCase):
-    """Tests of the home view"""
+    """Tests of the club dashboard view"""
 
     fixtures = [
         'clubs/tests/fixtures/default_users.json',
@@ -75,5 +75,3 @@ class ClubDashboardViewTestCase(TestCase):
         self.assertContains(response, "<h2>Pending applications</h2>")
         self.assertNotContains(response, "<p>No pending applications</p>")
         self.assertContains(response, "<th scope=\"col\" width=\"50%\">Jane Doe</th>")
-
-    

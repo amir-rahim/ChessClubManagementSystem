@@ -27,10 +27,10 @@ class TournamentModelTestCase(TestCase):
             name = "Tournament 1",
             description = "Tournament description",
             club = self.club,
-            date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
+            date = make_aware(datetime.datetime(2022, 12, 25, 12, 0), timezone.utc),
             organizer = self.officer,
             capacity = 2,
-            deadline = make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
+            deadline = make_aware(datetime.datetime(2022, 12, 20, 12, 0), timezone.utc),
         )
         self.tournament_deadline_passed = Tournament.objects.create(
             name = "Tournament 0",
@@ -52,10 +52,10 @@ class TournamentModelTestCase(TestCase):
             name = "Tournament 2",
             description = "Tournament description",
             club = self.club,
-            date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
+            date = make_aware(datetime.datetime(2022, 12, 25, 12, 0), timezone.utc),
             organizer = self.officer,
             capacity = 2,
-            deadline = make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
+            deadline = make_aware(datetime.datetime(2022, 12, 20, 12, 0), timezone.utc),
         )
         after = Tournament.objects.count()
         self.assertEqual(after, before+1)
@@ -67,20 +67,20 @@ class TournamentModelTestCase(TestCase):
                 name = "Tournament 2",
                 description = "Tournament description",
                 club = self.club,
-                date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
+                date = make_aware(datetime.datetime(2022, 12, 25, 12, 0), timezone.utc),
                 organizer = self.officer,
                 capacity = 2,
-                deadline = make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
+                deadline = make_aware(datetime.datetime(2022, 12, 20, 12, 0), timezone.utc),
             )
             after = Tournament.objects.count()
             Tournament.objects.create(
                 name = "Tournament 2",
                 description = "Tournament description",
                 club = self.club,
-                date = make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
+                date = make_aware(datetime.datetime(2022, 12, 25, 12, 0), timezone.utc),
                 organizer = self.officer,
                 capacity = 2,
-                deadline = make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
+                deadline = make_aware(datetime.datetime(2022, 12, 20, 12, 0), timezone.utc),
             )
             after = Tournament.objects.count()
             self.assertEqual(after, before+1)
