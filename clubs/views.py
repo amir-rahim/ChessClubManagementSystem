@@ -368,6 +368,8 @@ def tournament_dashboard(request, tournament_id):
 
     if tournament is not None:
         club = tournament.club
+        if club is None:
+            return redirect('user_dashboard')
         games = Match.objects.filter(tournament=tournament)
 
     return render(request, 'tournament_dashboard.html', {
