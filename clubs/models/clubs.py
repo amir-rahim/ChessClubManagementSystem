@@ -136,9 +136,3 @@ class Membership(models.Model):
 
     def get_user_type_name(self):
         return self.USER_TYPE_NAMES[self.user_type]
-
-
-class MembershipApplicationForm(forms.ModelForm):
-    class Meta:
-        model = Membership
-        fields = ['club', 'user', 'personal_statement']

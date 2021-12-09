@@ -103,6 +103,8 @@
                 <div class="card cover-card">
                     <div class="card-body">
                         <h1 class="card-title">Schedule</h1>
+                        <form method="POST">
+                        {% csrf_token %}
                         <div class="table-responsive">
                             <table id="table-schedule" data-toggle="table" data-pagination="true">
                                 <thead>
@@ -111,26 +113,28 @@
                                         <th scope="col">Black Player</th>
                                         <th scope="col">Stage</th>
                                         <th scope="col">Result</th>
-                                        <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for schedule in games %}
-                                    {% if schedule.result != Match.MatchResultTypes.PENDING %}
+                                    {% if schedule.result == "P" %}
                                         <tr>
-                                            <td>{{schedule.name}}</td>
-                                            <td>{{schedule.name}}</td>
-                                            <td>{{schedule.capacity}}</td>
-                                            <td>{{schedule.deadline}}</td>
-                                            <td><a href="{% url 'tournament_dashboard' tournament.id %}" class="btn btn-primary">
-                                                View
-                                            </a></td>
+                                            <td>{{schedule.white_player}}</td>
+                                            <td>{{schedule.black_player}}</td>
+                                            <td>{{schedule.stage}}</td>
+                                            <td>
+                                              <input type="radio" name={{schedule.id}} id="white" value="W"/><label for="white">&nbsp; White wins</label><br>
+                                              <input type="radio" name={{schedule.id}} id="black" value="B"/><label for="black">&nbsp; Black wins</label><br>
+                                              <input type="radio" name={{schedule.id}} id="draw" value="D"/><label for="draw">&nbsp; Draw</label>
+                                            </td>
                                         </tr>
                                     {% endif %}
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        <input type="submit" value="Save scores" class="btn btn-primary"/>
+                        </form>
                     </div>
                 </div>
 
@@ -150,12 +154,12 @@
                                 </thead>
                                 <tbody>
                                     {% for schedule in games %}
-                                    {% if schedule.result != Match.MatchResultTypes.PENDING %}
+                                    {% if schedule.result != "P" %}
                                         <tr>
-                                            <td>{{schedule.name}}</td>
-                                            <td>{{schedule.name}}</td>
-                                            <td>{{schedule.capacity}}</td>
-                                            <td>{{schedule.deadline}}</td>
+                                            <td>{{schedule.white_player}}</td>
+                                            <td>{{schedule.black_player}}</td>
+                                            <td>{{schedule.stage}}</td>
+                                            <td>{{schedule.result}}</td>
                                             <td><a href="{% url 'tournament_dashboard' tournament.id %}" class="btn btn-primary">
                                                 View
                                             </a></td>
@@ -221,14 +225,14 @@
         const scheduleDataTable = new simpleDatatables.DataTable("#table-schedule", {
             fixedHeight: true,
             columns: [
-                { select: [4], sortable: false }
+                { select: [0,3], sortable: false }
             ]
         })
 
         const resultDataTable = new simpleDatatables.DataTable("#table-result", {
             fixedHeight: true,
             columns: [
-                { select: [4], sortable: false }
+                { select: [0,4], sortable: false }
             ]
         })
     </script>

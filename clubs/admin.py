@@ -1,6 +1,6 @@
 """Configuration of the admin interface for clubs."""
 from django.contrib import admin
-from .models import User, Membership, Club, Tournament
+from .models import User, Membership, Club, Tournament, Match
 
 # Register your models here.
 
@@ -31,3 +31,8 @@ class TorunamentAdmin(admin.ModelAdmin):
     ]
 
     filter_horizontal = ('coorganizers',)
+
+
+@admin.register(Match)
+class MatchAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in Match._meta.get_fields()]
