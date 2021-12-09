@@ -7,11 +7,10 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
 
-from .models import Membership, Club, Tournament, User, TournamentParticipation
+from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
 
-from .models import User
 
 
 # Create your views here.
@@ -347,6 +346,16 @@ def club_dashboard(request, club_id):
 
 @login_required
 def tournament_dashboard(request, tournament_id):
+    if request.method == 'POST':
+        for e in request.POST:
+            try:
+                id = int(e)
+                if Match.objects.filter(id=id).exists():
+                    m = Match.objects.get(id=e)
+                    m.result=request.POST[e]
+                    m.save()
+            except:
+                pass
     user = request.user
 
     try:
@@ -356,7 +365,13 @@ def tournament_dashboard(request, tournament_id):
 
     if tournament is not None:
         club = tournament.club
+        if club is None:
+            return redirect('user_dashboard')
+
         participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
+
+        games = Match.objects.filter(tournament=tournament)
+
         try:
             TournamentParticipation.objects.get(tournament=tournament, user=user)
             is_signed_up = True
@@ -367,6 +382,7 @@ def tournament_dashboard(request, tournament_id):
             'club': club,
             'tournament': tournament,
             'user': user,
+            'games': games,
             'participants_count': participants_count,
             'is_signed_up': is_signed_up
         })
