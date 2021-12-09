@@ -2,6 +2,9 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.db import models
 from django import forms
+from libgravatar import Gravatar
+from django.utils import timezone
+from datetime import datetime
 
 from .users import User
 
