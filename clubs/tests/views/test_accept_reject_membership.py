@@ -2,7 +2,6 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership
-from clubs.tests.helpers import reverse_with_next
 
 class AcceptRejectMembershipTestCase(TestCase):
     """Tests of the accept_membership and reject_membership functionalities"""

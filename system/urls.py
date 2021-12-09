@@ -41,9 +41,13 @@ urlpatterns = [
 
     path('club/<int:club_id>/<int:user_id>/promote', views.promote_member, name='promote_member'),
     path('club/<int:club_id>/<int:user_id>/demote', views.demote_member, name='demote_member'),
+    path('club/<int:club_id>/<int:user_id>/kick', views.kick_member, name='kick_member'),
 
     path('club/<int:club_id>/edit', views.edit_club, name='edit_club'),
     path('club/<int:club_id>/leave', views.leave_club, name='leave_club'),
+
+    path('tournament/<int:tournament_id>', views.tournament_dashboard, name='tournament_dashboard'),
+
     path('club/<int:club_id>/transfer_ownership/<int:user_id>', views.transfer_ownership, name='transfer_ownership'),
     
     path('membership/<int:membership_id>/approve', views.accept_membership, name='accept_membership'),

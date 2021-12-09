@@ -29,10 +29,23 @@
         "model": "clubs.user",
         "pk": 3,
         "fields": {
-            "name": "Jonhatan Doe",
-            "username": "jonhatandoe",
-            "email": "jonhatandoe@example.com",
+            "name": "Jonathan Doe",
+            "username": "jonathandoe",
+            "email": "jonathandoe@example.com",
             "public_bio": "Hola!",
+            "chess_experience": "G",
+            "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+            "is_active": true
+        }
+    },
+    {
+        "model": "clubs.user",
+        "pk": 4,
+        "fields": {
+            "name": "Julie Doe",
+            "username": "juliedoe",
+            "email": "juliedoe@example.com",
+            "public_bio": "Julie!",
             "chess_experience": "G",
             "password": "pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
             "is_active": true

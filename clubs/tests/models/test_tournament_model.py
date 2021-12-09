@@ -1,4 +1,4 @@
-"""Unit tests for the User model."""
+"""Unit tests for the Tournament model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import User, Club, Membership, Tournament
@@ -7,7 +7,7 @@ from django.utils import timezone
 import datetime
 
 class TournamentModelTestCase(TestCase):
-    """Unit tests for the Torunament model."""
+    """Unit tests for the Tournament model."""
 
     fixtures = [
         'clubs/tests/fixtures/default_users.json',
