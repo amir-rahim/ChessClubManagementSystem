@@ -25,28 +25,65 @@ class Tournament(models.Model):
     deadline = models.DateTimeField(null=True)
     stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.SIGNUPS_OPEN)
 
+    def competing_players(self):
+        if not Group.objects.filter(tournament=self).exists():
+            return self.participants.values_list('user', flat=True)
+
+        latest_competing_group = Group.objects.filter(tournament=self).latest('phase')
+        last_competing_groups = Group.objects.filter(tournament=self, phase=latest_competing_group.phase)
+        competing_players = []
+        for last_competing_group in last_competing_groups:
+            for player in last_competing_group.players.all():
+                competing_players.append(player)
+
+
+        return competing_players
+
+    @property
+    def group_phase(self):
+        participants = self.competing_players()
+        return 1 if (len(participants) <= 32) else 0
+
+    @property
+    def group_size(self):
+        return 4 if self.group_phase == 1 else 6
+
+
     def generate_elimination_matches(self):
         # TODO: Check all matches completed 
 
-        # Generate groups from each stage
+        last_competing_group = Group.objects.filter(tournament=self).latest('phase')
+
+        # Generate groups from each stage 
         group = None
-        if not self.matches.filter(stage=Match.MatchStageTypes.ELIMINATION).exists():
-            competing_players = []
-            for group in self.groups.all():
-                group_results = group.get_group_results()
 
-                for group_result in sorted(group_results, key=group_results.get, reverse=True)[:2]:
-                    competing_players.append(group_result)
+        # If last stage was not elimination
+        if not self.groups.filter(stage=Group.GroupStageTypes.ELIMINATION).exists():
+            # If not first stage
+            if last_competing_group is not None:
+                competing_players = []
+                last_competing_groups = Group.objects.filter(tournament=self, phase=last_competing_group.phase)
+                for group in last_competing_groups:
+                    group_results = group.get_group_results()
 
-            group = Group(tournament=self, name='Elimination 1', elimination_stage=0)
-            group.save()
-            for competing_player in competing_players:
-                group.players.add(competing_player)
+                    for group_result in sorted(group_results, key=group_results.get, reverse=True)[:2]:
+                        competing_players.append(group_result)
+
+                group = Group(tournament=self, name='Elimination 1', phase=0, stage=Group.GroupStageTypes.ELIMINATION)
+                group.save()
+                for competing_player in competing_players:
+                    group.players.add(competing_player)
+
+            # If first stage (with no group stages preceeding)
+            else:
+                group = Group(tournament=self, name='Elimination 1', phase=0, stage=Group.GroupStageTypes.ELIMINATION)
+                group.save()
+                for competing_player in self.competing_players():
+                    group.players.add(competing_player)  
         else:
-            last_competing_group = Group.objects.filter(tournament=self).latest('elimination_stage')
-            last_competing_players = last_competing_group.players.all()
+            last_competing_players = self.competing_players()
 
-            last_matches = self.matches.filter(stage=Match.MatchStageTypes.ELIMINATION, group=last_competing_group)
+            last_matches = self.matches.filter(group=last_competing_group)
 
             players_within_matches = []
             for last_match in last_matches:
@@ -60,7 +97,7 @@ class Tournament(models.Model):
                 if not last_competing_player in players_within_matches:
                     competing_players.append(last_competing_player)
 
-            for match in self.matches.filter(stage=Match.MatchStageTypes.ELIMINATION, group=last_competing_group):
+            for match in self.matches.filter(group=last_competing_group):
                 if match.result == Match.MatchResultTypes.WHITE_WIN:
                     competing_players.append(match.white_player)
                 elif match.result == Match.MatchResultTypes.BLACK_WIN:
@@ -71,61 +108,71 @@ class Tournament(models.Model):
                     competing_players.append(match.white_player)
                     competing_players.append(match.black_player)
 
-            group_index = last_competing_group.elimination_stage + 1
-            group = Group(tournament=self, name=f'Elimination {group_index+1}', elimination_stage=group_index)
+            group_index = last_competing_group.phase + 1
+            group = Group(tournament=self, name=f'Elimination {group_index+1}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
             group.save()
             for competing_player in competing_players:
                 group.players.add(competing_player)
 
-
-        print(f"On group {group.elimination_stage}")
-        print(group.players.count())
-
         group_players = list(group.players.all())
 
         if len(group_players) % 2 != 0:
-            bye_player = group.players[-1]
+            bye_player = group_players[-1]
             group_players.remove(bye_player)
 
-        it = iter(group_players)
+        it = iter(group_players)    
         players_of_matches = zip(it,it)
 
         for players_of_match in players_of_matches: 
             match = Match(white_player=players_of_match[0], 
                           black_player=players_of_match[1], 
                           tournament=self,
-                          group=group,
-                          stage=Match.MatchStageTypes.ELIMINATION)
+                          group=group)
             match.save()
         
 
-    def generate_group_stage_matches(self):
+    def generate_group_stage_matches(self, groups):
         # Generate group stage matches
-        for group in self.groups.all():
+        for group in groups:
             # TODO: Generate matches for each group
             for white_player, black_player in itertools.combinations(group.players.all(), 2):
-                match = Match(tournament=self, white_player=white_player, black_player=black_player, stage=Match.MatchResultTypes.PENDING)
+                match = Match(tournament=self, white_player=white_player, black_player=black_player, group=group)
                 match.save()
 
     def generate_group_stages(self):
+        group_phase = 0
         # Generate group stages
-        participants = list(self.participants.all())
-        #random.shuffle(participants)
+        if not self.groups.filter(stage=Group.GroupStageTypes.GROUP_STAGE).exists():
+            competing_players = self.competing_players()
+        else: 
+            group_phase = 1
+            latest_competing_group = Group.objects.filter(tournament=self).latest('phase')
+            last_competing_groups = Group.objects.filter(tournament=self, phase=latest_competing_group.phase)
 
-        group_size = 4 if self.capacity <= 32 else 6
-        group_count = self.participants.count() // group_size
+            competing_players = []
+            for group in last_competing_groups:
+                group_results = group.get_group_results()
 
+                for group_result in sorted(group_results, key=group_results.get, reverse=True)[:2]:
+                    competing_players.append(group_result)
+
+
+        group_size = 4 if group_phase == 1 else 6
+        group_count = len(competing_players) // self.group_size
+
+        groups = []
         for i in range(group_count):
             group_letter = chr(ord('@')+(i+1))
-            group = Group(tournament=self, name=f'Group {group_letter}')
+            group = Group(tournament=self, name=f'Group {group_letter}', stage=Group.GroupStageTypes.GROUP_STAGE, phase=group_phase)
             group.save()
 
             for j in range(group_size):
-                group.players.add(participants[i * group_size + j].user)
+                group.players.add(competing_players[i * group_size + j])
 
             group.save()
+            groups.append(group)
 
-        self.generate_group_stage_matches()
+        self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
         if self.stage == self.StageTypes.GROUP_STAGES:
@@ -139,27 +186,24 @@ class Tournament(models.Model):
             if self.deadline is not None:
                 if self.deadline < timezone.now():
                     self.stage = self.StageTypes.SIGNUPS_CLOSED
-                    """if self.participants.count() < 16:
-                        self.generate_elimination_matches()
-                    else:
-                        self.generate_group_stages()"""
 
         if self.stage == self.StageTypes.SIGNUPS_CLOSED:
             if self.date and self.date < timezone.now():
-                if self.participants.count() < 16:
+                if self.participants.count() <= 16:
                     self.stage = self.StageTypes.ELIMINATION
                 else:
                     self.stage = self.StageTypes.GROUP_STAGES
                 
         elif self.stage == self.StageTypes.GROUP_STAGES:
-            # If all group stage matches have been played, move to the next stage
-            if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
-                self.stage = self.StageTypes.ELIMINATION
+            # If all group stage matches have been played
+            if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists(): 
+                if len(self.competing_players()) <= 33:
+                    self.stage = self.StageTypes.ELIMINATION
 
 
         elif self.stage == self.StageTypes.ELIMINATION:
             # If all matches have been played, move to the next stage
-            last_competing_group = Group.objects.filter(tournament=self).latest('elimination_stage')
+            last_competing_group = Group.objects.filter(tournament=self).latest('phase')
             if last_competing_group.players.count() == 2 and self.matches.get(group=last_competing_group).result != Match.MatchResultTypes.PENDING: 
                 self.stage = self.StageTypes.FINISHED
     
@@ -173,11 +217,16 @@ class TournamentParticipation(models.Model):
 
 
 class Group(models.Model):
+    class GroupStageTypes(models.TextChoices):
+        ELIMINATION = 'E'
+        GROUP_STAGE = 'G'
+
     name = models.CharField(max_length=100, blank=False)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="groups")
     players = models.ManyToManyField(User)
 
-    elimination_stage = models.IntegerField(null=True)
+    stage = models.CharField(max_length=1, choices=GroupStageTypes.choices, default=GroupStageTypes.ELIMINATION)
+    phase = models.IntegerField()
 
     def get_group_results(self):
         group_results = {}
@@ -192,10 +241,6 @@ class Group(models.Model):
 
 
 class Match(models.Model):
-    class MatchStageTypes(models.TextChoices):
-        ELIMINATION = 'E'
-        GROUP_STAGE = 'G'
-
     class MatchResultTypes(models.TextChoices):
         PENDING = 'P'
         WHITE_WIN = 'W'
@@ -207,7 +252,6 @@ class Match(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, related_name="matches")
     result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
-    stage = models.CharField(max_length=1, choices=MatchStageTypes.choices, default=MatchStageTypes.ELIMINATION)
 
     MATCH_AWARDS = {
         "WIN": 1,

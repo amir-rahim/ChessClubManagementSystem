@@ -1,7 +1,7 @@
 """Unit tests for the Tournament model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import User, Club, Membership, Tournament, TournamentParticipation, Match
+from clubs.models import User, Club, Membership, Tournament, TournamentParticipation, Match, Group
 from django.utils.timezone import make_aware
 from django.utils import timezone
 import datetime
@@ -133,35 +133,69 @@ class TournamentModelMatchesTestCase(TestCase):
         self.tournament.date = make_aware(self.yesterday, timezone.utc)
         self.tournament.save()
 
-    def test_tournament_96_group_stages_generate_matches(self):
+    def test_tournament_96_group_stages_phase_0_generate_matches(self):
         self.test_tournament_add_96_participants()
         
         self.tournament.check_tournament_stage_transition()
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.GROUP_STAGES)
 
         self.tournament.generate_matches()
-        group_size = 4 if self.tournament.capacity <= 32 else 6
-        group_count = self.tournament.capacity // group_size
 
+        participants = self.tournament.competing_players()
+        group_count = len(participants) // self.tournament.group_size
         match_count = Match.objects.filter(tournament = self.tournament).count()
 
-        self.assertEqual(match_count, group_count * ncr(group_size, 2))
+        self.assertEqual(self.tournament.group_phase, 0)
+        self.assertEqual(match_count, group_count * ncr(self.tournament.group_size, 2))
 
-    def test_tournament_96_group_stages_white_win(self):
-        self.test_tournament_96_group_stages_generate_matches()
+    def test_tournament_96_group_stages_phase_0_white_win(self):
+        self.test_tournament_96_group_stages_phase_0_generate_matches()
 
         for match in Match.objects.filter(tournament = self.tournament):
             match.result = Match.MatchResultTypes.WHITE_WIN
             match.save()
 
+        self.tournament.check_tournament_stage_transition()
+        
+        participants = self.tournament.competing_players()
+
+        # TODO: Add assertion
+
+        #self.assertEqual(len(participants), len(participants) // self.tournament.group_size )
+
+
+    def test_tournament_96_group_stages_phase_1_generate_matches(self):
+        self.test_tournament_96_group_stages_phase_0_white_win()
+
+        self.tournament.check_tournament_stage_transition()
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.GROUP_STAGES)
+
+        self.tournament.generate_matches()
+
+        participants = self.tournament.competing_players()
+        group_count = len(participants) // self.tournament.group_size
+
+        phase_1_groups = Group.objects.filter(tournament=self.tournament, phase=1)
+        match_count = 0
+        for group in phase_1_groups:
+            match_count += Match.objects.filter(tournament = self.tournament, group = group).count()
+
+        self.assertEqual(self.tournament.group_phase, 1)
+        self.assertEqual(match_count, group_count * ncr(self.tournament.group_size, 2))
+
+    def test_tournament_96_group_stages_phase_1_white_win(self):
+        self.test_tournament_96_group_stages_phase_1_generate_matches()
+
+        for match in Match.objects.filter(tournament = self.tournament):
+            match.result = Match.MatchResultTypes.WHITE_WIN
+            match.save()
 
         self.tournament.check_tournament_stage_transition()
         
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
 
-
-    def test_tournament_96_elimination_generate_matches(self):
-        self.test_tournament_96_group_stages_white_win()
+    def test_tournament_96_elimination_generate_matches_white_win(self):
+        self.test_tournament_96_group_stages_phase_1_white_win()
 
         
         while self.tournament.stage == Tournament.StageTypes.ELIMINATION:
