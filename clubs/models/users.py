@@ -33,6 +33,10 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
     public_bio = models.CharField(max_length=250, blank=False)
     chess_experience = models.CharField(max_length=1, choices=Experience.choices, default=Experience.BEGINNER)
+    win = models.IntegerField(default=0)
+    loss = models.IntegerField(default=0)
+    draw = models.IntegerField(default=0)
+    
 
     def gravatar(self, size=120):
         """Return a URL to the user's gravatar."""
