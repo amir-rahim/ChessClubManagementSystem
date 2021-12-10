@@ -140,7 +140,7 @@ class Tournament(models.Model):
                 match.save()
 
     def generate_group_stages(self):
-        group_phase = 0
+        group_phase = 1 if self.participants.count() <= 32 else 0
         # Generate group stages
         if not self.groups.filter(stage=Group.GroupStageTypes.GROUP_STAGE).exists():
             competing_players = self.competing_players()

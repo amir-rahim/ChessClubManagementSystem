@@ -111,7 +111,7 @@ class TournamentModelMatchesTestCase(TestCase):
     def test_tournament_add_96_participants(self):
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.SIGNUPS_OPEN)
 
-        for i in range(0, self.tournament.capacity):
+        for i in range(1, self.tournament.capacity):
             User.objects.create(
                 username = "user" + str(i),
                 email = "user" + str(i) + "@example.com",
@@ -121,7 +121,7 @@ class TournamentModelMatchesTestCase(TestCase):
                 tournament = self.tournament,
                 user = User.objects.get(username = "user" + str(i)),
             )
-
+        
     
         self.tournament.deadline = make_aware(self.yesterday, timezone.utc)
         self.tournament.save()
@@ -155,13 +155,11 @@ class TournamentModelMatchesTestCase(TestCase):
             match.result = Match.MatchResultTypes.WHITE_WIN
             match.save()
 
-        self.tournament.check_tournament_stage_transition()
-        
-        participants = self.tournament.competing_players()
+        self.tournament.check_tournament_stage_transition()     
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.GROUP_STAGES)
 
-        # TODO: Add assertion
-
-        #self.assertEqual(len(participants), len(participants) // self.tournament.group_size )
+        for match in Match.objects.filter(tournament = self.tournament):
+            self.assertEqual(match.result, Match.MatchResultTypes.WHITE_WIN)
 
 
     def test_tournament_96_group_stages_phase_1_generate_matches(self):
@@ -190,9 +188,12 @@ class TournamentModelMatchesTestCase(TestCase):
             match.result = Match.MatchResultTypes.WHITE_WIN
             match.save()
 
-        self.tournament.check_tournament_stage_transition()
-        
+        self.tournament.check_tournament_stage_transition()     
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
+
+        for match in Match.objects.filter(tournament = self.tournament):
+            self.assertEqual(match.result, Match.MatchResultTypes.WHITE_WIN)
+
 
     def test_tournament_96_elimination_generate_matches_white_win(self):
         self.test_tournament_96_group_stages_phase_1_white_win()
@@ -209,3 +210,72 @@ class TournamentModelMatchesTestCase(TestCase):
 
         
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.FINISHED)
+
+    def test_tournament_add_32_participants(self):
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.SIGNUPS_OPEN)
+
+        for i in range(1, 32):
+            User.objects.create(
+                username = "user" + str(i),
+                email = "user" + str(i) + "@example.com",
+                password = "password"
+            )
+            TournamentParticipation.objects.create(
+                tournament = self.tournament,
+                user = User.objects.get(username = "user" + str(i)),
+            )
+
+    
+        self.tournament.deadline = make_aware(self.yesterday, timezone.utc)
+        self.tournament.save()
+
+        # Close Signups
+        self.tournament.check_tournament_stage_transition()
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.SIGNUPS_CLOSED)
+
+        self.tournament.date = make_aware(self.yesterday, timezone.utc)
+        self.tournament.save()
+
+    def test_tournament_32_group_stages_phase_1_generate_matches(self):
+        self.test_tournament_add_32_participants()
+        
+        self.tournament.check_tournament_stage_transition()
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.GROUP_STAGES)
+
+        self.tournament.generate_matches()
+
+        participants = self.tournament.competing_players()
+        group_count = len(participants) // self.tournament.group_size
+        match_count = Match.objects.filter(tournament = self.tournament).count()
+
+        self.assertEqual(self.tournament.group_phase, 1)
+        self.assertEqual(match_count, group_count * ncr(self.tournament.group_size, 2))
+
+    def test_tournament_32_group_stages_phase_1_white_win(self):
+        self.test_tournament_32_group_stages_phase_1_generate_matches()
+
+        for match in Match.objects.filter(tournament = self.tournament):
+            match.result = Match.MatchResultTypes.WHITE_WIN
+            match.save()
+
+        self.tournament.check_tournament_stage_transition()     
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
+
+        for match in Match.objects.filter(tournament = self.tournament):
+            self.assertEqual(match.result, Match.MatchResultTypes.WHITE_WIN)
+
+    def test_tournament_32_elimination_generate_matches_white_win(self):
+        self.test_tournament_32_group_stages_phase_1_white_win()
+        
+        while self.tournament.stage == Tournament.StageTypes.ELIMINATION:
+            self.tournament.generate_matches()
+
+            for match in Match.objects.filter(tournament = self.tournament):
+                match.result = Match.MatchResultTypes.WHITE_WIN
+                match.save()
+
+            self.tournament.check_tournament_stage_transition()
+
+        
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.FINISHED)
+
