@@ -20,14 +20,15 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
 
     def setUp(self):
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
-        self.officer = User.objects.get(username='janedoe')
-        self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
+        self.officer = User.objects.get(username='jonathandoe')
+        #self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
+        self.officer_membership = Membership.objects.get(user = self.officer, club = self.club)
         self.officer_membership.approve_membership()
         self.officer_membership.promote_to_officer()
         self.form_input = {
             'name': "Tournament 1",
             'description': "Tournament description",
-            'organizer': self.officer.id,
+            'organizer': self.officer.pk,
             'club': self.club.pk,
             'date': make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
             'capacity': 2,
@@ -74,8 +75,8 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         self.assertEqual(response.status_code, 200)
 
     def test_member_cannot_create_torunament(self):
-        self.form_input['organizer'] = User.objects.get(username="johndoe")
-        self.client.login(username="janedoe", password="Password123")
+        self.form_input['organizer'] = User.objects.get(username="juliedoe").pk
+        self.client.login(username="juliedoe", password="Password123")
         before_count = Tournament.objects.count()
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Tournament.objects.count()
