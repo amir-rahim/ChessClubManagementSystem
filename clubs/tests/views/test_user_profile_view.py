@@ -38,6 +38,7 @@ class UserProfileViewTestCase(TestCase):
         self.assertNotContains(response, "<h4 class=\"cover-text\">Email: </h4>" )
         self.assertNotContains(response, "<h4 class=\"cover-text\">Chess Experience: </h4>" )
         self.assertContains(response, "<h4 class=\"cover-text\">Public Bio: </h4>" )
+        self.assertContains(response, "<h4 class=\"cover-text\">Match Stats: </h4>" )
         self.assertNotContains(response, "<h2 class=\"cover-heading\">Contact Details</h2>" )
         self.assertNotContains(response, "<a href= '"+ self.url +"' class=\"btn btn-lg btn-secondary\"> Edit Profile </a>")
 
@@ -49,6 +50,7 @@ def test_user_profile_viewed_from_owmer(self):
         self.assertContains(response, "<h4 class=\"cover-text\">Email: </h4>" )
         self.assertContains(response, "<h4 class=\"cover-text\">Chess Experience: </h4>" )
         self.assertContains(response, "<h4 class=\"cover-text\">Public Bio: </h4>" )
+        self.assertContains(response, "<h4 class=\"cover-text\">Match Stats: </h4>" )
         self.assertContains(response, "<h2 class=\"cover-heading\">Contact Details</h2>" )
         self.assertNotContains(response, "<a href= '"+ self.url +"' class=\"btn btn-lg btn-secondary\"> Edit Profile </a>")
 
@@ -59,5 +61,6 @@ def test_user_profile_viewed_from_officer(self):
         self.assertContains(response, "<h4 class=\"cover-text\">Email: </h4>" )
         self.assertContains(response, "<h4 class=\"cover-text\">Chess Experience: </h4>" )
         self.assertContains(response, "<h4 class=\"cover-text\">Public Bio: </h4>" )
+        self.assertContains(response, "<h4 class=\"cover-text\">Match Stats: </h4>" )
         self.assertContains(response, "<h2 class=\"cover-heading\">Contact Details</h2>" )
         self.assertNotContains(response, "<a href= '"+ self.url +"' class=\"btn btn-lg btn-secondary\"> Edit Profile </a>")

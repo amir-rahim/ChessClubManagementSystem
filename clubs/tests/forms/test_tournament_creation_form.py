@@ -16,8 +16,8 @@ class TournamentCreationFormTestCase(TestCase):
     ]
 
     def setUp(self):
-        self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
-        self.officer = User.objects.get(username='janedoe')
+        self.club = Club.objects.get(name = "Kerbal Chess Club")
+        self.officer = User.objects.get(username='johndoe')
         self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
         self.officer_membership.approve_membership()
         self.officer_membership.promote_to_officer()
