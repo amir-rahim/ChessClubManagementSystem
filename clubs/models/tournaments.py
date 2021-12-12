@@ -52,16 +52,15 @@ class Tournament(models.Model):
     def generate_elimination_matches(self):
         # TODO: Check all matches completed 
 
-        last_competing_group = Group.objects.filter(tournament=self).latest('phase')
-
         # Generate groups from each stage 
         group = None
 
         # If last stage was not elimination
         if not self.groups.filter(stage=Group.GroupStageTypes.ELIMINATION).exists():
             # If not first stage
-            if last_competing_group is not None:
+            if Group.objects.filter(tournament=self).exists():
                 competing_players = []
+                last_competing_group = Group.objects.filter(tournament=self).latest('phase')
                 last_competing_groups = Group.objects.filter(tournament=self, phase=last_competing_group.phase)
                 for group in last_competing_groups:
                     group_results = group.get_group_results()
@@ -76,13 +75,14 @@ class Tournament(models.Model):
 
             # If first stage (with no group stages preceeding)
             else:
+                competing_players = self.competing_players()
                 group = Group(tournament=self, name='Elimination 1', phase=0, stage=Group.GroupStageTypes.ELIMINATION)
                 group.save()
-                for competing_player in self.competing_players():
+                for competing_player in competing_players:
                     group.players.add(competing_player)  
         else:
+            last_competing_group = Group.objects.filter(tournament=self).latest('phase')
             last_competing_players = self.competing_players()
-
             last_matches = self.matches.filter(group=last_competing_group)
 
             players_within_matches = []
