@@ -18,11 +18,12 @@ class TournamentModelTestCase(TestCase):
     def setUp(self):
         self.owner = User.objects.get(username='johndoe')
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
-        self.officer = User.objects.get(username='janedoe')
-        self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
-        self.officer_membership.approve_membership()
-        self.officer_membership.promote_to_officer()
-        self.member = User.objects.get(username='jonathandoe')
+        self.officer = User.objects.get(username='jonathandoe')
+        self.officer_membership = Membership.objects.get(user = self.officer, club = self.club)
+        #self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
+        #self.officer_membership.approve_membership()
+        #self.officer_membership.promote_to_officer()
+        self.member = User.objects.get(username='janettedoe')
         self.tournament = Tournament.objects.create(
             name = "Tournament 1",
             description = "Tournament description",
@@ -176,3 +177,19 @@ class TournamentModelTestCase(TestCase):
         self.assertEqual(leave_tournament_message, "You are not signed-up for this tournament.")
         after = TournamentParticipation.objects.count()
         self.assertEqual(before, after)
+
+    def test_tournament_different_club_same_name(self):
+        club1 = Club.objects.get(name = "Royal Chess Club")
+        officer1 = User.objects.get(username="juliedoe")
+        before = Tournament.objects.count()
+        self.tournament1 = Tournament.objects.create(
+            name = "Tournament 1",
+            description = "Tournament description",
+            club = club1,
+            date = make_aware(datetime.datetime(2022, 12, 25, 12, 0), timezone.utc),
+            organizer = officer1,
+            capacity = 2,
+            deadline = make_aware(datetime.datetime(2022, 12, 20, 12, 0), timezone.utc),
+        )
+        after = Tournament.objects.count()
+        self.assertEqual(after, before+1)

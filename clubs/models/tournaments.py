@@ -11,7 +11,12 @@ class Tournament(models.Model):
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
 
-    name = models.CharField(max_length=100, blank=False, unique=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'club'], name='unique_tournament_club'),
+        ]
+
+    name = models.CharField(max_length=100, blank=False, unique=False)
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
