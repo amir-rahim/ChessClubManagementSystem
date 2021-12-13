@@ -14,11 +14,6 @@ import os
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
 
-# Activate django_heroku
-if '/app' in os.environ['HOME']:
-    import django_heroku
-    django_heroku.settings(locals())
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -155,5 +150,7 @@ MESSAGE_TAGS = {
     message_constants.ERROR: 'danger'
 }
 
-# Activate Django Heroku
-django_heroku.settings(locals())
+# Activate django_heroku
+if '/app' in os.environ['HOME']:
+    import django_heroku
+    django_heroku.settings(locals())
