@@ -64,7 +64,7 @@ class ClubDashboardViewTestCase(TestCase):
     def test_pending_applications_officer(self):
         self.client.login(username=self.officer.username, password="Password123")
         user2 = User.objects.get(username='janedoe')
-        new_membership = Membership(user=user2, club=self.club, user_type="NM", application_status='P')
+        new_membership = Membership(user=user2, club=self.club, user_type="NM", application_status='P', personal_statement="Some personal statement")
         new_membership.save()
         url = reverse('club_dashboard', kwargs={'club_id': self.club.id})
         response = self.client.get(url)
@@ -74,4 +74,5 @@ class ClubDashboardViewTestCase(TestCase):
         self.assertEqual(len(applications), 1)
         self.assertContains(response, "<h2>Pending applications</h2>")
         self.assertNotContains(response, "<p>No pending applications</p>")
-        self.assertContains(response, "<th scope=\"col\" width=\"50%\">Jane Doe</th>")
+        self.assertContains(response, "<td>Jane Doe</td>")
+        self.assertContains(response, "<td>Some personal statement</td>")
