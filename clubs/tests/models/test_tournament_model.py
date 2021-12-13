@@ -97,7 +97,7 @@ class TournamentModelTestCase(TestCase):
             self.assertEqual(after, before+1)
 
         self.assertEqual(after, before+1)
-        
+
     def test_join_tournament_successfully(self):
         before = TournamentParticipation.objects.count()
         join_tournament_message = self.tournament.join_tournament(self.member)
@@ -634,6 +634,31 @@ class TournamentModelMatchesTestCase(TestCase):
 
         self.tournament.check_tournament_stage_transition()
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
+
+        
+        while self.tournament.stage == Tournament.StageTypes.ELIMINATION:
+            self.tournament.generate_matches()
+            for match in Match.objects.filter(tournament = self.tournament):
+                match.result = Match.MatchResultTypes.WHITE_WIN
+                match.save()
+
+            self.tournament.check_tournament_stage_transition()
+
+        
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.FINISHED)
+
+    def test_tournament_16_elimination_generate_matches_white_win_with_draw(self):
+        self.test_tournament_add_16_participants()
+
+        self.tournament.check_tournament_stage_transition()
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
+
+        self.tournament.generate_matches()
+        for match in Match.objects.filter(tournament = self.tournament):
+            match.result = Match.MatchResultTypes.DRAW
+            match.save()
+
+        self.tournament.check_tournament_stage_transition()
 
         
         while self.tournament.stage == Tournament.StageTypes.ELIMINATION:

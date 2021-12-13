@@ -55,6 +55,7 @@ class Tournament(models.Model):
 
         # Generate groups from each stage 
         group = None
+        rescheduled_matches = []
 
         # If last stage was not elimination
         if not self.groups.filter(stage=Group.GroupStageTypes.ELIMINATION).exists():
@@ -106,30 +107,38 @@ class Tournament(models.Model):
 
                 # TODO: Change functionality to reschedule match
                 elif match.result == Match.MatchResultTypes.DRAW:
-                    competing_players.append(match.white_player)
-                    competing_players.append(match.black_player)
+                    rescheduled_matches.append(match)
 
-            group_index = last_competing_group.phase + 1
-            group = Group(tournament=self, name=f'Elimination {group_index+1}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
-            group.save()
-            for competing_player in competing_players:
-                group.players.add(competing_player)
+            if not rescheduled_matches:
+                group_index = last_competing_group.phase + 1
+                group = Group(tournament=self, name=f'Elimination {group_index+1}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
+                group.save()
+                for competing_player in competing_players:
+                    group.players.add(competing_player)
 
-        group_players = list(group.players.all())
+        if rescheduled_matches:
+            for match in rescheduled_matches:
+                match = Match(white_player=match.white_player,
+                              black_player=match.black_player,
+                              tournament=self,
+                              group=last_competing_group)
 
-        if len(group_players) % 2 != 0:
-            bye_player = group_players[-1]
-            group_players.remove(bye_player)
+        else:
+            group_players = list(group.players.all())
 
-        it = iter(group_players)    
-        players_of_matches = zip(it,it)
+            if len(group_players) % 2 != 0:
+                bye_player = group_players[-1]
+                group_players.remove(bye_player)
 
-        for players_of_match in players_of_matches: 
-            match = Match(white_player=players_of_match[0], 
-                          black_player=players_of_match[1], 
-                          tournament=self,
-                          group=group)
-            match.save()
+            it = iter(group_players)    
+            players_of_matches = zip(it,it)
+
+            for players_of_match in players_of_matches: 
+                match = Match(white_player=players_of_match[0], 
+                              black_player=players_of_match[1], 
+                              tournament=self,
+                              group=group)
+                match.save()
         
 
     def generate_group_stage_matches(self, groups):
@@ -176,10 +185,14 @@ class Tournament(models.Model):
         self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
-        if self.stage == self.StageTypes.GROUP_STAGES:
-            self.generate_group_stages()
-        elif self.stage == self.StageTypes.ELIMINATION:
-            self.generate_elimination_matches()
+        if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
+            if self.stage == self.StageTypes.GROUP_STAGES:
+                self.generate_group_stages()
+            elif self.stage == self.StageTypes.ELIMINATION:
+                self.generate_elimination_matches()
+            return True
+        else:
+            return False
             
 
     def check_tournament_stage_transition(self):
