@@ -21,7 +21,6 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
     def setUp(self):
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
         self.officer = User.objects.get(username='jonathandoe')
-        #self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
         self.officer_membership = Membership.objects.get(user = self.officer, club = self.club)
         self.officer_membership.approve_membership()
         self.officer_membership.promote_to_officer()
@@ -62,7 +61,8 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Tournament.objects.count()
         self.assertEqual(after_count, before_count + 1)
-        response_url = reverse('user_dashboard')
+        t = Tournament.objects.get(name="Tournament 1")
+        response_url = reverse('tournament_dashboard', kwargs={'tournament_id':t.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
 
     def test_not_valid_tournament(self):
