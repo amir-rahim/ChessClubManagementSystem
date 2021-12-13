@@ -1,1 +1,1 @@
-web: gunicorn clubs.wsgi
+web: gunicorn system.wsgi
