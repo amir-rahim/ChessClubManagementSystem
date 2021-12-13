@@ -369,6 +369,7 @@ def tournament_dashboard(request, tournament_id):
             return redirect('user_dashboard')
 
         participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
+        participants = TournamentParticipation.objects.filter(tournament=tournament)
 
         games = Match.objects.filter(tournament=tournament)
 
@@ -383,6 +384,7 @@ def tournament_dashboard(request, tournament_id):
             'tournament': tournament,
             'user': user,
             'games': games,
+            'participants': participants,
             'participants_count': participants_count,
             'is_signed_up': is_signed_up
         })
