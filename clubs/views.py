@@ -375,11 +375,14 @@ def tournament_dashboard(request, tournament_id):
 
         games = Match.objects.filter(tournament=tournament)
 
+        # Check if the deadline to sign-up for the tournament has passed
         current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
         sign_up_deadline_not_passed = (current_datetime < tournament.deadline)
 
+        # Check if the tournament has been started by the organizer(s) yet
         tournament_not_started = (tournament.stage == 'S' or tournament.stage == 'C')
 
+        # Get the list of coorganizers of the tournament
         coorganizers = tournament.coorganizers.all()
 
         try:

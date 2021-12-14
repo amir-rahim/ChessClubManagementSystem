@@ -225,16 +225,21 @@ class Tournament(models.Model):
 
     def join_tournament(self, user):
         current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        # The sign-up deadline must not have passed to be able to join the tournament
         if current_datetime < self.deadline:
+            # The user must be member of the club to join the tournament
             try:
                 membership = Membership.objects.get(user=user, club=self.club)
+                # The user must not be one of the tournament's organizers to be able to join the tournament
                 if (Membership.UserTypes.MEMBER in membership.get_user_types()):
                     if user != self.organizer and user not in self.coorganizers.all():
                         try:
                             current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
                         except:
                             current_participants_count = 0
+                        # The user cannot join the tournament if it is already full
                         if (current_participants_count < self.capacity):
+                            # The user is added to the tournament with a new TournamentParticipation object
                             new_participation = TournamentParticipation(user=user, tournament=self)
                             try:
                                 new_participation.full_clean()
@@ -255,10 +260,12 @@ class Tournament(models.Model):
 
     def leave_tournament(self, user):
         current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        # The sign-up deadline must not have passed to be able to leave the tournament
         if current_datetime < self.deadline:
             try:
                 tournament_participation = TournamentParticipation.objects.get(user=user, tournament=self)
                 if tournament_participation:
+                    # We remove the user from the tournament by deleting the corresponding TournamentParticipation object
                     tournament_participation.delete()
                     return ""
                 else:
@@ -269,8 +276,11 @@ class Tournament(models.Model):
             return "You cannot leave the tournament once the sign-up deadline has passed."
 
     def cancel_tournament(self, user):
+        # The user must be of the tournament's organizers to be able to cancel the tournament
         if user == self.organizer or user in self.coorganizers.all():
+            # The tournament must not already have started, to be able to be cancelled
             if (self.stage == 'S' or self.stage == 'C'):
+                # We cancel the tournament by deleting the corresponding Tournament object ; all associated objects are also deleted via CASCADE
                 self.delete()
                 return ""
             else:
