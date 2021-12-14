@@ -14,7 +14,7 @@ class UserModelTestCase(TestCase):
 
     def setUp(self):
         self.owner = User.objects.get(username='johndoe')
-        self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
+        self.club = Club.objects.get(name = "Kerbal Chess Club",  owner=1)
         self.applicant = User.objects.get(username='janedoe')
 
 
@@ -89,6 +89,16 @@ class UserModelTestCase(TestCase):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
         membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         self.assertEqual(self.club.owner, membership.club.owner)
+        with self.assertRaises(Exception):
+            owner_membership.transfer_ownership(new_owner = self.applicant)
+        self.assertNotEqual(self.club.owner, self.applicant)
+        self.assertEqual(self.club.owner, self.owner)
+
+    def test_cannot_transfer_ownership_to_another_club_officer(self):
+        club2 = Club.objects.get(name = "Royal Chess Club")
+        owner_membership = Membership.objects.get(user=self.owner, club=self.club)
+        membership = Membership.objects.create(user=self.applicant, club=club2, user_type="OF", application_status="A")
+        self.assertNotEqual(self.club.owner, membership.club.owner)
         with self.assertRaises(Exception):
             owner_membership.transfer_ownership(new_owner = self.applicant)
         self.assertNotEqual(self.club.owner, self.applicant)
