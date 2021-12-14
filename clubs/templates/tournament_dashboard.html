@@ -13,11 +13,15 @@
                     <div class="card-body">
                         <h1 class="card-title">{{tournament.name}}</h1>
                         {% if tournament.organizer != user %}
-                          {% if participants_count < tournament.capacity and not is_signed_up %}
-                            <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
-                          {% endif %}
-                          {% if is_signed_up %}
-                            <a class="btn btn-danger" href="{% url 'leave_tournament' tournament.id %}?next={{ request.get_full_path }}">Leave Tournament</a>
+                          {% if sign_up_deadline_not_passed %}
+                            {% if participants_count < tournament.capacity and not is_signed_up %}
+                              <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
+                            {% endif %}
+                            {% if is_signed_up %}
+                              <a class="btn btn-danger" href="{% url 'leave_tournament' tournament.id %}?next={{ request.get_full_path }}">Leave Tournament</a>
+                            {% endif %}
+                          {% else %}
+                            <p>The sign-up deadline for this tournament has passed.</p>
                           {% endif %}
                         {% endif %}
                     </div>

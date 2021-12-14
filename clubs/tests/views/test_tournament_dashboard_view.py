@@ -21,6 +21,15 @@ class TournamentDashboardViewTestCase(TestCase):
         self.member = User.objects.get(username='johndoe')
         self.organizer = User.objects.get(username='jonathandoe')
         self.tournament = Tournament.objects.get(id=1)
+        self.tournament_deadline_passed = Tournament.objects.create(
+            name = "Tournament 0",
+            description = "Tournament description",
+            club = self.club,
+            date = timezone.make_aware(datetime(2020, 12, 25, 12, 0), timezone.utc),
+            organizer = self.organizer,
+            capacity = 2,
+            deadline = timezone.make_aware(datetime(2020, 12, 20, 12, 0), timezone.utc),
+        )
 
     def test_get_club_dashboard_view(self):
         self.client.login(username=self.member.username, password="Password123")
@@ -110,3 +119,22 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertContains(response, ">Leave Tournament</a>")
+
+    def test_join_hidden_if_tournament_deadline_passed(self):
+        self.client.login(username=self.member.username, password="Password123")
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament_deadline_passed.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tournament_dashboard.html')
+        self.assertNotContains(response, ">Join Tournament</a>")
+        self.assertContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
+
+    def test_join_hidden_if_tournament_deadline_passed(self):
+        self.client.login(username=self.member.username, password="Password123")
+        TournamentParticipation.objects.create(user=self.member, tournament=self.tournament_deadline_passed)
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament_deadline_passed.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tournament_dashboard.html')
+        self.assertNotContains(response, ">Leave Tournament</a>")
+        self.assertContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")

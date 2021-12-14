@@ -6,6 +6,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
+from django.utils import timezone
+from datetime import datetime
 
 from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
@@ -373,6 +375,9 @@ def tournament_dashboard(request, tournament_id):
 
         games = Match.objects.filter(tournament=tournament)
 
+        current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        sign_up_deadline_not_passed = (current_datetime < tournament.deadline)
+
         try:
             TournamentParticipation.objects.get(tournament=tournament, user=user)
             is_signed_up = True
@@ -386,7 +391,8 @@ def tournament_dashboard(request, tournament_id):
             'games': games,
             'participants': participants,
             'participants_count': participants_count,
-            'is_signed_up': is_signed_up
+            'is_signed_up': is_signed_up,
+            'sign_up_deadline_not_passed': sign_up_deadline_not_passed
         })
 
     else:
