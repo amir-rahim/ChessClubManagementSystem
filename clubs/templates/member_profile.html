@@ -6,7 +6,7 @@
     <div class="col-12">
         <div class="card cover-card centered-card">
             <div class="card-body">
-                <h1 class="cover-heading">User Profile</h1>
+                <h1 class="cover-heading">Member Profile</h1>
                 <hr class="solid">
                 <section>
                     <h2 class="cover-heading">Profile Details</h2>
@@ -33,32 +33,13 @@
                     {% endif %}
                     <h4 class="cover-text">Public Bio: </h4>
                     <p>{{user.public_bio}}</p>
+                    <h4 class="cover-text">Elo Ratings: </h4>
+                    <p>Current Elo Rating: {{user.current_elo_rating}}</p><p>Lowest Elo Rating: {{user.lowest_elo_rating}}</p><p>Highest Elo Rating: {{user.highest_elo_rating}}</p>
 
                     <h4 class="cover-text">Match Stats: </h4>
                     <p>Win: {{user.win}}</p><p>Loss: {{user.loss}}</p><p>Draw: {{user.draw}}</p>
                     <p>Win/Loss Ratio: {% widthratio user.win user.loss 100 %}</p>
-                </section>
-              
-                {% if membership.UserTypes.OFFICER in membership.get_user_types or membership.UserTypes.OWNER in membership.get_user_types or my_profile != None and my_profile == True %}
-                <hr class="solid">
-                <section>
-                    <h2 class="cover-heading">Contact Details</h2>
-                    <hr class="solid">
-                    <h4 class="cover-text">Email: </h4>
-                    <p>{{user.email}}<p/>
-                </section>
-                <hr class="solid">
-                {% endif %} 
-                {% if my_profile != None and my_profile == True%}
-                <p>
-                    <a href='{% url 'edit_user_profile' %}' class="btn btn-lg btn-secondary">
-                        Edit Profile
-                    </a>
-                    <a href='{% url 'change_password' %}' class="btn btn-lg btn-danger">
-                        Change Password
-                    </a>
-                </p>
-                {% endif %} 
+                </section> 
             </div>
         </div>
       </div>

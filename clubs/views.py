@@ -450,3 +450,26 @@ def leave_tournament(request, tournament_id):
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)
+
+@login_required
+def member_profile(request, membership_id):
+    user = request.user
+    try:
+        membership = Membership.objects.get(id=membership_id)
+    except:
+        membership = None
+
+    if membership is not None:
+        club = membership.club
+        if club is None:
+            return redirect('user_dashboard')
+
+        return render(request, 'member_profile.html', {
+            'club': club,
+            'membership': membership,
+            'user': user
+        })
+
+    else:
+        messages.add_message(request, messages.ERROR, "Member not found.")
+        return redirect('user_dashboard')
