@@ -1,48 +1,125 @@
 {% extends 'base_content.html' %}
 
+{% block content_head %}
+   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
-    <div class="col-12">
-        <div class="card cover-card centered-card">
-            <div class="card-body">
-                <h1 class="cover-heading">Member Profile</h1>
-                <hr class="solid">
-                <section>
-                    <h2 class="cover-heading">Profile Details</h2>
-                    <hr class="solid">
-                    <h4 class="cover-text">Profile Photo: </h4>
-                    <p>
-                        <img src="{{user.gravatar}}" class="center" width="120" height="120"/> 
-                    </p>
-                    <h4 class="cover-text">Userame: </h4><p>{{user.username}}</p>
-                    <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
-                    {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
-                    <h4 class="cover-text">Chess Experience: </h4>
-                        {% if user.chess_experience == "B" %}
-                            <p>Beginner</p>
-                        {% elif user.chess_experience == "I" %}
-                            <p>Intermediate</p>
-                        {% elif user.chess_experience == "A" %}
-                            <p>Advanced</p>
-                        {% elif user.chess_experience == "M" %}
-                            <p>Master (IM/CM)</p>
-                        {% elif user.chess_experience == "G" %}
-                            <p>Grand Master (GM)</p>
-                        {% endif %}
-                    {% endif %}
-                    <h4 class="cover-text">Public Bio: </h4>
-                    <p>{{user.public_bio}}</p>
-                    <h4 class="cover-text">Elo Ratings: </h4>
-                    <p>Current Elo Rating: {{user.current_elo_rating}}</p><p>Lowest Elo Rating: {{user.lowest_elo_rating}}</p><p>Highest Elo Rating: {{user.highest_elo_rating}}</p>
-
-                    <h4 class="cover-text">Match Stats: </h4>
-                    <p>Win: {{user.win}}</p><p>Loss: {{user.loss}}</p><p>Draw: {{user.draw}}</p>
-                    <p>Win/Loss Ratio: {% widthratio user.win user.loss 100 %}</p>
-                </section> 
+        <div class="col-sm-12 col-md-4">
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Member Details</h2>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th scope="col">Gravatar</th>
+                                <td><img src="{{user.gravatar}}" class="center" width="120" height="120"/> </th>
+                            </tr>
+                            <tr>
+                                <th scope="col">Username</th>
+                                <td>{{user}}</th>
+                            </tr>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <td>{{user.name}}</th>
+                            </tr>
+                            <tr>
+                                <th scope="col">Public Bio</th>
+                                <td>{{user.public_bio}}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-      </div>
+        <div class="col-sm-12 col-md-8">
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Matches</h2>
+                        <div class="table-responsive">
+                            <table id="table-matches" data-toggle="table" data-pagination="true">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">White Player</th>
+                                        <th scope="col">Black Player</th>
+                                        <th scope="col">Stage</th>
+                                        <th scope="col">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for match in matches %}
+                                        <tr>
+                                            <td>{{match.white_player}}</td>
+                                            <td>{{match.black_player}}</td>
+                                            <td>{{match.stage}}</td>
+                                            <td></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                </div>
+            </div>
+            
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Tournaments</h2>
+                    <div class="table-responsive">
+                        <table id="table-tournaments" data-toggle="table" data-pagination="true">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Tournament Name</th>
+                                    <th scope="col">Organizer Name</th>
+                                    <th scope="col">Capacity</th>
+                                    <th scope="col">Deadline</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tournament in tournaments %}
+                                    <tr>
+                                        <td>{{tournament.name}}</td>
+                                        <td>{{tournament.organizer.name}}</td>
+                                        <td>{{tournament.capacity}}</td>
+                                        <td>{{tournament.deadline}}</td>
+                                        <td><a href="{% url 'tournament_dashboard' tournament.id %}" class="btn btn-primary">
+                                            View
+                                        </a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Elo Rating</h2>
+                </div>
+            </div>
+
+
+        </div>
     </div>
 </div>
+<script>
+    const tournamentDataTable = new simpleDatatables.DataTable("#table-tournaments", {
+        fixedHeight: true,
+        columns: [
+            { select: [4], sortable: false }
+        ]
+    })
+
+    const matchesDataTablle = new simpleDatatables.DataTable("#table-matches", {
+        fixedHeight: true,
+        columns: [
+            { select: [0, 4], sortable: false }
+        ]
+    })
+</script>
 {% endblock %}
