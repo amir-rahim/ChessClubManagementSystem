@@ -7,11 +7,10 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
 
-from .models import Membership, Club, Tournament, User
+from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
 
-from .models import User
 
 
 # Create your views here.
@@ -65,11 +64,10 @@ def user_dashboard(request):
 def user_profile(request):
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
-        user = User.objects.get(pk = request.POST['user'])
-        data = {'user' : user, 'membership' : membership}
+        data = {'user' : membership.user, 'membership' : membership}
     else :
         data = {'user': request.user, "my_profile" : True}
-    return render(request, 'user_profile.html', data)
+    return render(request, 'user_profile.html', data,)
 
 @login_required
 def edit_user_profile(request):
@@ -348,6 +346,16 @@ def club_dashboard(request, club_id):
 
 @login_required
 def tournament_dashboard(request, tournament_id):
+    if request.method == 'POST':
+        for e in request.POST:
+            try:
+                id = int(e)
+                if Match.objects.filter(id=id).exists():
+                    m = Match.objects.get(id=e)
+                    m.result=request.POST[e]
+                    m.save()
+            except:
+                pass
     user = request.user
 
     try:
@@ -357,12 +365,32 @@ def tournament_dashboard(request, tournament_id):
 
     if tournament is not None:
         club = tournament.club
+        if club is None:
+            return redirect('user_dashboard')
 
-    return render(request, 'tournament_dashboard.html', {
-        'club': club,
-        'tournament': tournament,
-        'user': user
-    })
+        participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
+        participants = TournamentParticipation.objects.filter(tournament=tournament)
+
+        games = Match.objects.filter(tournament=tournament)
+
+        try:
+            TournamentParticipation.objects.get(tournament=tournament, user=user)
+            is_signed_up = True
+        except:
+            is_signed_up = False
+
+        return render(request, 'tournament_dashboard.html', {
+            'club': club,
+            'tournament': tournament,
+            'user': user,
+            'games': games,
+            'participants': participants,
+            'participants_count': participants_count,
+            'is_signed_up': is_signed_up
+        })
+
+    else:
+        return redirect('user_dashboard')
 
 @login_required
 def my_applications(request):
@@ -397,6 +425,28 @@ def accept_membership(request, membership_id):
 def reject_membership(request, membership_id):
     membership = Membership.objects.get(id=membership_id)
     membership.deny_membership()
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def join_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    join_tournament_message = tournament.join_tournament(user)
+    if join_tournament_message:
+        messages.add_message(request, messages.ERROR, join_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def leave_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    leave_tournament_message = tournament.leave_tournament(user)
+    if leave_tournament_message:
+        messages.add_message(request, messages.ERROR, leave_tournament_message)
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)

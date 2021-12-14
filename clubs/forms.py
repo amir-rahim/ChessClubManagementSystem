@@ -168,19 +168,37 @@ class ClubCreationForm(forms.ModelForm):
 
 class TournamentCreationForm(forms.ModelForm):
     """Form enabling officers to create Torunaments."""
-    class Meta:
-        model = Tournament
-        fields = ['name', 'description', 'club', 'organizer']
-        widgets = {
-            'description': forms.Textarea(),
-            'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
-            'club': forms.HiddenInput(attrs = {'is_hidden': True})
-        }
-
 
     class DateTimeInput(forms.DateTimeInput):
         input_type = 'datetime-local'
 
+    class Meta:
+        model = Tournament
+        fields = ['name', 'description', 'club', 'organizer', 'coorganizers']
+        widgets = {
+            'description': forms.Textarea(),
+            'organizer': forms.HiddenInput(attrs = {'is_hidden': True}),
+            'club': forms.HiddenInput(attrs = {'is_hidden': True}),
+            'coorganizers': forms.CheckboxSelectMultiple()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TournamentCreationForm, self).__init__(*args, **kwargs)
+        self.fields['coorganizers'].label_from_instance = lambda instance: instance.name
+        """Querying database and retrieving all users which can create Torunaments (ie: all officers and owners at a club)"""
+        if (self.initial.get('club') != None):
+            self.data['club'] = self.initial['club']
+            self.data['organizer'] = self.initial['organizer']
+
+        """Displaying all officers and owners which can co-organize"""
+        self.fields['coorganizers'].queryset = User.objects.filter(id__in =
+                Membership.objects.filter(
+                    club=self.data.get('club'),
+                    user_type__in = [Membership.UserTypes.OWNER, Membership.UserTypes.OFFICER]
+                )
+                .exclude(user = self.data.get('organizer'))
+                .values('user')
+            )
 
     date = forms.DateTimeField(widget = DateTimeInput())
     deadline = forms.DateTimeField(widget = DateTimeInput())
@@ -200,7 +218,7 @@ class TournamentCreationForm(forms.ModelForm):
             self.add_error('date', 'Tournament date must be after application deadline.')
         if capacity<2 or capacity>96:
             self.add_error('capacity', 'Capacity must be a number between 2 and 96')
-        if len(Membership.objects.filter(user = organizer, club = club)) <= 0 or Membership.objects.get(user = organizer, club = club).user_type != 'OF':
+        if Membership.objects.filter(user = organizer, club = club).exists() and Membership.objects.get(user = organizer, club = club).user_type not in [Membership.UserTypes.OWNER,Membership.UserTypes.OFFICER]:
             self.add_error('organizer', "You don't have sufficient permissions to create a tournament.")
 
     def save(self):
@@ -214,6 +232,9 @@ class TournamentCreationForm(forms.ModelForm):
             club=self.cleaned_data.get('club'),
             deadline=self.cleaned_data.get('deadline'),
             capacity=self.cleaned_data.get('capacity'),
-            date=self.cleaned_data.get('date')
+            date=self.cleaned_data.get('date'),
         )
+        for c in self.cleaned_data.get('coorganizers'):
+            tournament.coorganizers.add(c)
+        tournament.save()
         return tournament

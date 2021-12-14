@@ -2,6 +2,9 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.db import models
 from django import forms
+from libgravatar import Gravatar
+from django.utils import timezone
+from datetime import datetime
 
 from .users import User
 
@@ -136,10 +139,3 @@ class Membership(models.Model):
 
     def get_user_type_name(self):
         return self.USER_TYPE_NAMES[self.user_type]
-
-
-class MembershipApplicationForm(forms.ModelForm):
-    class Meta:
-        model = Membership
-        fields = ['club', 'user', 'personal_statement']
-
