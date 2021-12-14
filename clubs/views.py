@@ -378,6 +378,8 @@ def tournament_dashboard(request, tournament_id):
         current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
         sign_up_deadline_not_passed = (current_datetime < tournament.deadline)
 
+        tournament_not_started = (tournament.stage == 'S' or tournament.stage == 'C')
+
         try:
             TournamentParticipation.objects.get(tournament=tournament, user=user)
             is_signed_up = True
@@ -392,7 +394,8 @@ def tournament_dashboard(request, tournament_id):
             'participants': participants,
             'participants_count': participants_count,
             'is_signed_up': is_signed_up,
-            'sign_up_deadline_not_passed': sign_up_deadline_not_passed
+            'sign_up_deadline_not_passed': sign_up_deadline_not_passed,
+            'tournament_not_started': tournament_not_started
         })
 
     else:
@@ -453,6 +456,17 @@ def leave_tournament(request, tournament_id):
     leave_tournament_message = tournament.leave_tournament(user)
     if leave_tournament_message:
         messages.add_message(request, messages.ERROR, leave_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def cancel_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    cancel_tournament_message = tournament.cancel_tournament(user)
+    if cancel_tournament_message:
+        messages.add_message(request, messages.ERROR, cancel_tournament_message)
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)

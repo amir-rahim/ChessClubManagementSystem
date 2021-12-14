@@ -23,6 +23,12 @@
                           {% else %}
                             <p>The sign-up deadline for this tournament has passed.</p>
                           {% endif %}
+                        {% else %}
+                          {% if tournament_not_started %}
+                            <a class="btn btn-danger" href="{% url 'cancel_tournament' tournament.id %}?next={% url 'club_dashboard' tournament.club.id %}">Cancel Tournament</a>
+                          {% else %}
+                          <p>This tournament has started.</p>
+                          {% endif %}
                         {% endif %}
                     </div>
                 </div>

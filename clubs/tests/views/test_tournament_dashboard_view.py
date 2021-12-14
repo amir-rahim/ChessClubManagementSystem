@@ -145,3 +145,32 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertNotContains(response, ">Leave Tournament</a>")
         self.assertContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
+
+    def test_cancel_hidden_if_not_organizer(self):
+        self.client.login(username=self.member.username, password="Password123")
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tournament_dashboard.html')
+        self.assertNotContains(response, ">Cancel Tournament</a>")
+
+    def test_cancel_hidden_after_tournament_start(self):
+        self.client.login(username=self.organizer.username, password="Password123")
+        Tournament.objects.filter(pk=self.tournament.pk).update(stage=Tournament.StageTypes.ELIMINATION)
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tournament_dashboard.html')
+        self.assertContains(response, "<p>This tournament has started.</p>")
+        self.assertNotContains(response, ">Cancel Tournament</a>")
+
+    def test_cancel_shown_if_organizer_before_tournament_start(self):
+        self.client.login(username=self.organizer.username, password="Password123")
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tournament_dashboard.html')
+        self.assertContains(response, ">Cancel Tournament</a>")
+
+    def test_cancel_shown_if_coorganizer(self):
+        pass
