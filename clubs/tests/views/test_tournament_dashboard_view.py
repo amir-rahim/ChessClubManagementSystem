@@ -53,6 +53,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertNotContains(response, ">Join Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_leave_hidden_to_organizer(self):
         self.client.login(username=self.organizer.username, password="Password123")
@@ -61,6 +62,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertNotContains(response, ">Leave Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_join_hidden_to_signed_up_member(self):
         self.client.login(username=self.member.username, password="Password123")
@@ -70,6 +72,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertNotContains(response, ">Join Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_leave_hidden_to_non_signed_up_member(self):
         self.client.login(username=self.member.username, password="Password123")
@@ -78,6 +81,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertNotContains(response, ">Leave Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_join_hidden_to_non_signed_up_member_if_capacity_full(self):
         self.client.login(username=self.member.username, password="Password123")
@@ -102,6 +106,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertNotContains(response, ">Join Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_join_shown_to_non_signed_up_member_if_capacity_not_full(self):
         self.client.login(username=self.member.username, password="Password123")
@@ -110,6 +115,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertContains(response, ">Join Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_leave_shown_to_signed_up_member(self):
         self.client.login(username=self.member.username, password="Password123")
@@ -119,6 +125,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertContains(response, ">Leave Tournament</a>")
+        self.assertNotContains(response, "<p>The sign-up deadline for this tournament has passed.</p>")
 
     def test_join_hidden_if_tournament_deadline_passed(self):
         self.client.login(username=self.member.username, password="Password123")
