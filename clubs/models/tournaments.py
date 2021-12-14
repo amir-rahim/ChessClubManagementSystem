@@ -51,8 +51,6 @@ class Tournament(models.Model):
 
 
     def generate_elimination_matches(self):
-        # TODO: Check all matches completed 
-
         # Generate groups from each stage 
         group = None
         rescheduled_matches = []
@@ -70,7 +68,7 @@ class Tournament(models.Model):
                     for group_result in sorted(group_results, key=group_results.get, reverse=True)[:2]:
                         competing_players.append(group_result)
 
-                group = Group(tournament=self, name='Elimination 1', phase=0, stage=Group.GroupStageTypes.ELIMINATION)
+                group = Group(tournament=self, name='Elimination 1', phase=last_competing_group.phase+1, stage=Group.GroupStageTypes.ELIMINATION)
                 group.save()
                 for competing_player in competing_players:
                     group.players.add(competing_player)
@@ -109,20 +107,18 @@ class Tournament(models.Model):
 
             if not rescheduled_matches:
                 group_index = last_competing_group.phase + 1
-                group = Group(tournament=self, name=f'Elimination {group_index+1}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
+                group = Group(tournament=self, name=f'Elimination {group_index}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
                 group.save()
                 for competing_player in competing_players:
                     group.players.add(competing_player)
 
         if rescheduled_matches:
             for match in rescheduled_matches:
-                print(f"Rescheduled match: {match.white_player.username} vs. {match.black_player.username}")
                 match = Match(white_player=match.white_player,
                               black_player=match.black_player,
                               tournament=self,
                               group=last_competing_group)
                 match.save()
-
         else:
             group_players = list(group.players.all())
 
@@ -168,7 +164,7 @@ class Tournament(models.Model):
 
 
         group_size = 4 if group_phase == 1 else 6
-        group_count = len(competing_players) // self.group_size
+        group_count = len(competing_players) // group_size
 
         groups = []
         for i in range(group_count):
@@ -210,8 +206,8 @@ class Tournament(models.Model):
                 
         elif self.stage == self.StageTypes.GROUP_STAGES:
             # If all group stage matches have been played
-            if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists(): 
-                if len(self.competing_players()) <= 33:
+            if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
+                if len(self.competing_players()) <= 32:
                     self.stage = self.StageTypes.ELIMINATION
 
 
