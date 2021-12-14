@@ -654,13 +654,26 @@ class TournamentModelMatchesTestCase(TestCase):
         self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
 
         self.tournament.generate_matches()
+
         for match in Match.objects.filter(tournament = self.tournament):
             match.result = Match.MatchResultTypes.DRAW
             match.save()
 
         self.tournament.check_tournament_stage_transition()
+        self.assertEqual(self.tournament.matches.all().count(), 8)
 
+        self.tournament.generate_matches()
+
+        for match in Match.objects.filter(tournament = self.tournament):
+            match.result = Match.MatchResultTypes.WHITE_WIN
+            match.save()
+
+        self.tournament.check_tournament_stage_transition()
+
+        self.assertEqual(self.tournament.matches.all().count(), 16)
+        self.assertEqual(self.tournament.stage, Tournament.StageTypes.ELIMINATION)
         
+ 
         while self.tournament.stage == Tournament.StageTypes.ELIMINATION:
             self.tournament.generate_matches()
             for match in Match.objects.filter(tournament = self.tournament):

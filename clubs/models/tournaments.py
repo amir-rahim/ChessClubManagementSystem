@@ -104,8 +104,6 @@ class Tournament(models.Model):
                     competing_players.append(match.white_player)
                 elif match.result == Match.MatchResultTypes.BLACK_WIN:
                     competing_players.append(match.black_player)
-
-                # TODO: Change functionality to reschedule match
                 elif match.result == Match.MatchResultTypes.DRAW:
                     rescheduled_matches.append(match)
 
@@ -118,10 +116,12 @@ class Tournament(models.Model):
 
         if rescheduled_matches:
             for match in rescheduled_matches:
+                print(f"Rescheduled match: {match.white_player.username} vs. {match.black_player.username}")
                 match = Match(white_player=match.white_player,
                               black_player=match.black_player,
                               tournament=self,
                               group=last_competing_group)
+                match.save()
 
         else:
             group_players = list(group.players.all())
