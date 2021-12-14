@@ -160,6 +160,14 @@ class TournamentModelTestCase(TestCase):
         after_duplicate_join = TournamentParticipation.objects.count()
         self.assertEqual(after, after_duplicate_join)
 
+    def test_join_tournament_as_coorganizer(self):
+        before = TournamentParticipation.objects.count()
+        self.tournament.coorganizers.add(self.member)
+        join_tournament_message = self.tournament.join_tournament(self.member)
+        self.assertEqual(join_tournament_message, "You are organizing this tournament, you cannot join it.")
+        after = TournamentParticipation.objects.count()
+        self.assertEqual(before, after)
+
     def test_leave_tournament_successfully(self):
         before = TournamentParticipation.objects.count()
         join_tournament_message = self.tournament.join_tournament(self.member)
@@ -213,7 +221,6 @@ class TournamentModelTestCase(TestCase):
     def test_cancel_tournament_coorganizer(self):
         before = Tournament.objects.count()
         self.tournament.coorganizers.add(self.member)
-        #Tournament.objects.filter(pk=self.tournament.pk).update(stage=Tournament.StageTypes.ELIMINATION)
         cancel_tournament_message = self.tournament.cancel_tournament(self.member)
         self.assertEqual(cancel_tournament_message, "")
         after = Tournament.objects.count()

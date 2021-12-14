@@ -229,7 +229,7 @@ class Tournament(models.Model):
             try:
                 membership = Membership.objects.get(user=user, club=self.club)
                 if (Membership.UserTypes.MEMBER in membership.get_user_types()):
-                    if user != self.organizer:
+                    if user != self.organizer and user not in self.coorganizers.all():
                         try:
                             current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
                         except:
