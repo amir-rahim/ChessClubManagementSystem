@@ -269,7 +269,7 @@ class Tournament(models.Model):
             return "You cannot leave the tournament once the sign-up deadline has passed."
 
     def cancel_tournament(self, user):
-        if user == self.organizer:
+        if user == self.organizer or user in self.coorganizers.all():
             if (self.stage == 'S' or self.stage == 'C'):
                 self.delete()
                 return ""

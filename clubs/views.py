@@ -380,6 +380,8 @@ def tournament_dashboard(request, tournament_id):
 
         tournament_not_started = (tournament.stage == 'S' or tournament.stage == 'C')
 
+        coorganizers = tournament.coorganizers.all()
+
         try:
             TournamentParticipation.objects.get(tournament=tournament, user=user)
             is_signed_up = True
@@ -395,7 +397,8 @@ def tournament_dashboard(request, tournament_id):
             'participants_count': participants_count,
             'is_signed_up': is_signed_up,
             'sign_up_deadline_not_passed': sign_up_deadline_not_passed,
-            'tournament_not_started': tournament_not_started
+            'tournament_not_started': tournament_not_started,
+            'coorganizers': coorganizers
         })
 
     else:

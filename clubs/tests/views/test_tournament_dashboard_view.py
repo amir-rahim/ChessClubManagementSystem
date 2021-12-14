@@ -173,4 +173,10 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertContains(response, ">Cancel Tournament</a>")
 
     def test_cancel_shown_if_coorganizer(self):
-        pass
+        self.client.login(username=self.member.username, password="Password123")
+        self.tournament.coorganizers.add(self.member)
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tournament_dashboard.html')
+        self.assertContains(response, ">Cancel Tournament</a>")

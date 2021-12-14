@@ -211,7 +211,13 @@ class TournamentModelTestCase(TestCase):
         self.assertEqual(before, after)
 
     def test_cancel_tournament_coorganizer(self):
-        pass
+        before = Tournament.objects.count()
+        self.tournament.coorganizers.add(self.member)
+        #Tournament.objects.filter(pk=self.tournament.pk).update(stage=Tournament.StageTypes.ELIMINATION)
+        cancel_tournament_message = self.tournament.cancel_tournament(self.member)
+        self.assertEqual(cancel_tournament_message, "")
+        after = Tournament.objects.count()
+        self.assertEqual(before-1, after)
 
 
 class TournamentModelMatchesTestCase(TestCase):
