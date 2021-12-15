@@ -398,19 +398,16 @@ def my_applications(request):
     user = request.user
     messages = []
     applications_info = []
-    try:
-        applications = Membership.objects.filter(user=user)
-        for application in applications:
-            application_status = application.application_status
-            if application_status == 'P':
-                application_status = "Pending"
-            elif application_status == 'A':
-                application_status = "Approved"
-            else: #'D'
-                application_status = "Denied"
-            applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
-    except:
-        pass
+    applications = Membership.objects.filter(user=user)
+    for application in applications:
+        application_status = application.application_status
+        if application_status == 'P':
+            application_status = "Pending"
+        elif application_status == 'A':
+            application_status = "Approved"
+        else: #'D'
+            application_status = "Denied"
+        applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
     return render(request, 'my_applications.html', {'applications_info': applications_info})
 
 
