@@ -184,12 +184,20 @@
                                                           Actions
                                                         </button>
                                                         <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
-                                                          <li>
+                                                            <li>
                                                                 <a class="dropdown-item"
                                                                     href="{% url 'member_profile' member.id %}">
-                                                                    View Profile
+                                                                    View Member Profile
                                                                 </a>
                                                             </li>
+                                                            <li>
+                                                                <form action="{% url 'user_profile'%}" method="POST">
+                                                                  {% csrf_token %}
+                                                                  <input type="hidden" name="user" value="{{member.user.pk}}">
+                                                                  <input type="hidden" name="membership" value="{{membership.pk}}">
+                                                                  <input type="submit" value="View User Profile" class="dropdown-item" />
+                                                                </form>
+                                                              </li>
                                                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                                                 {% if member.user_type == member.UserTypes.OFFICER %}
                                                                 <li>
@@ -221,12 +229,11 @@
                                                         </ul>
                                                     </div>
                                                 {% else %}
-                                                  <form action="{% url 'user_profile'%}" method="POST">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="user" value="{{member.user.pk}}">
-                                                    <input type="hidden" name="membership" value="{{membership.pk}}">
-                                                    <input type="submit" value="View Profile" class="btn btn-secondary" />
-                                                  </form>
+                                                    <a class="btn btn-secondary"
+                                                        href="{% url 'member_profile' member.id %}">
+                                                        View Profile
+                                                    </a>
+
                                                 {% endif %}
                                             </ul>
                                         </div>
