@@ -157,6 +157,12 @@ def edit_club(request, club_id):
     current_user = request.user
 
     try:
+        current_club = Club.objects.get(id=club_id)
+    except:
+        messages.add_message(request, messages.ERROR, "The club you're trying to edit does not exists.")
+        return redirect('user_dashboard')
+
+    try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
     except:
         current_user_membership = None
@@ -168,11 +174,6 @@ def edit_club(request, club_id):
     if current_user_membership.user_type != "OW":
         messages.add_message(request, messages.ERROR, "Must be an owner to edit details!")
         return redirect('club_dashboard', club_id)
-
-    try:
-        current_club = Club.objects.get(id=club_id)
-    except:
-        current_club = None
 
     if request.method == 'POST':
         form = EditClubDetailsForm(instance=current_club, data=request.POST)
@@ -263,10 +264,11 @@ def demote_member(request, club_id, user_id):
 
 @login_required
 def kick_member(request, club_id, user_id):
-    current_user = User.objects.get(id=user_id)
+    #current_user = User.objects.get(id=user_id)
+    current_user = request.user
     try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
-        if Membership.UserTypes.OWNER or Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
+        if Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
             membership_to_kick = Membership.objects.get(club = club_id, user=user_id)
             membership_to_kick.kick_member()
         else:

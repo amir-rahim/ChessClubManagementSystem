@@ -127,3 +127,13 @@ class UserModelTestCase(TestCase):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
         owner_membership.leave()
         self.assertEqual(owner_membership.user_type, Membership.UserTypes.OWNER)
+
+    def test_kick_member(self):
+        membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
+        membership.kick_member()
+        self.assertEqual(Membership.objects.filter(id = membership.id).count(), 0)
+
+    def test_owner_cannot_be_kicked(self):
+        owner_membership = Membership.objects.get(user=self.owner, club=self.club)
+        owner_membership.kick_member()
+        self.assertEqual(owner_membership.user_type, Membership.UserTypes.OWNER)
