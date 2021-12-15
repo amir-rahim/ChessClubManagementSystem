@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
-from clubs.models import User, Club, Membership, Tournament, TournamentParticipation
+from clubs.models.users import User
+from clubs.models.clubs import Club, Membership
+from clubs.models.tournaments import Tournament, TournamentParticipation, Match, Group
 
 class Command(BaseCommand):
     """The database unseeder."""
@@ -12,3 +14,5 @@ class Command(BaseCommand):
         Membership.objects.all().delete()
         Tournament.objects.all().delete()
         TournamentParticipation.objects.all().delete()
+        Match.objects.all().delete()
+        Group.objects.all().delete()
