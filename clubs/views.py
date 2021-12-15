@@ -6,6 +6,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
+from django.utils import timezone
+from datetime import datetime
 
 from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
@@ -373,6 +375,16 @@ def tournament_dashboard(request, tournament_id):
 
         games = Match.objects.filter(tournament=tournament)
 
+        # Check if the deadline to sign-up for the tournament has passed
+        current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        sign_up_deadline_not_passed = (current_datetime < tournament.deadline)
+
+        # Check if the tournament has been started by the organizer(s) yet
+        tournament_not_started = (tournament.stage == 'S' or tournament.stage == 'C')
+
+        # Get the list of coorganizers of the tournament
+        coorganizers = tournament.coorganizers.all()
+
         try:
             TournamentParticipation.objects.get(tournament=tournament, user=user)
             is_signed_up = True
@@ -386,7 +398,10 @@ def tournament_dashboard(request, tournament_id):
             'games': games,
             'participants': participants,
             'participants_count': participants_count,
-            'is_signed_up': is_signed_up
+            'is_signed_up': is_signed_up,
+            'sign_up_deadline_not_passed': sign_up_deadline_not_passed,
+            'tournament_not_started': tournament_not_started,
+            'coorganizers': coorganizers
         })
 
     else:
@@ -447,6 +462,50 @@ def leave_tournament(request, tournament_id):
     leave_tournament_message = tournament.leave_tournament(user)
     if leave_tournament_message:
         messages.add_message(request, messages.ERROR, leave_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+@login_required
+def member_profile(request, membership_id):
+    user = request.user
+    try:
+        membership = Membership.objects.get(id=membership_id)
+    except:
+        membership = None
+
+    if membership is not None:
+        club = membership.club
+        if club is None:
+            return redirect('user_dashboard')
+
+        if not Membership.objects.filter(user=user, club=club).exists():
+            messages.add_message(request, messages.ERROR, "You are not a member of this club.")
+            return redirect('user_dashboard')
+
+        matches = list(Match.objects.filter(Q(tournament__club=club) & Q(white_player=membership.user) | Q(black_player=membership.user)))
+        tournament_ids = TournamentParticipation.objects.filter(user=membership.user).values_list('tournament', flat=True).distinct()
+        tournaments = list(Tournament.objects.filter(id__in=tournament_ids))
+
+
+        return render(request, 'member_profile.html', {
+            'club': club,
+            'membership': membership,
+            'user': membership.user,
+            'matches': matches,
+            'tournaments': tournaments
+        })
+
+    else:
+        messages.add_message(request, messages.ERROR, "Member not found.")
+        return redirect('user_dashboard')
+
+def cancel_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    cancel_tournament_message = tournament.cancel_tournament(user)
+    if cancel_tournament_message:
+        messages.add_message(request, messages.ERROR, cancel_tournament_message)
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)
