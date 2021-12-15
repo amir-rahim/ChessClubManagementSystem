@@ -185,13 +185,11 @@
                                                         </button>
                                                         <ul class="dropdown-menu" aria-labelledby="btn-group-drop-{{member.user.username}}">
                                                           <li>
-                                                            <form action="{% url 'user_profile'%}" method="POST">
-                                                              {% csrf_token %}
-                                                              <input type="hidden" name="user" value="{{member.user.pk}}">
-                                                              <input type="hidden" name="membership" value="{{membership.pk}}">
-                                                              <input type="submit" value="View Profile" class="dropdown-item" />
-                                                            </form>
-                                                          </li>
+                                                                <a class="dropdown-item"
+                                                                    href="{% url 'member_profile' member.id %}">
+                                                                    View Profile
+                                                                </a>
+                                                            </li>
                                                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                                                 {% if member.user_type == member.UserTypes.OFFICER %}
                                                                 <li>
