@@ -36,8 +36,9 @@ class User(AbstractUser):
     win = models.IntegerField(default=0)
     loss = models.IntegerField(default=0)
     draw = models.IntegerField(default=0)
-    
-
+    current_elo_rating = models.IntegerField(default=1000)
+    highest_elo_rating = models.IntegerField(default=1000)
+    lowest_elo_rating = models.IntegerField(default=1000)
     def gravatar(self, size=120):
         """Return a URL to the user's gravatar."""
         gravatar_object = Gravatar(self.email)
