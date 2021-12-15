@@ -6,6 +6,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
 from django.db.models import Exists, Q, OuterRef
+from django.utils import timezone
+from datetime import datetime
 
 from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
@@ -373,6 +375,16 @@ def tournament_dashboard(request, tournament_id):
 
         games = Match.objects.filter(tournament=tournament)
 
+        # Check if the deadline to sign-up for the tournament has passed
+        current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        sign_up_deadline_not_passed = (current_datetime < tournament.deadline)
+
+        # Check if the tournament has been started by the organizer(s) yet
+        tournament_not_started = (tournament.stage == 'S' or tournament.stage == 'C')
+
+        # Get the list of coorganizers of the tournament
+        coorganizers = tournament.coorganizers.all()
+
         try:
             TournamentParticipation.objects.get(tournament=tournament, user=user)
             is_signed_up = True
@@ -386,7 +398,10 @@ def tournament_dashboard(request, tournament_id):
             'games': games,
             'participants': participants,
             'participants_count': participants_count,
-            'is_signed_up': is_signed_up
+            'is_signed_up': is_signed_up,
+            'sign_up_deadline_not_passed': sign_up_deadline_not_passed,
+            'tournament_not_started': tournament_not_started,
+            'coorganizers': coorganizers
         })
 
     else:
@@ -484,3 +499,13 @@ def member_profile(request, membership_id):
     else:
         messages.add_message(request, messages.ERROR, "Member not found.")
         return redirect('user_dashboard')
+
+def cancel_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    cancel_tournament_message = tournament.cancel_tournament(user)
+    if cancel_tournament_message:
+        messages.add_message(request, messages.ERROR, cancel_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
