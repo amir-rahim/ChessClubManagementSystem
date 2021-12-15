@@ -335,6 +335,9 @@ def club_dashboard(request, club_id):
         officers = Membership.objects.filter(club=club).filter(user_type = Membership.UserTypes.OFFICER)
         applications = Membership.objects.filter(club=club, application_status='P')
         tournaments = Tournament.objects.filter(club=club)
+    else:
+        messages.add_message(request, messages.ERROR, "This club does not exist")
+        return redirect('user_dashboard')
 
     return render(request, 'club_dashboard.html', {
         'club': club,
