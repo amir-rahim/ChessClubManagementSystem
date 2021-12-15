@@ -33,10 +33,7 @@ class Tournament(models.Model):
                 membership = Membership.objects.get(user=user, club=self.club)
                 if (Membership.UserTypes.MEMBER in membership.get_user_types()):
                     if user != self.organizer:
-                        try:
-                            current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
-                        except:
-                            current_participants_count = 0
+                        current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
                         if (current_participants_count < self.capacity):
                             new_participation = TournamentParticipation(user=user, tournament=self)
                             try:
@@ -61,11 +58,8 @@ class Tournament(models.Model):
         if current_datetime < self.deadline:
             try:
                 tournament_participation = TournamentParticipation.objects.get(user=user, tournament=self)
-                if tournament_participation:
-                    tournament_participation.delete()
-                    return ""
-                else:
-                    return "You are not signed-up for this tournament."
+                tournament_participation.delete()
+                return ""
             except:
                 return "You are not signed-up for this tournament."
         else:

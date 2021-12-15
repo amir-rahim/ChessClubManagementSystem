@@ -20,9 +20,6 @@ class TournamentModelTestCase(TestCase):
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
         self.officer = User.objects.get(username='jonathandoe')
         self.officer_membership = Membership.objects.get(user = self.officer, club = self.club)
-        #self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
-        #self.officer_membership.approve_membership()
-        #self.officer_membership.promote_to_officer()
         self.member = User.objects.get(username='janettedoe')
         self.tournament = Tournament.objects.create(
             name = "Tournament 1",
@@ -42,7 +39,6 @@ class TournamentModelTestCase(TestCase):
             capacity = 2,
             deadline = make_aware(datetime.datetime(2020, 12, 20, 12, 0), timezone.utc),
         )
-
 
     def test_is_officer(self):
         self.assertEqual(self.officer_membership.user_type, "OF")
@@ -193,3 +189,14 @@ class TournamentModelTestCase(TestCase):
         )
         after = Tournament.objects.count()
         self.assertEqual(after, before+1)
+
+    def test_non_member_cannot_join_tournament(self):
+        non_member = User.objects.get(username="juliedoe")
+        self.assertEqual(self.tournament.join_tournament(non_member), "You are not a member of this club, you cannot join the tournament." )
+
+    def test_organizer_cannot_join_tournament(self):
+        with self.assertRaises(Exception):
+            tournament.join_tournament(self.officer)
+
+    def test_cannot_leave_never_signed_tournament(self):
+        self.assertEqual(self.tournament.leave_tournament(self.member), "You are not signed-up for this tournament." )
