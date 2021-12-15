@@ -464,13 +464,17 @@ def member_profile(request, membership_id):
         if club is None:
             return redirect('user_dashboard')
 
+        if not Membership.objects.filter(user=user, club=club).exists():
+            messages.add_message(request, messages.ERROR, "You are not a member of this club.")
+            return redirect('user_dashboard')
+
         matches = Match.objects.filter(Q(tournament__club=club) & Q(white_player=membership.user) | Q(black_player=membership.user))
         tournaments = TournamentParticipation.objects.filter(user=membership.user).values_list('tournament', flat=True)
 
         return render(request, 'member_profile.html', {
             'club': club,
             'membership': membership,
-            'user': user,
+            'user': membership.user,
             'matches': matches,
             'tournaments': tournaments
         })
