@@ -370,8 +370,6 @@ def tournament_dashboard(request, tournament_id):
 
     if tournament is not None:
         club = tournament.club
-        if club is None:
-            return redirect('user_dashboard')
 
         participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
 

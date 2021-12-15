@@ -1,7 +1,7 @@
 """Tests of the tournament dashboard view"""
 from django.test import TestCase
 from django.urls import reverse
-from clubs.models import User, Club, Membership, Tournament, TournamentParticipation
+from clubs.models import User, Club, Membership, Tournament, TournamentParticipation, Match
 from clubs.tests.helpers import reverse_with_query
 from django.utils import timezone
 from datetime import datetime
@@ -22,7 +22,7 @@ class TournamentDashboardViewTestCase(TestCase):
         self.organizer = User.objects.get(username='jonathandoe')
         self.tournament = Tournament.objects.get(id=1)
 
-    def test_get_club_dashboard_view(self):
+    def test_get_tournament_dashboard_view(self):
         self.client.login(username=self.member.username, password="Password123")
 
         url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
@@ -30,7 +30,16 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
 
-    def test_club_dashboard_view_redirects_not_logged_in(self):
+    def test_get_unexisting_tournament_dashboard_view(self):
+        self.client.login(username=self.member.username, password="Password123")
+
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': 12345})
+        response = self.client.get(url)
+        redirect_url = reverse('user_dashboard')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_tournament_dashboard_view_redirects_not_logged_in(self):
         url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
         redirect_url = reverse_with_query('log_in', query_kwargs={'next': url})
         response = self.client.get(url)
@@ -110,3 +119,30 @@ class TournamentDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tournament_dashboard.html')
         self.assertContains(response, ">Leave Tournament</a>")
+
+    def test_input_matches_result(self):
+        self.client.login(username=self.organizer.username, password="Password123")
+        Match.objects.create(tournament=self.tournament)
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        match_result = {self.tournament.id:'W'}
+        response = self.client.post(url, match_result)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Match.objects.get(tournament=self.tournament).result, 'W')
+
+    def test_input_matches_invalid_tournament_id(self):
+        self.client.login(username=self.organizer.username, password="Password123")
+        Match.objects.create(tournament=self.tournament)
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        match_result = {"unexisting":'W'}
+        response = self.client.post(url, match_result)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Match.objects.get(tournament=self.tournament).result, 'P')
+
+    def test_input_matches_unexisting_tournament(self):
+        self.client.login(username=self.organizer.username, password="Password123")
+        Match.objects.create(tournament=self.tournament)
+        url = reverse('tournament_dashboard', kwargs={'tournament_id': self.tournament.id})
+        match_result = {"1234567":'W'}
+        response = self.client.post(url, match_result)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Match.objects.get(tournament=self.tournament).result, 'P')
