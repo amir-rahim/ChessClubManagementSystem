@@ -366,6 +366,7 @@ def tournament_dashboard(request, tournament_id):
         tournament = None
 
     if tournament is not None:
+        tournament.check_tournament_stage_transition()
         club = tournament.club
         if club is None:
             return redirect('user_dashboard')
@@ -375,12 +376,13 @@ def tournament_dashboard(request, tournament_id):
 
         games = Match.objects.filter(tournament=tournament)
 
-        # Check if the deadline to sign-up for the tournament has passed
-        current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
-        sign_up_deadline_not_passed = (current_datetime < tournament.deadline)
-
-        # Check if the tournament has been started by the organizer(s) yet
-        tournament_not_started = (tournament.stage == 'S' or tournament.stage == 'C')
+        status = {
+            Tournament.StageTypes.SIGNUPS_OPEN: "Signups Open",
+            Tournament.StageTypes.SIGNUPS_CLOSED: "Signups Closed",
+            Tournament.StageTypes.ELIMINATION: "Elimination",
+            Tournament.StageTypes.GROUP_STAGES: "Group Stages",
+            Tournament.StageTypes.FINISHED: "Finished",
+        }[tournament.stage]
 
         # Get the list of coorganizers of the tournament
         coorganizers = tournament.coorganizers.all()
@@ -399,9 +401,8 @@ def tournament_dashboard(request, tournament_id):
             'participants': participants,
             'participants_count': participants_count,
             'is_signed_up': is_signed_up,
-            'sign_up_deadline_not_passed': sign_up_deadline_not_passed,
-            'tournament_not_started': tournament_not_started,
-            'coorganizers': coorganizers
+            'coorganizers': coorganizers,
+            'status': status
         })
 
     else:
@@ -506,6 +507,16 @@ def cancel_tournament(request, tournament_id):
     cancel_tournament_message = tournament.cancel_tournament(user)
     if cancel_tournament_message:
         messages.add_message(request, messages.ERROR, cancel_tournament_message)
+    if request.GET.get('next'):
+        return redirect(request.GET.get('next'))
+    return HttpResponse(status = 200)
+
+def generate_matches(request, tournament_id):
+    tournament = Tournament.objects.get(id=tournament_id)
+    user = request.user
+    message = tournament.generate_matches()
+    if message:
+        messages.add_message(request, *message)
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)

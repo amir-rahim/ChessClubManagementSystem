@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib import messages
 from .users import User
 from .clubs import Club, Membership
 import random
@@ -52,6 +53,7 @@ class Tournament(models.Model):
 
     def generate_elimination_matches(self):
         # Generate groups from each stage 
+        match_count = 0
         group = None
         rescheduled_matches = []
         last_competing_groups = None
@@ -120,6 +122,8 @@ class Tournament(models.Model):
                               tournament=self,
                               group=last_competing_group)
                 match.save()
+                match_count += 1
+            return (messages.SUCCESS, f'{match_count} matches rescheduled')
         else:
             group_players = list(group.players.all())
 
@@ -150,15 +154,20 @@ class Tournament(models.Model):
                               tournament=self,
                               group=group)
                 match.save()
+                match_count += 1
+            return (messages.SUCCESS, f'{match_count} elimination stage matches generated')
+
 
 
     def generate_group_stage_matches(self, groups):
         # Generate group stage matches
+        match_count = 0
         for group in groups:
-            # TODO: Generate matches for each group
             for white_player, black_player in itertools.combinations(group.players.all(), 2):
                 match = Match(tournament=self, white_player=white_player, black_player=black_player, group=group)
                 match.save()
+                match_count += 1
+        return (messages.SUCCESS, f'{match_count} group stage matches generated')
 
     def generate_group_stages(self):
         group_phase = 1 if self.participants.count() <= 32 else 0
@@ -193,17 +202,19 @@ class Tournament(models.Model):
             group.save()
             groups.append(group)
 
-        self.generate_group_stage_matches(groups)
+        return self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
         if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
             if self.stage == self.StageTypes.GROUP_STAGES:
-                self.generate_group_stages()
+                return self.generate_group_stages()
             elif self.stage == self.StageTypes.ELIMINATION:
-                self.generate_elimination_matches()
-            return True
+                return self.generate_elimination_matches()
+            else:
+                return (messages.ERROR, 'Matches can only be generated in '
+                                        'group stages or elimination stages')
         else:
-            return False
+            return (messages.WARNING, 'Matches already generated')
 
 
     def check_tournament_stage_transition(self):
@@ -228,9 +239,10 @@ class Tournament(models.Model):
 
         elif self.stage == self.StageTypes.ELIMINATION:
             # If all matches have been played, move to the next stage
-            last_competing_group = Group.objects.filter(tournament=self).latest('phase')
-            if last_competing_group.players.count() == 2 and self.matches.get(group=last_competing_group).result != Match.MatchResultTypes.PENDING:
-                self.stage = self.StageTypes.FINISHED
+            if Group.objects.filter(tournament=self).exists():
+                last_competing_group = Group.objects.filter(tournament=self).latest('phase')
+                if last_competing_group.players.count() == 2 and self.matches.get(group=last_competing_group).result != Match.MatchResultTypes.PENDING:
+                    self.stage = self.StageTypes.FINISHED
 
         self.save()
 
