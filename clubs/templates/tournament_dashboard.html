@@ -12,12 +12,27 @@
                 <div class="card cover-card">
                     <div class="card-body">
                         <h1 class="card-title">{{tournament.name}}</h1>
-                        {% if tournament.organizer != user %}
-                          {% if participants_count < tournament.capacity and not is_signed_up %}
-                            <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
+                        {% if tournament.organizer != user and user not in coorganizers %}
+                          {% if sign_up_deadline_not_passed %}
+                            {% if participants_count < tournament.capacity and not is_signed_up %}
+                              <!-- If the user is not an organizer, and is not already signed-up to the tournament, we show the 'Join Tournament' button -->
+                              <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
+                            {% endif %}
+                            {% if is_signed_up %}
+                            <!-- If the user is not an organizer, and is already signed-up to the tournament, we show the 'Leave Tournament' button -->
+                              <a class="btn btn-danger" href="{% url 'leave_tournament' tournament.id %}?next={{ request.get_full_path }}">Leave Tournament</a>
+                            {% endif %}
+                          {% else %}
+                            <!-- If the deadline to sign-up for the tournament has passed, we do not show any buttons to join or leave the tournament -->
+                            <p>The sign-up deadline for this tournament has passed.</p>
                           {% endif %}
-                          {% if is_signed_up %}
-                            <a class="btn btn-danger" href="{% url 'leave_tournament' tournament.id %}?next={{ request.get_full_path }}">Leave Tournament</a>
+                        {% else %}
+                          {% if tournament_not_started %}
+                            <!-- If the user is an organizer, and the tournament has not started yet, we show the 'Cancel Tournament' button -->
+                            <a class="btn btn-danger" href="{% url 'cancel_tournament' tournament.id %}?next={% url 'club_dashboard' tournament.club.id %}">Cancel Tournament</a>
+                          {% else %}
+                            <!-- If the user is an organizer, and the tournament has already started, we do not show the 'Cancel Tournament' button -->
+                            <p>This tournament has started.</p>
                           {% endif %}
                         {% endif %}
                     </div>

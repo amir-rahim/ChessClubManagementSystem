@@ -242,39 +242,51 @@
                 </div>
             </div>
             {% endif %}
+
             {% if membership.UserTypes.OFFICER in membership.get_user_types %}
               <div class="card cover-card">
                 <div class="card-body">
                   <h2>Pending applications</h2>
-
                   {% if applications %}
-
-                  <table>
-                    <tbody>
-                      {% for application in applications %}
-                      <tr>
-                        <th scope="col" width="50%">{{application.user.name}}</th>
-                        <td width="25%">
-                          <!-- Change 'leave_club' to 'accept_application' once implemented -->
-                          <a class="btn btn-success" href="{% url 'accept_membership' application.id %}?next={{ request.get_full_path }}">
-                                Accept
-                          </a>
-                        </td>
-                        <td width="25%">
-                          <!-- Change 'leave_club' to 'reject_application' once implemented -->
-                          <a class="btn btn-danger" href="{% url 'reject_membership' application.id %}?next={{ request.get_full_path }}">
-                                Reject
-                          </a>
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-
+                    <div class="table-responsive">
+                        <table id="table-applications" data-toggle="table" data-pagination="true">
+                            <thead>
+                                <tr>
+                                  <th scope="col" width="15%">Name</th>
+                                  <th scope="col" width="40%">Personal Statement</th>
+                                  <th scope="col" width="15%">Profile</th>
+                                  <th scope="col" width="30%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                    <tr>
+                                      <td>{{application.user.name}}</td>
+                                      <td>{{application.personal_statement}}</td>
+                                      <td>
+                                        <form action="{% url 'user_profile'%}" method="POST">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="user" value="{{application.user.pk}}">
+                                          <input type="hidden" name="membership" value="{{application.pk}}">
+                                          <input type="submit" value="View Profile" class="btn btn-secondary"/>
+                                        </form>
+                                      </td>
+                                      <td>
+                                        <a class="btn btn-success" href="{% url 'accept_membership' application.id %}?next={{ request.get_full_path }}">
+                                              Accept
+                                        </a>
+                                        <a class="btn btn-danger" href="{% url 'reject_membership' application.id %}?next={{ request.get_full_path }}">
+                                              Reject
+                                        </a>
+                                      </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                   {% else %}
-                  <p>No pending applications</p>
+                    <p>No pending applications</p>
                   {% endif %}
-
                 </div>
               </div>
             {% endif %}
@@ -295,6 +307,14 @@
                 { select: [0, 4], sortable: false }
             ]
         })
+
+        const applicationsDataTable = new simpleDatatables.DataTable("#table-applications", {
+            fixedHeight: true,
+            columns: [
+                { select: [1, 2, 3], sortable: false }
+            ]
+        })
+
     </script>
     <style>
         .user-link {
