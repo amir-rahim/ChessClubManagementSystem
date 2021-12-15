@@ -54,6 +54,7 @@ class Tournament(models.Model):
         # Generate groups from each stage 
         group = None
         rescheduled_matches = []
+        last_competing_groups = None
 
         # If last stage was not elimination
         if not self.groups.filter(stage=Group.GroupStageTypes.ELIMINATION).exists():
@@ -126,7 +127,21 @@ class Tournament(models.Model):
                 bye_player = group_players[-1]
                 group_players.remove(bye_player)
 
-            it = iter(group_players)
+            # Order group players to ensure players of the same group 
+            # are matched against each other at the latest opportunity
+            if last_competing_groups:
+                ordered_group_players = []
+                group_players_id = [player.id for player in group_players]
+                for last_competing_group in last_competing_groups:
+                    ordered_group_players.append(last_competing_group.players.filter(id__in=group_players_id)[0])
+
+                for last_competing_group in last_competing_groups:
+                    ordered_group_players.append(last_competing_group.players.filter(id__in=group_players_id)[1])
+            else:
+                ordered_group_players = group_players
+
+
+            it = iter(ordered_group_players)
             players_of_matches = zip(it,it)
 
             for players_of_match in players_of_matches:
