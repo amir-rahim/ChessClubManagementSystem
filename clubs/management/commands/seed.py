@@ -1,15 +1,19 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from clubs.models import User, Club, Membership, Tournament, TournamentParticipation
+from clubs.models.users import User
+from clubs.models.clubs import Club, Membership
+from clubs.models.tournaments import Tournament, TournamentParticipation, Match, Group
 
 import pytz
 from faker import Faker
 from random import randint, random
 
+from datetime import datetime, timezone
+
 class Command(BaseCommand):
     """The database seeder."""
 
-    USER_COUNT = 100
+    USER_COUNT = 500
     CLUB_COUNT = 20
     TOURNAMENT_COUNT = 5
     MEMBER_CHANCE = 0.2
@@ -30,8 +34,9 @@ class Command(BaseCommand):
         self.create_default_memberships()
         self.make_memberships()
         self.memberships = Membership.objects.all()
-        # self.create_tournaments()
-        # self.tournaments = Tournaments.objects.all()
+        self.create_tournaments()
+        self.tournaments = Tournament.objects.all()
+        self.participants = TournamentParticipation.objects.all()
 
     def create_default_users(self):
         user1 = User.objects.create_user(username = "jkerman", password = "Password123")
@@ -167,13 +172,17 @@ class Command(BaseCommand):
 
                         personal_statement = self.faker.text(max_nb_chars=500)
 
-                        Membership.objects.create(
+                        membership = Membership.objects.create(
                             user=user,
                             club=club,
                             personal_statement=personal_statement,
                             application_status=application_status,
                             user_type=user_type
                         )
+                        
+                        membership.save()
+                        
+                        count += 1
 
         print("Memberships seeding complete.      ")
 
@@ -200,3 +209,55 @@ class Command(BaseCommand):
         member_check2.save()
 
         print("Default Memberships seeding complete.      ")
+
+    def create_tournaments(self):
+        for club in self.clubs:
+            tournament_count = 1
+            
+            potential_organizers = self.memberships.filter(club=club, user_type=Membership.UserTypes.OFFICER).order_by('?')
+
+            while tournament_count < self.TOURNAMENT_COUNT:
+                
+                name = self.faker.name()
+                deadline = self.faker.date_time_between(end_date=datetime(2020, 8, 31, 13, 50, 6))
+                date = self.faker.date_time_between(start_date=datetime(2020, 8, 31, 13, 50, 6))
+
+                organizer = potential_organizers.first().user
+
+                tournament = Tournament.objects.create(name=name,
+                    description=self.faker.text(max_nb_chars=1000),
+                    date=date,
+                    organizer=organizer,
+                    club=club,
+                    capacity=randint(0,96),
+                    deadline=deadline,
+                    stage="P")
+                
+                tournament.save()
+                
+                self.create_participants(tournament)
+                
+                tournament_count += 1
+                
+        print("Tournament seeding complete.      ")
+
+    def create_participants(self, tournament):
+        max = tournament.capacity
+        club = tournament.club
+        
+        members = Membership.objects.filter(club=club).exclude(user=tournament.organizer).order_by('?')
+        current_count = 0
+        
+        if max > members.count():
+            user_count = randint(0, members.count())
+        else:
+            user_count = randint(0, max)
+        
+        for current_count in range(user_count):
+            if not TournamentParticipation.objects.filter(user=members[current_count].user, tournament=tournament).exists():
+                participant = TournamentParticipation.objects.create(
+                    user=members[current_count].user, 
+                    tournament=tournament
+                )
+                participant.save()
+            current_count += 1
