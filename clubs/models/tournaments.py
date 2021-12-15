@@ -196,7 +196,7 @@ class Tournament(models.Model):
         self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
-        if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
+        if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
             if self.stage == self.StageTypes.GROUP_STAGES:
                 self.generate_group_stages()
             elif self.stage == self.StageTypes.ELIMINATION:
@@ -221,7 +221,7 @@ class Tournament(models.Model):
 
         elif self.stage == self.StageTypes.GROUP_STAGES:
             # If all group stage matches have been played
-            if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
+            if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
                 if len(self.competing_players()) <= 32:
                     self.stage = self.StageTypes.ELIMINATION
 
@@ -342,7 +342,18 @@ class Match(models.Model):
     black_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, related_name="matches")
-    result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
+    _result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
+
+    @property
+    def result(self):
+        return self._result
+
+    @result.setter
+    def result(self, value):
+        self._result = value
+        self.result_date = timezone.now()
+
+    result_date = models.DateTimeField(null=True, blank=True)
 
     MATCH_AWARDS = {
         "WIN": 1,
