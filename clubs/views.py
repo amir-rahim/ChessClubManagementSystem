@@ -468,8 +468,10 @@ def member_profile(request, membership_id):
             messages.add_message(request, messages.ERROR, "You are not a member of this club.")
             return redirect('user_dashboard')
 
-        matches = Match.objects.filter(Q(tournament__club=club) & Q(white_player=membership.user) | Q(black_player=membership.user))
-        tournaments = TournamentParticipation.objects.filter(user=membership.user).values_list('tournament', flat=True)
+        matches = list(Match.objects.filter(Q(tournament__club=club) & Q(white_player=membership.user) | Q(black_player=membership.user)))
+        tournament_ids = TournamentParticipation.objects.filter(user=membership.user).values_list('tournament', flat=True).distinct()
+        tournaments = list(Tournament.objects.filter(id__in=tournament_ids))
+
 
         return render(request, 'member_profile.html', {
             'club': club,
