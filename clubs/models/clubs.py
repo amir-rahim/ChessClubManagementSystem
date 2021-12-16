@@ -59,7 +59,7 @@ class Membership(models.Model):
     personal_statement = models.CharField(max_length=500, blank=False)
     application_status = models.CharField(max_length=10, choices=Application.choices, default=Application.PENDING)
     user_type = models.CharField(max_length=10, choices=UserTypes.choices, default=UserTypes.NON_MEMBER)
-    
+
     highest_elo_rating = models.IntegerField(default=1000)
     lowest_elo_rating = models.IntegerField(default=1000)
 
@@ -85,8 +85,9 @@ class Membership(models.Model):
                 self.save()
 
     def transfer_ownership(self, new_owner):
-        new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
-        if new_owner_membership is None:
+        try:
+            new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
+        except:
             raise Exception("User is not a member of the club.")
         else:
             if new_owner_membership.user_type == self.UserTypes.OFFICER:

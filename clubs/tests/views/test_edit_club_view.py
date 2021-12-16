@@ -86,8 +86,6 @@ class EditClubDetailsTest(TestCase):
         self.assertEqual(after_count, before_count)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user_dashboard.html')
-        #self.assertTrue(isinstance(response.context['form'], EditClubDetailsForm))
-        #self.assertTrue(response.context['form'].is_bound)
         self.club.refresh_from_db()
         self.assertEqual(self.club.name, 'Kerbal Chess Club')
         self.assertEqual(self.club.location, 'New York')
@@ -112,4 +110,11 @@ class EditClubDetailsTest(TestCase):
     def test_edit_club_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_query('log_in', query_kwargs={'next': self.url})
         response = self.client.post(self.url, self.form_input)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_cannot_edit_unexisting_club(self):
+        self.client.login(username=self.user.username, password='Password123')
+        self.url = reverse('edit_club', kwargs={'club_id':123456})
+        response = self.client.post(self.url, self.form_input)
+        redirect_url = reverse('user_dashboard')
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

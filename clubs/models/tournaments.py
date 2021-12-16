@@ -16,7 +16,12 @@ class Tournament(models.Model):
         GROUP_STAGES = 'G'
         FINISHED = 'F'
 
-    name = models.CharField(max_length=100, blank=False, unique=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'club'], name='unique_tournament_club'),
+        ]
+
+    name = models.CharField(max_length=100, blank=False, unique=False)
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
@@ -51,7 +56,7 @@ class Tournament(models.Model):
 
 
     def generate_elimination_matches(self):
-        # Generate groups from each stage 
+        # Generate groups from each stage
         group = None
         rescheduled_matches = []
 
@@ -102,7 +107,9 @@ class Tournament(models.Model):
                     competing_players.append(match.white_player)
                 elif match.result == Match.MatchResultTypes.BLACK_WIN:
                     competing_players.append(match.black_player)
-                elif match.result == Match.MatchResultTypes.DRAW:
+
+                # TODO: Change functionality to reschedule match
+                else:
                     rescheduled_matches.append(match)
 
             if not rescheduled_matches:
@@ -184,7 +191,7 @@ class Tournament(models.Model):
         if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
             if self.stage == self.StageTypes.GROUP_STAGES:
                 self.generate_group_stages()
-            elif self.stage == self.StageTypes.ELIMINATION:
+            else:
                 self.generate_elimination_matches()
             return True
         else:
@@ -229,10 +236,8 @@ class Tournament(models.Model):
                 # The user must not be one of the tournament's organizers to be able to join the tournament
                 if (Membership.UserTypes.MEMBER in membership.get_user_types()):
                     if user != self.organizer and user not in self.coorganizers.all():
-                        try:
-                            current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
-                        except:
-                            current_participants_count = 0
+                        current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
+
                         # The user cannot join the tournament if it is already full
                         if (current_participants_count < self.capacity):
                             # The user is added to the tournament with a new TournamentParticipation object

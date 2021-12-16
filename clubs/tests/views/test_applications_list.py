@@ -48,6 +48,30 @@ class MyApplicationsViewTestCase(TestCase):
         self.assertEqual(len(list_of_applications), 1)
         self.assertNotContains(response, "<p>You have not applied to any club yet.</p>")
 
+    def test_single_approved_application(self):
+        self.client.login(username=self.user.username, password='Password123')
+        #Create 1 club
+        membership = Membership.objects.create(user=self.user, club=self.club1, application_status = 'A')
+        membership.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'my_applications.html')
+        list_of_applications = list(response.context['applications_info'])
+        self.assertEqual(len(list_of_applications), 1)
+        self.assertNotContains(response, "<p>You have not applied to any club yet.</p>")
+
+    def test_single_denied_application(self):
+        self.client.login(username=self.user.username, password='Password123')
+        #Create 1 club
+        membership = Membership.objects.create(user=self.user, club=self.club1, application_status = 'D')
+        membership.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'my_applications.html')
+        list_of_applications = list(response.context['applications_info'])
+        self.assertEqual(len(list_of_applications), 1)
+        self.assertNotContains(response, "<p>You have not applied to any club yet.</p>")
+
     def test_multiple_applications(self):
         self.client.login(username=self.user.username, password='Password123')
         #Create 1 club
