@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime
+from django.urls import reverse
 
 from clubs.models import Club, Tournament, TournamentParticipation, Match
 from clubs.forms import TournamentCreationForm
