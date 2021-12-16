@@ -378,7 +378,8 @@ class Match(models.Model):
             raise ValueError("User not participant in match")
 
         if self.result == self.MatchResultTypes.PENDING:
-            return 0
+            #return 0
+            raise ValueError("Match result not yet set")
 
         if self.result == self.MatchResultTypes.DRAW:
             return self.MATCH_AWARDS["DRAW"]
@@ -395,32 +396,26 @@ class Match(models.Model):
                     return self.MATCH_AWARDS["LOSS"]
 
 class EloRating():
-    def calculate_new_elo_rating(self, rating_a, player_a, rating_b, player_b, match):
+    @staticmethod
+    def calculate_new_elo_rating(rating_a, player_a, rating_b, player_b, match):
         expected_score_a = 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
         expected_score_b = 1 / (1 + 10 ** ((rating_a - rating_b) / 400))
 
         new_rating_a = rating_a + 32 * (match.get_match_award_for_user(player_a) - expected_score_a)
-        new_rating_b = rating_b + 32 * (match.get_match_award_for_user(player_b) - expected_score_b)
-
-        """if match.result == Match.MatchResultTypes.WHITE_WIN:
-            new_rating_a = rating_a + 32 * (1 - expected_score_a)
-            new_rating_b = rating_b + 32 * (0 - expected_score_b)
-        elif match.result == Match.MatchResultTypes.BLACK_WIN:
-            new_rating_a = rating_a + 32 * (0 - expected_score_a)
-            new_rating_b = rating_b + 32 * (1 - expected_score_b)
-        elif match.result == Match.MatchResultTypes.DRAW:
-            new_rating_a = rating_a + 32 * (0.5 - expected_score_a)
-            new_rating_b = rating_b + 32 * (0.5 - expected_score_b)"""
+        new_rating_b = rating_b + 32 * (match.get_match_award_for_user(player_b) - expected_score_b) 
 
         return new_rating_a, new_rating_b
 
-    def get_ratings(self, membership, date = None):
+    @staticmethod
+    def get_ratings(membership, date = None):
         if not date:
             date = timezone.now()
 
-        print(f"Calculating {membership.user}'s rating at {date}")
-
-        matches = Match.objects.filter(Q(white_player = membership.user) | Q(black_player = membership.user)).filter(result_date__lt=date).order_by('result_date')
+        matches = Match.objects.filter(
+            Q(white_player = membership.user) | Q(black_player = membership.user)
+        ).filter(
+            result_date__lt=date
+        ).order_by('result_date')
 
         current_rating = 1000
         ratings = [(1000,None)]
@@ -431,11 +426,10 @@ class EloRating():
                 player_b = match.white_player
 
             player_b_membership = Membership.objects.get(user = player_b, club = membership.club)
-            rating_b = self.get_ratings(player_b_membership, match.result_date)[-1][0]
+            rating_b = EloRating.get_ratings(player_b_membership, match.result_date)[-1][0]
 
-            current_rating = self.calculate_new_elo_rating(current_rating, membership.user, rating_b, player_b, match)[0]
+            current_rating = EloRating.calculate_new_elo_rating(current_rating, membership.user, rating_b, player_b, match)[0]
             ratings.append((current_rating, match.result_date))
-        print(ratings)
 
         if current_rating < membership.lowest_elo_rating:
             membership.lowest_elo_rating = current_rating
