@@ -232,7 +232,7 @@ class Command(BaseCommand):
                     club=club,
                     capacity=randint(0,96),
                     deadline=deadline,
-                    stage="P")
+                    stage=Tournament.StageTypes.SIGNUPS_OPEN)
                 
                 tournament.save()
                 
