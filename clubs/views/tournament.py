@@ -32,8 +32,6 @@ def tournament_dashboard(request, tournament_id):
     if tournament is not None:
         tournament.check_tournament_stage_transition()
         club = tournament.club
-        if club is None:
-            return redirect('user_dashboard')
 
         participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
         participants_users = TournamentParticipation.objects.filter(tournament=tournament).values_list('user', flat=True)
@@ -113,9 +111,11 @@ def leave_tournament(request, tournament_id):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)
 
+@login_required
 def cancel_tournament(request, tournament_id):
     tournament = Tournament.objects.get(id=tournament_id)
     user = request.user
+    is_organiser = user in tournament.coorganizers.all() or tournament.organizer == user
     cancel_tournament_message = tournament.cancel_tournament(user)
     if cancel_tournament_message:
         messages.add_message(request, messages.ERROR, cancel_tournament_message)
@@ -123,12 +123,16 @@ def cancel_tournament(request, tournament_id):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)
 
+@login_required
 def generate_matches(request, tournament_id):
     tournament = Tournament.objects.get(id=tournament_id)
     user = request.user
-    message = tournament.generate_matches()
-    if message:
+    is_organiser = user in tournament.coorganizers.all() or tournament.organizer == user
+    if is_organiser:
+        message = tournament.generate_matches()
         messages.add_message(request, *message)
+    else:
+        messages.add_message(request, messages.ERROR, "You are not an organiser of this tournament")
     if request.GET.get('next'):
         return redirect(request.GET.get('next'))
     return HttpResponse(status = 200)

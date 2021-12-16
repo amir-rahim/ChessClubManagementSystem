@@ -131,7 +131,7 @@ class Tournament(models.Model):
                               group=last_competing_group)
                 match.save()
                 match_count += 1
-            return (messages.SUCCESS, f'{match_count} matches rescheduled')
+            return (messages.SUCCESS, f'{match_count} matches rescheduled.')
         else:
             group_players = list(group.players.all())
 
@@ -163,7 +163,7 @@ class Tournament(models.Model):
                               group=group)
                 match.save()
                 match_count += 1
-            return (messages.SUCCESS, f'{match_count} elimination stage matches generated')
+            return (messages.SUCCESS, f'{match_count} elimination stage matches generated.')
 
 
 
@@ -175,7 +175,7 @@ class Tournament(models.Model):
                 match = Match(tournament=self, white_player=white_player, black_player=black_player, group=group)
                 match.save()
                 match_count += 1
-        return (messages.SUCCESS, f'{match_count} group stage matches generated')
+        return (messages.SUCCESS, f'{match_count} group stage matches generated.')
 
     def generate_group_stages(self):
         group_phase = 1 if self.participants.count() <= 32 else 0
@@ -220,9 +220,9 @@ class Tournament(models.Model):
                 return self.generate_elimination_matches()
             else:
                 return (messages.ERROR, 'Matches can only be generated in '
-                                        'group stages or elimination stages')
+                                        'group stages or elimination stages.')
         else:
-            return (messages.WARNING, 'Matches already generated')
+            return (messages.WARNING, 'Matches already generated.')
 
 
     def check_tournament_stage_transition(self):

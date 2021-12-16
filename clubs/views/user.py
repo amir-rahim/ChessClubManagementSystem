@@ -31,8 +31,6 @@ def member_profile(request, membership_id):
 
     if membership is not None:
         club = membership.club
-        if club is None:
-            return redirect('user_dashboard')
 
         if not Membership.objects.filter(user=user, club=club).exists():
             messages.add_message(request, messages.ERROR, "You are not a member of this club.")
