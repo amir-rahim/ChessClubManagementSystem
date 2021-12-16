@@ -56,8 +56,6 @@ class Tournament(models.Model):
 
 
     def generate_elimination_matches(self):
-        # TODO: Check all matches completed
-
         # Generate groups from each stage
         group = None
         rescheduled_matches = []
@@ -75,7 +73,7 @@ class Tournament(models.Model):
                     for group_result in sorted(group_results, key=group_results.get, reverse=True)[:2]:
                         competing_players.append(group_result)
 
-                group = Group(tournament=self, name='Elimination 1', phase=0, stage=Group.GroupStageTypes.ELIMINATION)
+                group = Group(tournament=self, name='Elimination 1', phase=last_competing_group.phase+1, stage=Group.GroupStageTypes.ELIMINATION)
                 group.save()
                 for competing_player in competing_players:
                     group.players.add(competing_player)
@@ -116,7 +114,7 @@ class Tournament(models.Model):
 
             if not rescheduled_matches:
                 group_index = last_competing_group.phase + 1
-                group = Group(tournament=self, name=f'Elimination {group_index+1}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
+                group = Group(tournament=self, name=f'Elimination {group_index}', stage=Group.GroupStageTypes.ELIMINATION, phase=group_index)
                 group.save()
                 for competing_player in competing_players:
                     group.players.add(competing_player)
@@ -127,7 +125,7 @@ class Tournament(models.Model):
                               black_player=match.black_player,
                               tournament=self,
                               group=last_competing_group)
-
+                match.save()
         else:
             group_players = list(group.players.all())
 
@@ -173,7 +171,7 @@ class Tournament(models.Model):
 
 
         group_size = 4 if group_phase == 1 else 6
-        group_count = len(competing_players) // self.group_size
+        group_count = len(competing_players) // group_size
 
         groups = []
         for i in range(group_count):
@@ -190,7 +188,7 @@ class Tournament(models.Model):
         self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
-        if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
+        if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
             if self.stage == self.StageTypes.GROUP_STAGES:
                 self.generate_group_stages()
             else:
@@ -215,8 +213,8 @@ class Tournament(models.Model):
 
         elif self.stage == self.StageTypes.GROUP_STAGES:
             # If all group stage matches have been played
-            if not self.matches.filter(result=Match.MatchResultTypes.PENDING).exists():
-                if len(self.competing_players()) <= 33:
+            if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
+                if len(self.competing_players()) <= 32:
                     self.stage = self.StageTypes.ELIMINATION
 
 
@@ -230,13 +228,19 @@ class Tournament(models.Model):
 
     def join_tournament(self, user):
         current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        # The sign-up deadline must not have passed to be able to join the tournament
         if current_datetime < self.deadline:
+            # The user must be member of the club to join the tournament
             try:
                 membership = Membership.objects.get(user=user, club=self.club)
+                # The user must not be one of the tournament's organizers to be able to join the tournament
                 if (Membership.UserTypes.MEMBER in membership.get_user_types()):
-                    if user != self.organizer:
+                    if user != self.organizer and user not in self.coorganizers.all():
                         current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
+
+                        # The user cannot join the tournament if it is already full
                         if (current_participants_count < self.capacity):
+                            # The user is added to the tournament with a new TournamentParticipation object
                             new_participation = TournamentParticipation(user=user, tournament=self)
                             try:
                                 new_participation.full_clean()
@@ -257,15 +261,33 @@ class Tournament(models.Model):
 
     def leave_tournament(self, user):
         current_datetime = timezone.make_aware(datetime.now(), timezone.utc)
+        # The sign-up deadline must not have passed to be able to leave the tournament
         if current_datetime < self.deadline:
             try:
                 tournament_participation = TournamentParticipation.objects.get(user=user, tournament=self)
-                tournament_participation.delete()
-                return ""
+                if tournament_participation:
+                    # We remove the user from the tournament by deleting the corresponding TournamentParticipation object
+                    tournament_participation.delete()
+                    return ""
+                else:
+                    return "You are not signed-up for this tournament."
             except:
                 return "You are not signed-up for this tournament."
         else:
             return "You cannot leave the tournament once the sign-up deadline has passed."
+
+    def cancel_tournament(self, user):
+        # The user must be of the tournament's organizers to be able to cancel the tournament
+        if user == self.organizer or user in self.coorganizers.all():
+            # The tournament must not already have started, to be able to be cancelled
+            if (self.stage == 'S' or self.stage == 'C'):
+                # We cancel the tournament by deleting the corresponding Tournament object ; all associated objects are also deleted via CASCADE
+                self.delete()
+                return ""
+            else:
+                return "This tournament has already started."
+        else:
+            return "You are not an organizer for this tournament."
 
 
 class TournamentParticipation(models.Model):
@@ -310,7 +332,18 @@ class Match(models.Model):
     black_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, related_name="matches")
-    result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
+    _result = models.CharField(max_length=1, choices=MatchResultTypes.choices, default=MatchResultTypes.PENDING)
+
+    @property
+    def result(self):
+        return self._result
+
+    @result.setter
+    def result(self, value):
+        self._result = value
+        self.result_date = timezone.now()
+
+    result_date = models.DateTimeField(null=True, blank=True)
 
     MATCH_AWARDS = {
         "WIN": 1,

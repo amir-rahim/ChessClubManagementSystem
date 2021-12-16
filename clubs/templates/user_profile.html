@@ -33,6 +33,7 @@
                     {% endif %}
                     <h4 class="cover-text">Public Bio: </h4>
                     <p>{{user.public_bio}}</p>
+
                     <h4 class="cover-text">Match Stats: </h4>
                     <p>Win: {{user.win}}</p><p>Loss: {{user.loss}}</p><p>Draw: {{user.draw}}</p>
                     <p>Win/Loss Ratio: {% widthratio user.win user.loss 100 %}</p>

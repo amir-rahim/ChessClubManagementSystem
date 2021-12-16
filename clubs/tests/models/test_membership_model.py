@@ -128,6 +128,7 @@ class UserModelTestCase(TestCase):
         owner_membership.leave()
         self.assertEqual(owner_membership.user_type, Membership.UserTypes.OWNER)
 
+
     def test_kick_member(self):
         membership = Membership.objects.create(user=self.applicant, club=self.club, user_type="MB", application_status="A")
         membership.kick_member()
@@ -137,3 +138,20 @@ class UserModelTestCase(TestCase):
         owner_membership = Membership.objects.get(user=self.owner, club=self.club)
         owner_membership.kick_member()
         self.assertEqual(owner_membership.user_type, Membership.UserTypes.OWNER)
+
+class EloRatingTestCase(TestCase):
+    def setUp(self):
+        self.club = Club.objects.create(name = "Kerbal Chess Club", owner=1)
+        self.applicant = User.objects.create(username = "applicant", password = "password")
+        self.owner = User.objects.create(username = "owner", password = "password")
+        self.applicant_membership = Membership.objects.create(user=self.applicant, club=self.club)
+        self.owner_membership = Membership.objects.create(user=self.owner, club=self.club, user_type="OW", application_status="A")
+
+    fixtures = [
+        'clubs/tests/fixtures/default_users.json',
+        'clubs/tests/fixtures/default_clubs.json',
+        'clubs/tests/fixtures/default_memberships.json'
+    ]
+
+    #def test_initial_elo_rating(self):
+        #self.assertEqual(self.applicant_membership.elo_rating, 1500)

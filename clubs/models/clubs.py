@@ -60,6 +60,9 @@ class Membership(models.Model):
     application_status = models.CharField(max_length=10, choices=Application.choices, default=Application.PENDING)
     user_type = models.CharField(max_length=10, choices=UserTypes.choices, default=UserTypes.NON_MEMBER)
 
+    highest_elo_rating = models.IntegerField(default=1000)
+    lowest_elo_rating = models.IntegerField(default=1000)
+
     def approve_membership(self):
         if self.user_type == self.UserTypes.NON_MEMBER:
             self.application_status = self.Application.APPROVED
@@ -140,3 +143,51 @@ class Membership(models.Model):
 
     def get_user_type_name(self):
         return self.USER_TYPE_NAMES[self.user_type]
+
+
+    def calculate_new_elo_rating(self, rating_a, player_a, rating_b, player_b, match):
+        expected_score_a = 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
+        expected_score_b = 1 / (1 + 10 ** ((rating_a - rating_b) / 400))
+
+        new_rating_a = rating_a + 32 * (match.get_match_award_for_user(player_a) - expected_score_a)
+        new_rating_b = rating_b + 32 * (match.get_match_award_for_user(player_b) - expected_score_b)
+
+        """if match.result == Match.MatchResultTypes.WHITE_WIN:
+            new_rating_a = rating_a + 32 * (1 - expected_score_a)
+            new_rating_b = rating_b + 32 * (0 - expected_score_b)
+        elif match.result == Match.MatchResultTypes.BLACK_WIN:
+            new_rating_a = rating_a + 32 * (0 - expected_score_a)
+            new_rating_b = rating_b + 32 * (1 - expected_score_b)
+        elif match.result == Match.MatchResultTypes.DRAW:
+            new_rating_a = rating_a + 32 * (0.5 - expected_score_a)
+            new_rating_b = rating_b + 32 * (0.5 - expected_score_b)"""
+
+        return new_rating_a, new_rating_b
+
+    @property
+    def elo_rating(self, date):
+        if not date:
+            date = timezone.now()
+
+        matches = Match.objects.filter(Q(white_player = self.user) | Q(black_player = self.user)).filter(date__lte=date).order_by('date')
+
+        current_rating = 1000
+        for match in match:
+            if match.white_player == self.user:
+                player_b = match.black_player
+            else:
+                player_b = match.white_player
+
+            player_b_membership = Membership.objects.get(user = player_b, club = self.club)
+            rating_b = player_b_membership.elo_rating(date)
+
+            current_rating = self.calculate_new_elo_rating(current_rating, self.user, rating_b, player_b, match)[0]
+
+        if current_rating < self.lowest_elo_rating:
+            self.lowest_elo_rating = current_rating
+            self.save()
+        elif current_rating > self.highest_elo_rating:
+            self.highest_elo_rating = current_rating
+            self.save()
+
+        return current_rating

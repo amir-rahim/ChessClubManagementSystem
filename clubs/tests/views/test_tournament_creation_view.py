@@ -21,17 +21,17 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
     def setUp(self):
         self.club = Club.objects.get(name = "Kerbal Chess Club", owner=1)
         self.officer = User.objects.get(username='jonathandoe')
-        self.officer_membership = Membership.objects.get(user = self.officer, club = self.club)
-        self.officer_membership.approve_membership()
-        self.officer_membership.promote_to_officer()
+        #self.officer_membership = Membership.objects.get(user = self.officer, club = self.club)
+        #self.officer_membership.approve_membership()
+        #self.officer_membership.promote_to_officer()
         self.form_input = {
-            'name': "Tournament 1",
+            'name': "Tournament 123",
             'description': "Tournament description",
             'organizer': self.officer.pk,
             'club': self.club.pk,
-            'date': make_aware(datetime.datetime(2021, 12, 25, 12, 0), timezone.utc),
+            'date': make_aware(datetime.datetime(2022, 12, 25, 12, 0), timezone.utc),
             'capacity': 2,
-            'deadline': make_aware(datetime.datetime(2021, 12, 20, 12, 0), timezone.utc),
+            'deadline': make_aware(datetime.datetime(2022, 12, 20, 12, 0), timezone.utc),
         }
         self.url = reverse('new_tournament', kwargs={'club_id': self.club.id})
 
@@ -39,7 +39,7 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         self.assertEqual(self.url,  f'/new_tournament/{self.club.id}')
 
     def test_get_tournament_creation(self):
-        self.client.login(username="janedoe", password="Password123")
+        self.client.login(username="jonathandoe", password="Password123")
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
@@ -56,12 +56,12 @@ class TournamentCreationViewTestCase(TestCase, LogInTester):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_create_tournament(self):
-        self.client.login(username="janedoe", password="Password123")
+        self.client.login(username="jonathandoe", password="Password123")
         before_count = Tournament.objects.count()
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Tournament.objects.count()
         self.assertEqual(after_count, before_count + 1)
-        t = Tournament.objects.get(name="Tournament 1")
+        t = Tournament.objects.get(name="Tournament 123")
         response_url = reverse('tournament_dashboard', kwargs={'tournament_id':t.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
 

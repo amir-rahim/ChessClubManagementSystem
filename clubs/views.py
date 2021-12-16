@@ -157,12 +157,6 @@ def edit_club(request, club_id):
     current_user = request.user
 
     try:
-        current_club = Club.objects.get(id=club_id)
-    except:
-        messages.add_message(request, messages.ERROR, "The club you're trying to edit does not exists.")
-        return redirect('user_dashboard')
-
-    try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
     except:
         current_user_membership = None
@@ -174,6 +168,11 @@ def edit_club(request, club_id):
     if current_user_membership.user_type != "OW":
         messages.add_message(request, messages.ERROR, "Must be an owner to edit details!")
         return redirect('club_dashboard', club_id)
+
+    try:
+        current_club = Club.objects.get(id=club_id)
+    except:
+        current_club = None
 
     if request.method == 'POST':
         form = EditClubDetailsForm(instance=current_club, data=request.POST)
@@ -264,11 +263,10 @@ def demote_member(request, club_id, user_id):
 
 @login_required
 def kick_member(request, club_id, user_id):
-    #current_user = User.objects.get(id=user_id)
-    current_user = request.user
+    current_user = User.objects.get(id=user_id)
     try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
-        if Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
+        if Membership.UserTypes.OWNER or Membership.UserTypes.OFFICER in current_user_membership.get_user_types():
             membership_to_kick = Membership.objects.get(club = club_id, user=user_id)
             membership_to_kick.kick_member()
         else:
@@ -335,9 +333,6 @@ def club_dashboard(request, club_id):
         officers = Membership.objects.filter(club=club).filter(user_type = Membership.UserTypes.OFFICER)
         applications = Membership.objects.filter(club=club, application_status='P')
         tournaments = Tournament.objects.filter(club=club)
-    else:
-        messages.add_message(request, messages.ERROR, "This club does not exist")
-        return redirect('user_dashboard')
 
     return render(request, 'club_dashboard.html', {
         'club': club,
@@ -370,6 +365,8 @@ def tournament_dashboard(request, tournament_id):
 
     if tournament is not None:
         club = tournament.club
+        if club is None:
+            return redirect('user_dashboard')
 
         participants_count = TournamentParticipation.objects.filter(tournament=tournament).count()
         participants = TournamentParticipation.objects.filter(tournament=tournament)
@@ -400,16 +397,19 @@ def my_applications(request):
     user = request.user
     messages = []
     applications_info = []
-    applications = Membership.objects.filter(user=user)
-    for application in applications:
-        application_status = application.application_status
-        if application_status == 'P':
-            application_status = "Pending"
-        elif application_status == 'A':
-            application_status = "Approved"
-        else: #'D'
-            application_status = "Denied"
-        applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
+    try:
+        applications = Membership.objects.filter(user=user)
+        for application in applications:
+            application_status = application.application_status
+            if application_status == 'P':
+                application_status = "Pending"
+            elif application_status == 'A':
+                application_status = "Approved"
+            else: #'D'
+                application_status = "Denied"
+            applications_info.append({"club_name":application.club.name, "club_id":application.club.id, "application_status":application_status})
+    except:
+        pass
     return render(request, 'my_applications.html', {'applications_info': applications_info})
 
 
