@@ -15,11 +15,13 @@ def log_in(request):
         form = LogInForm(request.POST)
 
         if form.is_valid():
+            # Extract the input username and password and attempt to authenticate
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
 
             if user is not None:
+                # The user is authenticated, we then log-in the user and redirects it
                 login(request, user)
                 redirect_url = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
                 return redirect(redirect_url)
@@ -37,6 +39,7 @@ def sign_up(request):
         form = SignUpForm(request.POST)
 
         if form.is_valid():
+            # The sign-up form is valid, we add the user to our database
             user = form.save()
             login(request, user)
             return redirect(settings.REDIRECT_URL_WHEN_LOGGED_IN)

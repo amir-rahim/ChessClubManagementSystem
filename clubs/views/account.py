@@ -10,12 +10,14 @@ from clubs.forms import EditProfileForm, ChangePasswordForm
 @login_required
 def edit_user_profile(request):
     """Allow user to change profile details."""
+    # Get currently logged-in user
     current_user = request.user
 
     if request.method == 'POST':
         form = EditProfileForm(instance=current_user, data=request.POST)
 
         if form.is_valid():
+            # Update the user's profile
             messages.add_message(request, messages.SUCCESS, "Profile updated!")
             form.save()
             redirect_url = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
@@ -29,6 +31,7 @@ def edit_user_profile(request):
 @login_required
 def change_password(request):
     """Allow user to change password details."""
+    # Get currently logged-in user
     current_user = request.user
 
     if request.method == 'POST':
@@ -37,7 +40,9 @@ def change_password(request):
         if form.is_valid():
             password = form.cleaned_data.get('current_password')
 
+            # Check if the input 'current_password' matches the user's current password
             if current_user.check_password(password):
+                # Update the user's password
                 new_password = form.cleaned_data.get('new_password')
                 current_user.set_password(new_password)
                 current_user.save()

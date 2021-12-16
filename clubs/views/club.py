@@ -11,6 +11,7 @@ from clubs.forms import ClubCreationForm, EditClubDetailsForm
 @login_required
 def club_dashboard(request, club_id):
     """Allow users to view a club's dashboard, which contains club information, club tournaments, club members and pending applications (for club officers only)."""
+    # Get currently logged-in user
     user = request.user
     membership = None
 
@@ -19,6 +20,7 @@ def club_dashboard(request, club_id):
     except:
         club = None
 
+    # If the club exists, get the data related to the specified club
     if club is not None:
         membership = Membership.objects.filter(user=user, club=club).first()
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
@@ -45,6 +47,7 @@ def club_creation(request):
     if request.method == 'POST':
         form = ClubCreationForm(request.POST)
         if form.is_valid():
+            # The club-creation form is valid, we save the club to the database
             form.save()
             messages.add_message(request, messages.SUCCESS, "Club created successfully.")
             return redirect('user_dashboard')
@@ -57,7 +60,7 @@ def club_creation(request):
 @login_required
 def edit_club(request, club_id):
     """Allow user to edit club. If there is an error it redirects the user."""
-
+    # Get currently logged-in user
     current_user = request.user
 
     try:
@@ -69,6 +72,7 @@ def edit_club(request, club_id):
         messages.add_message(request, messages.ERROR, "Must be an owner and apart of this club to edit details!")
         return redirect('user_dashboard')
 
+    # Check if the logged-in user is the owner of the specified club
     if current_user_membership.user_type != "OW":
         messages.add_message(request, messages.ERROR, "Must be an owner to edit details!")
         return redirect('club_dashboard', club_id)
@@ -82,6 +86,7 @@ def edit_club(request, club_id):
         form = EditClubDetailsForm(instance=current_club, data=request.POST)
 
         if form.is_valid():
+            # The form is valid, the club is updated in the database
             messages.add_message(request, messages.SUCCESS, "Club updated!")
             form.save()
             redirect_url = request.POST.get('next') or reverse('club_dashboard', kwargs={'club_id':current_club.id})
