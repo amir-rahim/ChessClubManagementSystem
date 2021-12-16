@@ -35,6 +35,14 @@
                     </table>
                 </div>
             </div>
+            <div class="card cover-card">
+                <div class="card-body">
+                    <h2>Match Statistics</h2>
+                    <div>
+                        <canvas id="match-statistics"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-12 col-md-8">
             <div class="card cover-card">
@@ -181,5 +189,34 @@
         document.getElementById('elo-rating-history'),
         config
     );
+
+    const matchStatisticsChart = new Chart(
+        document.getElementById('match-statistics'),
+        {
+            type: 'pie',
+            data: {
+                labels: [
+                    'Wins',
+                    'Losses',
+                    'Draws'
+                ],
+                datasets: [{
+                        label: 'Match Statistics',
+                        data: [
+                            {% for match_statistic in match_statistics %}
+                                {{match_statistic}},
+                            {% endfor %}
+                        ],
+                        backgroundColor: [
+                          'rgb(109, 237, 143)',
+                          'rgb(255, 99, 132)',
+                          'rgb(54, 162, 235)',
+                        ],
+                        hoverOffset: 4
+                }]
+            }
+        }
+    );
+
 </script>
 {% endblock %}
