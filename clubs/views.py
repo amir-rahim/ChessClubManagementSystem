@@ -493,6 +493,7 @@ def leave_tournament(request, tournament_id):
 
 @login_required
 def member_profile(request, membership_id):
+"""Information of a member when a member profile is viewed. Redirect to user dashboard if there is no club."""
     user = request.user
     try:
         membership = Membership.objects.get(id=membership_id)
