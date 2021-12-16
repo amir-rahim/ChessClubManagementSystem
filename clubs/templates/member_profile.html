@@ -1,8 +1,9 @@
 {% extends 'base_content.html' %}
 
 {% block content_head %}
-   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -100,11 +101,19 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Elo Rating</h2>
+                    <div>
+                        <canvas id="elo-rating-history"></canvas>
+                    </div>
+
                     <table>
                         <tbody>
                             <tr>
                                 <th scope="col">Current Elo Rating</th>
-                                <td>{{elo_rating|floatformat:"0"}}</td>
+                                <td>
+                                    {% with elo_ratings|last as elo_rating %}
+                                        {{elo_rating.0|floatformat:"0"}}
+                                    {% endwith %}
+                                </td>
                             </tr>
                             <tr>
                                 <th scope="col">Lowest Elo Rating</th>
@@ -116,6 +125,7 @@
                             </tr>                        
                         </tbody>
                     </table>
+
                 </div>
             </div>
 
@@ -134,5 +144,42 @@
     const matchesDataTablle = new simpleDatatables.DataTable("#table-matches", {
         fixedHeight: true,
     })
+
+    const config = {
+        type: 'line',
+        data: {
+            labels: [
+                {% for elo_rating in elo_ratings %}
+                    "{{elo_rating.1}}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: "Elo Rating",
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: [
+                    {% for elo_rating in elo_ratings %}
+                        {{elo_rating.0|floatformat:"0"}},
+                    {% endfor %}
+                ],
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Elo Rating History'
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+    }
+    };
+    const eloHistoryChart = new Chart(
+        document.getElementById('elo-rating-history'),
+        config
+    );
 </script>
 {% endblock %}

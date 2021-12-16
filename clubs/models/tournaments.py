@@ -414,7 +414,7 @@ class EloRating():
 
         return new_rating_a, new_rating_b
 
-    def get_rating(self, membership, date = None):
+    def get_ratings(self, membership, date = None):
         if not date:
             date = timezone.now()
 
@@ -423,6 +423,7 @@ class EloRating():
         matches = Match.objects.filter(Q(white_player = membership.user) | Q(black_player = membership.user)).filter(result_date__lt=date).order_by('result_date')
 
         current_rating = 1000
+        ratings = [(1000,None)]
         for match in matches:
             if match.white_player == membership.user:
                 player_b = match.black_player
@@ -430,9 +431,11 @@ class EloRating():
                 player_b = match.white_player
 
             player_b_membership = Membership.objects.get(user = player_b, club = membership.club)
-            rating_b = self.get_rating(player_b_membership, match.result_date)
+            rating_b = self.get_ratings(player_b_membership, match.result_date)[-1][0]
 
             current_rating = self.calculate_new_elo_rating(current_rating, membership.user, rating_b, player_b, match)[0]
+            ratings.append((current_rating, match.result_date))
+        print(ratings)
 
         if current_rating < membership.lowest_elo_rating:
             membership.lowest_elo_rating = current_rating
@@ -441,4 +444,5 @@ class EloRating():
             membership.highest_elo_rating = current_rating
             membership.save()
 
-        return current_rating
+        return ratings
+
