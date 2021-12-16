@@ -254,10 +254,9 @@ class Command(BaseCommand):
             user_count = randint(0, max)
         
         for current_count in range(user_count):
-            if not TournamentParticipation.objects.filter(user=members[current_count].user, tournament=tournament).exists():
-                participant = TournamentParticipation.objects.create(
-                    user=members[current_count].user, 
-                    tournament=tournament
-                )
-                participant.save()
-            current_count += 1
+
+            participant = TournamentParticipation.objects.get_or_create(
+                user=members[current_count].user, 
+                tournament=tournament
+            )
+
