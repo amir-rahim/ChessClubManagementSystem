@@ -50,5 +50,45 @@
       "user_type": "NM",
       "application_status": 1
     }
+  },
+  {
+    "model": "clubs.membership",
+    "pk": 6,
+    "fields": {
+      "club": 1,
+      "user": 5,
+      "user_type": "MB",
+      "application_status": 1
+    }
+  },
+  {
+    "model": "clubs.membership",
+    "pk": 7,
+    "fields": {
+      "club": 2,
+      "user": 4,
+      "user_type": "OF",
+      "application_status": 1
+    }
+  },
+  {
+      "model": "clubs.membership",
+      "pk": 8,
+      "fields": {
+        "club": 1,
+        "user": 6,
+        "user_type": "MB",
+        "application_status": "A"
+      }
+  },
+  {
+      "model": "clubs.membership",
+      "pk": 9,
+      "fields": {
+        "club": 1,
+        "user": 7,
+        "user_type": "MB",
+        "application_status": "A"
+      }
   }
 ]

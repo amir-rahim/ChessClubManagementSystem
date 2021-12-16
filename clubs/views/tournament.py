@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime
+from django.urls import reverse
 
 from clubs.models import Club, Tournament, TournamentParticipation, Match, Membership
 from clubs.forms import TournamentCreationForm
@@ -79,9 +80,9 @@ def tournament_creation(request, club_id):
     if request.method == 'POST':
         form = TournamentCreationForm(data=request.POST)
         if form.is_valid():
-            form.save()
-            messages.add_message(request, messages.SUCCESS, "Tournament created successfully.")
-            return redirect('user_dashboard')
+            t = form.save()
+            redirect_url = reverse('tournament_dashboard', kwargs={'tournament_id':t.id})
+            return redirect(redirect_url)
         else:
             if 'organizer' in form.errors:
                 messages.add_message(request, messages.ERROR, form.errors['organizer'])
