@@ -62,13 +62,13 @@ def sign_up(request):
 
 @login_required
 def user_dashboard(request):
-"""Shows user dashbaord"""
+"""Shows user dashbaord."""
     data = {'user': request.user}
     return render(request, 'user_dashboard.html', data)
 
 @login_required
 def user_profile(request):
- """Shows user profile"""
+ """Shows user profile."""
 
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
@@ -79,7 +79,7 @@ def user_profile(request):
 
 @login_required
 def edit_user_profile(request):
-    """Allow user to change profile details"""
+    """Allow user to change profile details."""
     current_user = request.user
 
     if request.method == 'POST':
@@ -98,7 +98,7 @@ def edit_user_profile(request):
 
 @login_required
 def change_password(request):
-"""Allow user to change password details"""
+"""Allow user to change password details."""
 
     current_user = request.user
 
@@ -125,12 +125,13 @@ def change_password(request):
     return render(request, 'change_password.html', {'form': form})
 
 def log_out(request):
-    """Redirect user to home page when they log out"""
+    """Redirect user to home page when they log out."""
     logout(request)
     return redirect('home')
 
 @login_required
 def membership_application(request):
+    """Successfull applications will pass and redirect user to user dashboard and let the user know, whereas invalid applications will notify the user."""
     if request.method == 'POST':
         form = MembershipApplicationForm(data=request.POST)
         if form.is_valid():
@@ -151,6 +152,7 @@ def membership_application(request):
 
 @login_required
 def club_creation(request):
+    """Allow user to create club."""
     if request.method == 'POST':
         form = ClubCreationForm(request.POST)
         if form.is_valid():
@@ -165,6 +167,7 @@ def club_creation(request):
 
 @login_required
 def edit_club(request, club_id):
+"""Allow user to edit club. If there is an error it redirects the user."""
 
     current_user = request.user
 
@@ -204,6 +207,7 @@ def edit_club(request, club_id):
 
 @login_required
 def tournament_creation(request, club_id):
+    """Allow user to create tournaments."""
     club = Club.objects.get(id = club_id)
     if request.method == 'POST':
         form = TournamentCreationForm(data=request.POST)
@@ -241,6 +245,7 @@ def club_memberships(request):
 
 @login_required
 def promote_member(request, club_id, user_id):
+    """Allow owners to promote users."""
     current_user = request.user
     try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
@@ -258,6 +263,8 @@ def promote_member(request, club_id, user_id):
 
 @login_required
 def demote_member(request, club_id, user_id):
+"""Allow owners to demote users."""
+
     current_user = request.user
     try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
@@ -275,6 +282,8 @@ def demote_member(request, club_id, user_id):
 
 @login_required
 def kick_member(request, club_id, user_id):
+"""Allow owners or officers to kick users."""
+
     current_user = User.objects.get(id=user_id)
     try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
@@ -292,6 +301,8 @@ def kick_member(request, club_id, user_id):
 
 @login_required
 def transfer_ownership(request, club_id, user_id):
+"""Allow owners to transfer ownership."""
+
     current_user = request.user
     try:
         current_user_membership = Membership.objects.get(user=current_user, club=club_id)
@@ -309,6 +320,7 @@ def transfer_ownership(request, club_id, user_id):
 
 @login_required
 def leave_club(request, club_id):
+"""Allow users to leave a club."""
     current_user = request.user
     try:
         club = Club.objects.get(id=club_id)
@@ -331,6 +343,7 @@ def leave_club(request, club_id):
 
 @login_required
 def club_dashboard(request, club_id):
+"""Allow users to view club dashboard."""
     user = request.user
     membership = None
 
@@ -338,7 +351,7 @@ def club_dashboard(request, club_id):
         club = Club.objects.get(id=club_id)
     except:
         club = None
-
+    
     if club is not None:
         membership = Membership.objects.filter(user=user, club=club).first()
         members = Membership.objects.filter(club=club).exclude(user_type = Membership.UserTypes.NON_MEMBER)
@@ -358,6 +371,7 @@ def club_dashboard(request, club_id):
 
 @login_required
 def tournament_dashboard(request, tournament_id):
+"""Allow user to view tournament dashboard."""
     if request.method == 'POST':
         for e in request.POST:
             try:
@@ -419,6 +433,7 @@ def tournament_dashboard(request, tournament_id):
 
 @login_required
 def my_applications(request):
+    """Allow user to view the status of their applications"""
     user = request.user
     messages = []
     applications_info = []

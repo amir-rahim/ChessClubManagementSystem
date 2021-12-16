@@ -18,6 +18,7 @@ class Club(models.Model):
             regex=r'^[a-zA-Z][a-zA-Z0-9 ]+',
             message='Club name must start with a letter and contain only letters, number, and spaces.'
         )])
+"""Attributes of a club"""
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     location=models.CharField(max_length=100, blank=False)
@@ -53,7 +54,7 @@ class Membership(models.Model):
         PENDING = 'P'
         APPROVED = 'A'
         DENIED = 'D'
-
+"""Attributes of a use in the club"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     club = models.ForeignKey(Club, on_delete=models.CASCADE, null=False)
     personal_statement = models.CharField(max_length=500, blank=False)
@@ -145,6 +146,7 @@ class Membership(models.Model):
 
 
     def calculate_new_elo_rating(self, rating_a, player_a, rating_b, player_b, match):
+        """Calculations of elo rating"""
         expected_score_a = 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
         expected_score_b = 1 / (1 + 10 ** ((rating_a - rating_b) / 400))
 
@@ -165,6 +167,7 @@ class Membership(models.Model):
 
     @property
     def elo_rating(self, date):
+        """Set default elo to 1000 and update elo"""
         if not date:
             date = timezone.now()
 
