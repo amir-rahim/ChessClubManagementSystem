@@ -22,7 +22,7 @@
                         </table>
 
                         {% if tournament.organizer != user and user not in coorganizers %}
-                          {% if sign_up_deadline_not_passed %}
+                        {% if tournament.stage == 'S' %}
                             {% if participants_count < tournament.capacity and not is_signed_up %}
                               <!-- If the user is not an organizer, and is not already signed-up to the tournament, we show the 'Join Tournament' button -->
                               <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
@@ -33,7 +33,7 @@
                             {% endif %}
                           {% endif %}
                         {% else %}
-                          {% if tournament_not_started %}
+                        {% if tournament.stage == 'S' or tournament.stage == 'C' %}
                             <!-- If the user is an organizer, and the tournament has not started yet, we show the 'Cancel Tournament' button -->
                             <a class="btn btn-danger" href="{% url 'cancel_tournament' tournament.id %}?next={% url 'club_dashboard' tournament.club.id %}">Cancel Tournament</a>
                           {% endif %}
