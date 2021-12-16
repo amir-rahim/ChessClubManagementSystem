@@ -9,7 +9,7 @@ from django.db.models import Exists, Q, OuterRef
 from django.utils import timezone
 from datetime import datetime
 
-from .models import Membership, Club, Tournament, User, TournamentParticipation, Match
+from .models import Membership, Club, Tournament, User, TournamentParticipation, Match, EloRating
 from .forms import LogInForm, SignUpForm, MembershipApplicationForm, ClubCreationForm, TournamentCreationForm, EditProfileForm, EditClubDetailsForm, ChangePasswordForm
 from .helpers import login_prohibited
 
@@ -489,13 +489,15 @@ def member_profile(request, membership_id):
         tournament_ids = TournamentParticipation.objects.filter(user=membership.user).values_list('tournament', flat=True).distinct()
         tournaments = list(Tournament.objects.filter(id__in=tournament_ids))
 
+        elo_rating = EloRating().get_rating(membership)
 
         return render(request, 'member_profile.html', {
             'club': club,
             'membership': membership,
             'user': membership.user,
             'matches': matches,
-            'tournaments': tournaments
+            'tournaments': tournaments,
+            'elo_rating': elo_rating
         })
 
     else:

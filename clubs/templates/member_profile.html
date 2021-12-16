@@ -54,8 +54,8 @@
                                         <tr>
                                             <td>{{match.white_player}}</td>
                                             <td>{{match.black_player}}</td>
-                                            <td>{{match.stage}}</td>
-                                            <td></td>
+                                            <td>{{match.group.stage}}</td>
+                                            <td>{{match.result}}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -100,6 +100,22 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Elo Rating</h2>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th scope="col">Current Elo Rating</th>
+                                <td>{{elo_rating|floatformat:"0"}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Lowest Elo Rating</th>
+                                <td>{{membership.lowest_elo_rating|floatformat:"0"}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Highest Elo Rating</th>
+                                <td>{{membership.highest_elo_rating|floatformat:"0"}}</td>
+                            </tr>                        
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -117,9 +133,6 @@
 
     const matchesDataTablle = new simpleDatatables.DataTable("#table-matches", {
         fixedHeight: true,
-        columns: [
-            { select: [0, 4], sortable: false }
-        ]
     })
 </script>
 {% endblock %}

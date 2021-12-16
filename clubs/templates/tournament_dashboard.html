@@ -223,7 +223,12 @@
                                                 <p>Owner</p>
                                             {% endif %}
                                         </td>
-                                        <td></td>
+                                        <td>
+                                            <a class="btn btn-secondary"
+                                                        href="{% url 'member_profile' member.id %}">
+                                                        View Profile
+                                            </a>
+                                        </td>
                                 </tr>
                                 {% endfor %}
                                 </tbody>
