@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.timezone import make_aware
 
 from clubs.models.users import User
 from clubs.models.clubs import Club, Membership
@@ -219,8 +220,8 @@ class Command(BaseCommand):
             while tournament_count < self.TOURNAMENT_COUNT:
                 
                 name = self.faker.name()
-                deadline = self.faker.date_time_between(end_date=datetime(2020, 8, 31, 13, 50, 6))
-                date = self.faker.date_time_between(start_date=datetime(2020, 8, 31, 13, 50, 6))
+                deadline = make_aware(self.faker.date_time_between(end_date=datetime(2020, 8, 31, 13, 50, 6)))
+                date = make_aware(self.faker.date_time_between(start_date=datetime(2020, 8, 31, 13, 50, 6)))
 
                 organizer = potential_organizers.first().user
 
