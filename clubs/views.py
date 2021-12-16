@@ -336,15 +336,18 @@ def club_dashboard(request, club_id):
         applications = Membership.objects.filter(club=club, application_status='P')
         tournaments = Tournament.objects.filter(club=club)
 
-    return render(request, 'club_dashboard.html', {
-        'club': club,
-        'membership': membership,
-        'members': members,
-        'officers': officers,
-        'applications': applications,
-        'user': user,
-        'tournaments': tournaments
-    })
+        return render(request, 'club_dashboard.html', {
+            'club': club,
+            'membership': membership,
+            'members': members,
+            'officers': officers,
+            'applications': applications,
+            'user': user,
+            'tournaments': tournaments
+        })
+    else:
+        messages.add_message(request, messages.ERROR, "Club does not exist.")
+        return redirect('user_dashboard')
 
 @login_required
 def tournament_dashboard(request, tournament_id):
