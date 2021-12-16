@@ -23,6 +23,7 @@ def home(request):
 
 @login_prohibited
 def log_in(request):
+    """Manage log in attempt."""
     if request.method == 'POST':
         form = LogInForm(request.POST)
 
@@ -44,6 +45,8 @@ def log_in(request):
 
 @login_prohibited
 def sign_up(request):
+"""Manage sign up attempt."""
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
 
@@ -59,11 +62,14 @@ def sign_up(request):
 
 @login_required
 def user_dashboard(request):
+"""Shows user dashbaord"""
     data = {'user': request.user}
     return render(request, 'user_dashboard.html', data)
 
 @login_required
 def user_profile(request):
+ """Shows user profile"""
+
     if request.method == 'POST':
         membership = Membership.objects.get(pk = request.POST['membership'])
         data = {'user' : membership.user, 'membership' : membership}
@@ -73,6 +79,7 @@ def user_profile(request):
 
 @login_required
 def edit_user_profile(request):
+    """Allow user to change profile details"""
     current_user = request.user
 
     if request.method == 'POST':
@@ -91,6 +98,8 @@ def edit_user_profile(request):
 
 @login_required
 def change_password(request):
+"""Allow user to change password details"""
+
     current_user = request.user
 
     if request.method == 'POST':
@@ -116,6 +125,7 @@ def change_password(request):
     return render(request, 'change_password.html', {'form': form})
 
 def log_out(request):
+    """Redirect user to home page when they log out"""
     logout(request)
     return redirect('home')
 
