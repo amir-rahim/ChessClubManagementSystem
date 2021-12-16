@@ -15,7 +15,7 @@ class Tournament(models.Model):
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
         FINISHED = 'F'
-
+"""Attributes of a tournament"""
     name = models.CharField(max_length=100, blank=False, unique=True)
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
@@ -27,6 +27,7 @@ class Tournament(models.Model):
     stage = models.CharField(max_length=1, choices=StageTypes.choices, default=StageTypes.SIGNUPS_OPEN)
 
     def competing_players(self):
+        """Returns players that are competing"""
         if not Group.objects.filter(tournament=self).exists():
             return self.participants.values_list('user', flat=True)
 
@@ -51,6 +52,7 @@ class Tournament(models.Model):
 
 
     def generate_elimination_matches(self):
+        """Creates matches for elimination matches"""
         # Generate groups from each stage 
         group = None
         rescheduled_matches = []
@@ -146,6 +148,7 @@ class Tournament(models.Model):
                 match.save()
 
     def generate_group_stages(self):
+        """Creates matches for the group stages"""
         group_phase = 1 if self.participants.count() <= 32 else 0
         # Generate group stages
         if not self.groups.filter(stage=Group.GroupStageTypes.GROUP_STAGE).exists():
@@ -181,6 +184,7 @@ class Tournament(models.Model):
         self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
+        """Generates matches for group staged and elimination"""
         if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
             if self.stage == self.StageTypes.GROUP_STAGES:
                 self.generate_group_stages()
@@ -192,6 +196,7 @@ class Tournament(models.Model):
 
 
     def check_tournament_stage_transition(self):
+        """Checks whether previous stages of the tournament have been completed and moves to the next stage"""
         if self.stage == self.StageTypes.SIGNUPS_OPEN:
             if self.deadline is not None:
                 if self.deadline < timezone.now():
@@ -286,6 +291,7 @@ class Tournament(models.Model):
 
 
 class TournamentParticipation(models.Model):
+    """Store users participated in tournaments"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="participants")
     class Meta:
@@ -296,7 +302,7 @@ class Group(models.Model):
     class GroupStageTypes(models.TextChoices):
         ELIMINATION = 'E'
         GROUP_STAGE = 'G'
-
+"""Attributes off groups"""
     name = models.CharField(max_length=100, blank=False)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="groups")
     players = models.ManyToManyField(User)
@@ -305,6 +311,7 @@ class Group(models.Model):
     phase = models.IntegerField()
 
     def get_group_results(self):
+    """returns the restults of the players in the groups"""
         group_results = {}
         for player in self.players.all():
             player_awards = 0
@@ -322,7 +329,7 @@ class Match(models.Model):
         WHITE_WIN = 'W'
         DRAW = 'D'
         BLACK_WIN = 'B'
-
+"""Attributes of the matches"""
     white_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     black_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")
@@ -335,6 +342,7 @@ class Match(models.Model):
 
     @result.setter
     def result(self, value):
+        """Sets the results of matches"""
         self._result = value
         self.result_date = timezone.now()
 
@@ -347,6 +355,7 @@ class Match(models.Model):
     }
 
     def get_match_award_for_user(self, user):
+        """Returns the outcome of the matches"""
         if user != self.white_player and user != self.black_player:
             raise ValueError("User not participant in match")
 
