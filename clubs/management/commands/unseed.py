@@ -1,17 +1,18 @@
 from django.core.management.base import BaseCommand, CommandError
-from clubs.models import User, Club, Membership
+from clubs.models.users import User
+from clubs.models.clubs import Club, Membership
+from clubs.models.tournaments import Tournament, TournamentParticipation, Match, Group
 
 class Command(BaseCommand):
     """The database unseeder."""
 
+    help = 'Unseeds the database with sample data'
+
     def handle(self, *args, **options):
-        user2 = User.objects.get(username="bkerman")
-        club1 = Club.objects.get(name = "Kerbal Chess Club", owner = user2)
-
-
-        #Membership.objects.get(user = user2, club = club1).delete()
-
-        Club.objects.get(name="Kerbal Chess Club", owner=user2).delete()
-
-        User.objects.get(username="jkerman").delete()
-        User.objects.get(username="bkerman").delete()
+        User.objects.filter(is_superuser=False).delete()
+        Club.objects.all().delete()
+        Membership.objects.all().delete()
+        Tournament.objects.all().delete()
+        TournamentParticipation.objects.all().delete()
+        Match.objects.all().delete()
+        Group.objects.all().delete()
