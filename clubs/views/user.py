@@ -42,7 +42,7 @@ def member_profile(request, membership_id):
         tournament_ids = TournamentParticipation.objects.filter(user=membership.user).values_list('tournament', flat=True).distinct()
         tournaments = list(Tournament.objects.filter(id__in=tournament_ids))
 
-        elo_ratings = EloRating().get_ratings(membership)
+        elo_ratings = EloRating.get_ratings(membership)
 
         return render(request, 'member_profile.html', {
             'club': club,
