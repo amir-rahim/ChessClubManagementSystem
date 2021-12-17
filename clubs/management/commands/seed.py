@@ -8,6 +8,7 @@ from clubs.models.tournaments import Tournament, TournamentParticipation, Match,
 import pytz
 from faker import Faker
 from random import randint, random
+import traceback
 
 from datetime import datetime, timezone
 
@@ -78,7 +79,8 @@ class Command(BaseCommand):
             print(f"Seeding user {user_count}/{self.USER_COUNT}", end='\r')
             try:
                 self.create_user_profile()
-            except:
+            except Exception:
+                print(traceback.format_exc())
                 continue
             user_count = user_count + 1
         print("User seeding complete.      ")
