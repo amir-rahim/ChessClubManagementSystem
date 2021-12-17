@@ -8,6 +8,7 @@ from clubs.models.tournaments import Tournament, TournamentParticipation, Match,
 import pytz
 from faker import Faker
 from random import randint, random
+import traceback
 
 from datetime import datetime, timezone
 
@@ -35,9 +36,11 @@ class Command(BaseCommand):
         self.create_default_memberships()
         self.make_memberships()
         self.memberships = Membership.objects.all()
+        self.create_default_tournaments()
         self.create_tournaments()
         self.tournaments = Tournament.objects.all()
         self.participants = TournamentParticipation.objects.all()
+        self.create_tournament_matches()
 
     def create_default_users(self):
         user1 = User.objects.create_user(username = "jkerman", password = "Password123")
@@ -78,7 +81,7 @@ class Command(BaseCommand):
             print(f"Seeding user {user_count}/{self.USER_COUNT}", end='\r')
             try:
                 self.create_user_profile()
-            except:
+            except Exception:
                 continue
             user_count = user_count + 1
         print("User seeding complete.      ")
@@ -104,11 +107,13 @@ class Command(BaseCommand):
         else:
             chess_experience = 'G'
 
-        user_create = User.objects.create_user(username=username, password=Command.DEFAULT_PASSWORD)
-        user_create.name=name
-        user_create.email=email
-        user_create.public_bio=public_bio,
-        user_create.chess_experience=chess_experience
+        user_create = User.objects.create_user(username=username, 
+                                               name=name,
+                                               password=Command.DEFAULT_PASSWORD,
+                                               email=email,
+                                               public_bio=public_bio,
+                                               chess_experience=chess_experience)
+
 
         user_create.save()
 
@@ -211,6 +216,42 @@ class Command(BaseCommand):
 
         print("Default Memberships seeding complete.      ")
 
+    def create_default_tournaments(self):
+        vkerman = self.users.get(name="Valentina Kerman")
+        bkerman = self.users.get(name="Billie Kerman")
+        kerbal = self.clubs.get(name="Kerbal Chess Club")
+
+        tournament1 = Tournament.objects.create(
+            name = "Tournament 1",
+            description = "Tournament description",
+            club = kerbal,
+            date = make_aware(datetime(2020, 12, 25, 12, 0), timezone.utc),
+            organizer = vkerman,
+            capacity = 16,
+            deadline = make_aware(datetime(2020, 12, 20, 12, 0), timezone.utc),
+        )
+
+        tournament2 = Tournament.objects.create(
+            name = "Tournament 2",
+            description = "Tournament description",
+            club = kerbal,
+            date = make_aware(datetime(2020, 12, 25, 12, 0), timezone.utc),
+            organizer = vkerman,
+            capacity = 96,
+            deadline = make_aware(datetime(2020, 12, 20, 12, 0), timezone.utc),
+        )
+
+        tournament1.save()
+        tournament2.save()
+
+        self.create_participants(tournament1)
+        self.create_participants(tournament2)
+
+        TournamentParticipation.objects.filter(tournament=tournament1, user=bkerman).delete()
+        TournamentParticipation.objects.filter(tournament=tournament2, user=bkerman).delete()
+
+        print("Default Tournaments seeding complete.")
+
     def create_tournaments(self):
         for club in self.clubs:
             tournament_count = 1
@@ -260,4 +301,10 @@ class Command(BaseCommand):
                 user=members[current_count].user, 
                 tournament=tournament
             )
+
+    def create_tournament_matches(self):
+        for tournament in self.tournaments:
+            tournament.check_tournament_stage_transition()
+            tournament.generate_matches()
+        print("Tournament Matches seeding complete.")
 
