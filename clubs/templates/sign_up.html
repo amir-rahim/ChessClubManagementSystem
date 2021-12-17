@@ -6,6 +6,7 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h1 class="cover-heading">Sign up</h1>
+                    <!-- User-sign-up form -->
                     <form action="{% url 'sign_up' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ next }}">

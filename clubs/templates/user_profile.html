@@ -12,13 +12,17 @@
                     <h2 class="cover-heading">Profile Details</h2>
                     <hr class="solid">
                     <h4 class="cover-text">Profile Photo: </h4>
+                    <!-- User's profile picture -->
                     <p>
-                        <img src="{{user.gravatar}}" class="center" width="120" height="120"/> 
+                        <img src="{{user.gravatar}}" class="center" width="120" height="120"/>
                     </p>
-                    <h4 class="cover-text">Userame: </h4><p>{{user.username}}</p>
+                    <!-- User's username -->
+                    <h4 class="cover-text">Username: </h4><p>{{user.username}}</p>
+                    <!-- User's full name -->
                     <h4 class="cover-text">Name: </h4><p>{{user.name}}</p>
                     {% if membership.UserTypes.OFFICER in membership.get_user_types or my_profile != None and my_profile == True %}
-                    <h4 class="cover-text">Chess Experience: </h4>
+                      <!-- User's Chess Experience level -->
+                      <h4 class="cover-text">Chess Experience: </h4>
                         {% if user.chess_experience == "B" %}
                             <p>Beginner</p>
                         {% elif user.chess_experience == "I" %}
@@ -31,16 +35,19 @@
                             <p>Grand Master (GM)</p>
                         {% endif %}
                     {% endif %}
+                    <!-- User's public personal bio -->
                     <h4 class="cover-text">Public Bio: </h4>
                     <p>{{user.public_bio}}</p>
 
+                    <!-- User's match statistics -->
                     <h4 class="cover-text">Match Stats: </h4>
                     <p>Win: {{user.win}}</p><p>Loss: {{user.loss}}</p><p>Draw: {{user.draw}}</p>
                     <p>Win/Loss Ratio: {% widthratio user.win user.loss 100 %}</p>
                 </section>
-              
+
                 {% if membership.UserTypes.OFFICER in membership.get_user_types or membership.UserTypes.OWNER in membership.get_user_types or my_profile != None and my_profile == True %}
                 <hr class="solid">
+                <!-- User's contact details -->
                 <section>
                     <h2 class="cover-heading">Contact Details</h2>
                     <hr class="solid">
@@ -48,8 +55,9 @@
                     <p>{{user.email}}<p/>
                 </section>
                 <hr class="solid">
-                {% endif %} 
+                {% endif %}
                 {% if my_profile != None and my_profile == True%}
+                <!-- Buttons to 'Edit Profile' or 'Change Password', only available if the user is viewing its own profile -->
                 <p>
                     <a href='{% url 'edit_user_profile' %}' class="btn btn-lg btn-secondary">
                         Edit Profile
@@ -58,7 +66,7 @@
                         Change Password
                     </a>
                 </p>
-                {% endif %} 
+                {% endif %}
             </div>
         </div>
       </div>

@@ -11,7 +11,7 @@
             <div class="card-body">
                 <h1 class="cover-heading">Club Memberships</h1>
                 <p class="cover-text">Find the clubs you have memberships for here!</p>
-                {% if clubs %}
+                {% if clubs %} <!-- If the logged-in user is a member of any club -->
                     <div class="table-responsive">
                          <table class="table table-hover" id="table-clubs" data-toggle="table" data-pagination="true">
                             <thead>
@@ -22,6 +22,7 @@
                             </thead>
                             <tbody>
                                 {% for club in clubs %}
+                                  <!-- For each club membership, add a row linked to the corresponding club dashboard page -->
                                     <tr onclick="window.location='{% url 'club_dashboard' club.id %}';">
                                         <td>{{club.name}}</td>
                                         <td>{{club.owner}}</td>
@@ -30,7 +31,7 @@
                             </tbody>
                         </table>
                     </div>
-                {% else %}
+                {% else %} <!-- If the logged-in user is not a member of any club -->
                     <hr class="solid">
                     <p>No clubs memberships, you can apply to clubs <a href={% url 'membership_application' %}>here</a></p>
                 {% endif %}
