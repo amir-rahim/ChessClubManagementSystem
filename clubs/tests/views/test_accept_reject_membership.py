@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, Membership
+from clubs.tests.helpers import reverse_with_query
 
 class AcceptRejectMembershipTestCase(TestCase):
     """Tests of the accept_membership and reject_membership functionalities"""
@@ -30,6 +31,19 @@ class AcceptRejectMembershipTestCase(TestCase):
         self.assertEqual(updated_membership.user_type, 'MB')
         self.assertEqual(updated_membership.application_status, 'A')
 
+    def test_accept_membership_with_next(self):
+        self.client.login(username=self.officer.username, password="Password123")
+        self.assertEqual(self.membership.user_type, 'NM')
+        self.assertEqual(self.membership.application_status, 'P')
+        next_url = reverse('club_dashboard', kwargs={'club_id': self.club.id})
+        url = reverse_with_query('accept_membership', {'membership_id': self.membership.id}, {'next': next_url})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        updated_membership = Membership.objects.get(id=self.membership.id)
+        self.assertEqual(updated_membership.user_type, 'MB')
+        self.assertEqual(updated_membership.application_status, 'A')
+
+
     def test_reject_membership(self):
         self.client.login(username=self.officer.username, password="Password123")
         self.assertEqual(self.membership.user_type, 'NM')
@@ -37,6 +51,18 @@ class AcceptRejectMembershipTestCase(TestCase):
         url = reverse('reject_membership', kwargs={'membership_id': self.membership.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        updated_membership = Membership.objects.get(id=self.membership.id)
+        self.assertEqual(updated_membership.user_type, 'NM')
+        self.assertEqual(updated_membership.application_status, 'D')
+
+    def test_reject_membership_with_next(self):
+        self.client.login(username=self.officer.username, password="Password123")
+        self.assertEqual(self.membership.user_type, 'NM')
+        self.assertEqual(self.membership.application_status, 'P')
+        next_url = reverse('club_dashboard', kwargs={'club_id': self.club.id})
+        url = reverse_with_query('reject_membership', {'membership_id': self.membership.id}, {'next': next_url})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
         updated_membership = Membership.objects.get(id=self.membership.id)
         self.assertEqual(updated_membership.user_type, 'NM')
         self.assertEqual(updated_membership.application_status, 'D')

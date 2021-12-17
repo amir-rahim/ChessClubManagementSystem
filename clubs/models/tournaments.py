@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib import messages
 from .users import User
 from .clubs import Club, Membership
 import random
@@ -15,8 +16,14 @@ class Tournament(models.Model):
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
         FINISHED = 'F'
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'club'], name='unique_tournament_club'),
+        ]
+
     """Attributes of a tournament"""
-    name = models.CharField(max_length=100, blank=False, unique=True)
+    name = models.CharField(max_length=100, blank=False, unique=False)
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
@@ -54,8 +61,11 @@ class Tournament(models.Model):
     def generate_elimination_matches(self):
         """Creates matches for elimination matches"""
         # Generate groups from each stage
+        match_count = 0
+
         group = None
         rescheduled_matches = []
+        last_competing_groups = None
 
         # If last stage was not elimination
         if not self.groups.filter(stage=Group.GroupStageTypes.ELIMINATION).exists():
@@ -104,7 +114,9 @@ class Tournament(models.Model):
                     competing_players.append(match.white_player)
                 elif match.result == Match.MatchResultTypes.BLACK_WIN:
                     competing_players.append(match.black_player)
-                elif match.result == Match.MatchResultTypes.DRAW:
+
+                # TODO: Change functionality to reschedule match
+                else:
                     rescheduled_matches.append(match)
 
             if not rescheduled_matches:
@@ -121,6 +133,8 @@ class Tournament(models.Model):
                               tournament=self,
                               group=last_competing_group)
                 match.save()
+                match_count += 1
+            return (messages.SUCCESS, f'{match_count} matches rescheduled.')
         else:
             group_players = list(group.players.all())
 
@@ -128,7 +142,21 @@ class Tournament(models.Model):
                 bye_player = group_players[-1]
                 group_players.remove(bye_player)
 
-            it = iter(group_players)
+            # Order group players to ensure players of the same group
+            # are matched against each other at the latest opportunity
+            if last_competing_groups:
+                ordered_group_players = []
+                group_players_id = [player.id for player in group_players]
+                for last_competing_group in last_competing_groups:
+                    ordered_group_players.append(last_competing_group.players.filter(id__in=group_players_id)[0])
+
+                for last_competing_group in last_competing_groups:
+                    ordered_group_players.append(last_competing_group.players.filter(id__in=group_players_id)[1])
+            else:
+                ordered_group_players = group_players
+
+
+            it = iter(ordered_group_players)
             players_of_matches = zip(it,it)
 
             for players_of_match in players_of_matches:
@@ -137,15 +165,20 @@ class Tournament(models.Model):
                               tournament=self,
                               group=group)
                 match.save()
+                match_count += 1
+            return (messages.SUCCESS, f'{match_count} elimination stage matches generated.')
+
 
 
     def generate_group_stage_matches(self, groups):
         # Generate group stage matches
+        match_count = 0
         for group in groups:
-            # TODO: Generate matches for each group
             for white_player, black_player in itertools.combinations(group.players.all(), 2):
                 match = Match(tournament=self, white_player=white_player, black_player=black_player, group=group)
                 match.save()
+                match_count += 1
+        return (messages.SUCCESS, f'{match_count} group stage matches generated.')
 
     def generate_group_stages(self):
         """Creates matches for the group stages"""
@@ -181,18 +214,20 @@ class Tournament(models.Model):
             group.save()
             groups.append(group)
 
-        self.generate_group_stage_matches(groups)
+        return self.generate_group_stage_matches(groups)
 
     def generate_matches(self):
-        """Generates matches for group staged and elimination"""
+        """Generates matches for group and elimination stages"""
         if not self.matches.filter(_result=Match.MatchResultTypes.PENDING).exists():
             if self.stage == self.StageTypes.GROUP_STAGES:
-                self.generate_group_stages()
+                return self.generate_group_stages()
             elif self.stage == self.StageTypes.ELIMINATION:
-                self.generate_elimination_matches()
-            return True
+                return self.generate_elimination_matches()
+            else:
+                return (messages.ERROR, 'Matches can only be generated in '
+                                        'group stages or elimination stages.')
         else:
-            return False
+            return (messages.WARNING, 'Matches already generated.')
 
 
     def check_tournament_stage_transition(self):
@@ -218,9 +253,10 @@ class Tournament(models.Model):
 
         elif self.stage == self.StageTypes.ELIMINATION:
             # If all matches have been played, move to the next stage
-            last_competing_group = Group.objects.filter(tournament=self).latest('phase')
-            if last_competing_group.players.count() == 2 and self.matches.get(group=last_competing_group).result != Match.MatchResultTypes.PENDING:
-                self.stage = self.StageTypes.FINISHED
+            if Group.objects.filter(tournament=self).exists():
+                last_competing_group = Group.objects.filter(tournament=self).latest('phase')
+                if last_competing_group.players.count() == 2 and self.matches.get(group=last_competing_group).result != Match.MatchResultTypes.PENDING:
+                    self.stage = self.StageTypes.FINISHED
 
         self.save()
 
@@ -234,10 +270,8 @@ class Tournament(models.Model):
                 # The user must not be one of the tournament's organizers to be able to join the tournament
                 if (Membership.UserTypes.MEMBER in membership.get_user_types()):
                     if user != self.organizer and user not in self.coorganizers.all():
-                        try:
-                            current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
-                        except:
-                            current_participants_count = 0
+                        current_participants_count = TournamentParticipation.objects.filter(tournament=self).count()
+
                         # The user cannot join the tournament if it is already full
                         if (current_participants_count < self.capacity):
                             # The user is added to the tournament with a new TournamentParticipation object
@@ -360,7 +394,8 @@ class Match(models.Model):
             raise ValueError("User not participant in match")
 
         if self.result == self.MatchResultTypes.PENDING:
-            return 0
+            #return 0
+            raise ValueError("Match result not yet set")
 
         if self.result == self.MatchResultTypes.DRAW:
             return self.MATCH_AWARDS["DRAW"]
@@ -375,3 +410,48 @@ class Match(models.Model):
                     return self.MATCH_AWARDS["WIN"]
                 else:
                     return self.MATCH_AWARDS["LOSS"]
+
+class EloRating():
+    @staticmethod
+    def calculate_new_elo_rating(rating_a, player_a, rating_b, player_b, match):
+        expected_score_a = 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
+        expected_score_b = 1 / (1 + 10 ** ((rating_a - rating_b) / 400))
+
+        new_rating_a = rating_a + 32 * (match.get_match_award_for_user(player_a) - expected_score_a)
+        new_rating_b = rating_b + 32 * (match.get_match_award_for_user(player_b) - expected_score_b)
+
+        return new_rating_a, new_rating_b
+
+    @staticmethod
+    def get_ratings(membership, date = None):
+        if not date:
+            date = timezone.now()
+
+        matches = Match.objects.filter(
+            Q(white_player = membership.user) | Q(black_player = membership.user)
+        ).filter(
+            result_date__lt=date
+        ).order_by('result_date')
+
+        current_rating = 1000
+        ratings = [(1000,None)]
+        for match in matches:
+            if match.white_player == membership.user:
+                player_b = match.black_player
+            else:
+                player_b = match.white_player
+
+            player_b_membership = Membership.objects.get(user = player_b, club = membership.club)
+            rating_b = EloRating.get_ratings(player_b_membership, match.result_date)[-1][0]
+
+            current_rating = EloRating.calculate_new_elo_rating(current_rating, membership.user, rating_b, player_b, match)[0]
+            ratings.append((current_rating, match.result_date))
+
+        if current_rating < membership.lowest_elo_rating:
+            membership.lowest_elo_rating = current_rating
+            membership.save()
+        elif current_rating > membership.highest_elo_rating:
+            membership.highest_elo_rating = current_rating
+            membership.save()
+
+        return ratings

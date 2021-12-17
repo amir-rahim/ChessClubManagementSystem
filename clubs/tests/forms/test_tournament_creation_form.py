@@ -12,15 +12,13 @@ class TournamentCreationFormTestCase(TestCase):
 
     fixtures = [
         'clubs/tests/fixtures/default_users.json',
-        'clubs/tests/fixtures/default_clubs.json'
+        'clubs/tests/fixtures/default_clubs.json',
+        'clubs/tests/fixtures/default_memberships.json'
     ]
 
     def setUp(self):
         self.club = Club.objects.get(name = "Kerbal Chess Club")
-        self.officer = User.objects.get(username='johndoe')
-        self.officer_membership = Membership.objects.create(user = self.officer, club = self.club, personal_statement = "---")
-        self.officer_membership.approve_membership()
-        self.officer_membership.promote_to_officer()
+        self.officer = User.objects.get(username='jonathandoe')
         self.form_input = {
             'name': "Tournament 1",
             'description': "Tournament description",
@@ -90,3 +88,15 @@ class TournamentCreationFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         after_count = Tournament.objects.count()
         self.assertEqual(after_count, before_count)
+
+    def test_add_coorganizers(self):
+        c = User.objects.get(username='johndoe')
+        self.form_input['coorganizers'] = User.objects.filter(username='johndoe')
+        form = TournamentCreationForm(data=self.form_input)
+        before_count = Tournament.objects.count()
+        self.assertTrue(form.is_valid())
+        t = form.save()
+        after_count = Tournament.objects.count()
+        self.assertEqual(after_count, before_count + 1)
+        coorganizers = Tournament.objects.get(id = t.id).coorganizers.all()
+        self.assertEqual(coorganizers[0], c)

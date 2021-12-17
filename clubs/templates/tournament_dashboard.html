@@ -12,8 +12,17 @@
                 <div class="card cover-card">
                     <div class="card-body">
                         <h1 class="card-title">{{tournament.name}}</h1>
+                        <table style="width: 100%">
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Stage</th>
+                                    <td>{{status}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
                         {% if tournament.organizer != user and user not in coorganizers %}
-                          {% if sign_up_deadline_not_passed %}
+                        {% if tournament.stage == 'S' %}
                             {% if participants_count < tournament.capacity and not is_signed_up %}
                               <!-- If the user is not an organizer, and is not already signed-up to the tournament, we show the 'Join Tournament' button -->
                               <a class="btn btn-primary" href="{% url 'join_tournament' tournament.id %}?next={{ request.get_full_path }}">Join Tournament</a>
@@ -22,17 +31,11 @@
                             <!-- If the user is not an organizer, and is already signed-up to the tournament, we show the 'Leave Tournament' button -->
                               <a class="btn btn-danger" href="{% url 'leave_tournament' tournament.id %}?next={{ request.get_full_path }}">Leave Tournament</a>
                             {% endif %}
-                          {% else %}
-                            <!-- If the deadline to sign-up for the tournament has passed, we do not show any buttons to join or leave the tournament -->
-                            <p>The sign-up deadline for this tournament has passed.</p>
                           {% endif %}
                         {% else %}
-                          {% if tournament_not_started %}
+                        {% if tournament.stage == 'S' or tournament.stage == 'C' %}
                             <!-- If the user is an organizer, and the tournament has not started yet, we show the 'Cancel Tournament' button -->
                             <a class="btn btn-danger" href="{% url 'cancel_tournament' tournament.id %}?next={% url 'club_dashboard' tournament.club.id %}">Cancel Tournament</a>
-                          {% else %}
-                            <!-- If the user is an organizer, and the tournament has already started, we do not show the 'Cancel Tournament' button -->
-                            <p>This tournament has started.</p>
                           {% endif %}
                         {% endif %}
                     </div>
@@ -47,22 +50,22 @@
                                 <tr>
                                     <!-- Textual description of the tournament -->
                                     <th scope="col">Description</th>
-                                    <td>{{tournament.description}}</th>
+                                    <td>{{tournament.description}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Deadline (date and time) to sign-up to or withdraw from the tournament -->
                                     <th scope="col">Deadline</th>
-                                    <td>{{tournament.deadline}}</th>
+                                    <td>{{tournament.deadline}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Scheduled tournament start date (and time) -->
                                     <th scope="col">Date</th>
-                                    <td>{{tournament.date}}</th>
+                                    <td>{{tournament.date}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Numerical tournament capacity -->
                                     <th scope="col">Capacity</th>
-                                    <td>{{tournament.capacity}}</th>
+                                    <td>{{tournament.capacity}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -78,22 +81,22 @@
                                 <tr>
                                     <!-- Club name -->
                                     <th scope="col">Name</th>
-                                    <td>{{club.name}}</th>
+                                    <td>{{club.name}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Geographical location of the tournament -->
                                     <th scope="col">Location</th>
-                                    <td>{{club.location}}</th>
+                                    <td>{{club.location}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Tournament's mission statement -->
                                     <th scope="col">Mission Statement</th>
-                                    <td>{{club.mission_statement}}</th>
+                                    <td>{{club.mission_statement}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Tournament's textual description -->
                                     <th scope="col">Description</th>
-                                    <td>{{club.description}}</th>
+                                    <td>{{club.description}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -108,23 +111,23 @@
                             <tbody>
                                 <tr>
                                     <!-- Organizer's profile picture -->
-                                    <th scope="col">Organizer Gravatar</th>
-                                    <td><img src="{{tournament.organizer.gravatar}}" class="center" width="120" height="120"/> </th>
+                                    <th scope="col">Owner Gravatar</th>
+                                    <td><img src="{{tournament.organizer.gravatar}}" class="center" width="120" height="120"/> </td>
                                 </tr>
                                 <tr>
                                     <!-- Organizer's username -->
                                     <th scope="col">Username</th>
-                                    <td>{{tournament.organizer.username}}</th>
+                                    <td>{{tournament.organizer.username}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Organizer's full name -->
                                     <th scope="col">Name</th>
-                                    <td>{{tournament.organizer.name}}</th>
+                                    <td>{{tournament.organizer.name}}</td>
                                 </tr>
                                 <tr>
                                     <!-- Organizer's public personal bio -->
                                     <th scope="col">Public Bio</th>
-                                    <td>{{tournament.organizer.public_bio}}</th>
+                                    <td>{{tournament.organizer.public_bio}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -156,7 +159,7 @@
                                         <tr>
                                             <td>{{schedule.white_player}}</td>
                                             <td>{{schedule.black_player}}</td>
-                                            <td>{{schedule.stage}}</td>
+                                            <td>{{schedule.group.stage}}</td>
                                             <td>
                                               <input type="radio" name={{schedule.id}} id="white" value="W" required/><label for="white">&nbsp; White wins</label><br>
                                               <input type="radio" name={{schedule.id}} id="black" value="B"/><label for="black">&nbsp; Black wins</label><br>
@@ -170,6 +173,10 @@
                         </div>
                         <!-- Save matches' scores -->
                         <input type="submit" value="Save scores" class="btn btn-primary"/>
+
+                        <a href="{% url 'generate_matches' tournament.id %}?next={{ request.get_full_path }}" role="button" class="btn btn-secondary">
+                            Schedule Matches
+                        </a>
                       </form>
                     </div>
                 </div>
@@ -239,7 +246,12 @@
                                                 <p>Owner</p>
                                             {% endif %}
                                         </td>
-                                        <td></td>
+                                        <td>
+                                            <a class="btn btn-secondary"
+                                                        href="{% url 'member_profile' member.id %}">
+                                                        View Profile
+                                            </a>
+                                        </td>
                                 </tr>
                                 {% endfor %}
                                 </tbody>

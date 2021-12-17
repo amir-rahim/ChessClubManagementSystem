@@ -26,6 +26,15 @@ class ClubDashboardViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'club_dashboard.html')
 
+    def test_get_unexisting_club_dashboard_view(self):
+        self.client.login(username=self.user.username, password="Password123")
+
+        url = reverse('club_dashboard', kwargs={'club_id': 12345})
+        response = self.client.get(url)
+        redirect_url = reverse('user_dashboard')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
     def test_club_dashboard_view_redirects_not_logged_in(self):
         url = reverse('club_dashboard', kwargs={'club_id': self.club.id})
         redirect_url = reverse_with_query('log_in', query_kwargs={'next': url})

@@ -92,8 +92,9 @@ class Membership(models.Model):
 
     def transfer_ownership(self, new_owner):
         """Previous owner transfers ownership, new owner gains ownership powers."""
-        new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
-        if new_owner_membership is None:
+        try:
+            new_owner_membership = Membership.objects.get(user = new_owner, club = self.club)
+        except:
             raise Exception("User is not a member of the club.")
         else:
             if new_owner_membership.user_type == self.UserTypes.OFFICER:
