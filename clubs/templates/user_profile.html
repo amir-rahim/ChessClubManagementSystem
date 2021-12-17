@@ -38,11 +38,6 @@
                     <!-- User's public personal bio -->
                     <h4 class="cover-text">Public Bio: </h4>
                     <p>{{user.public_bio}}</p>
-
-                    <!-- User's match statistics -->
-                    <h4 class="cover-text">Match Stats: </h4>
-                    <p>Win: {{user.win}}</p><p>Loss: {{user.loss}}</p><p>Draw: {{user.draw}}</p>
-                    <p>Win/Loss Ratio: {% widthratio user.win user.loss 100 %}</p>
                 </section>
 
                 {% if membership.UserTypes.OFFICER in membership.get_user_types or membership.UserTypes.OWNER in membership.get_user_types or my_profile != None and my_profile == True %}

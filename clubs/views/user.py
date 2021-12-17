@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 
-from clubs.models import Membership, Tournament, TournamentParticipation, Match, EloRating
+from clubs.models import Membership, Tournament, TournamentParticipation, Match, EloRating, User
 
 @login_required
 def user_dashboard(request):
@@ -13,12 +13,24 @@ def user_dashboard(request):
     return render(request, 'user_dashboard.html', data)
 
 @login_required
-def user_profile(request):
+def user_profile(request, user_id = None, membership_id = None):
     """Show user profile."""
-    if request.method == 'POST':
-        # Get the specified Membership object, and extract the corresponsing User object
-        membership = Membership.objects.get(pk = request.POST['membership'])
-        data = {'user' : membership.user, 'membership' : membership}
+    if user_id is not None and membership_id is not None:
+        try:
+            # Get the Membership & User object specified by url parameters
+            membership = Membership.objects.get(id=membership_id)
+            user = User.objects.get(id=user_id)
+        except (Membership.DoesNotExist, User.DoesNotExist) as e:
+            messages.error(request, 'Membership does not exist')
+            return redirect('user_dashboard')
+
+        # Get Membership object of current user
+        request_membership = Membership.objects.filter(user=request.user, club=membership.club).first()
+
+        if request_membership is None:
+            messages.error(request, 'You do not have permission to view this user profile.')
+            return redirect('user_dashboard')
+        data = {'user' : user, 'membership' : request_membership}
     else :
         data = {'user': request.user, "my_profile" : True}
     return render(request, 'user_profile.html', data)

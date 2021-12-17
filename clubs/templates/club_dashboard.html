@@ -219,13 +219,11 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <form action="{% url 'user_profile'%}" method="POST">
-                                                                  {% csrf_token %}
-                                                                  <input type="hidden" name="user" value="{{member.user.pk}}">
-                                                                  <input type="hidden" name="membership" value="{{membership.pk}}">
-                                                                  <input type="submit" value="View User Profile" class="dropdown-item" />
-                                                                </form>
-                                                              </li>
+                                                                <a class="dropdown-item"
+                                                                    href="{% url 'user_profile' member.user.id member.id %}">
+                                                                    View User Profile
+                                                                </a>
+                                                            </li>
                                                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
                                                                 {% if member.user_type == member.UserTypes.OFFICER %}
                                                                 <li>
