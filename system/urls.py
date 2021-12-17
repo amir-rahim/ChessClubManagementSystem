@@ -59,5 +59,6 @@ urlpatterns = [
 
     path('tournament/<int:tournament_id>/join', views.join_tournament, name='join_tournament'),
     path('tournament/<int:tournament_id>/leave', views.leave_tournament, name='leave_tournament'),
-    path('tournament/<int:tournament_id>/cancel', views.cancel_tournament, name='cancel_tournament')
+    path('tournament/<int:tournament_id>/cancel', views.cancel_tournament, name='cancel_tournament'),
+    path('tournament/<int:tournament_id>/generate_matches', views.generate_matches, name='generate_matches')
 ]
