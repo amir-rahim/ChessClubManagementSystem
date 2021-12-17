@@ -29,6 +29,7 @@ class User(AbstractUser):
             )
         ]
     )
+    """Attributes of Users."""
     name = models.CharField(max_length=100, blank=False)
     email = models.EmailField(unique=True, blank=False)
     public_bio = models.CharField(max_length=250, blank=False)
