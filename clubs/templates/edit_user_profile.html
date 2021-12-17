@@ -8,6 +8,7 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h1 class="cover-heading">Edit Profile</h1>
+                    <!-- Profile-edition form -->
                     <form action="{% url 'edit_user_profile' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ next }}">

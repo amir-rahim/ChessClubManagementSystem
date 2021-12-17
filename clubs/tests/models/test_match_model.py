@@ -59,8 +59,10 @@ class MatchModelTestCase(TestCase):
         self.assertEqual(before+1, after)
         self.assertEqual(match.result, Match.MatchResultTypes.PENDING)
 
-        self.assertEqual(match.get_match_award_for_user(self.white_player), 0)
-        self.assertEqual(match.get_match_award_for_user(self.black_player), 0)
+        with self.assertRaises(ValueError, msg="Match result not yet set"):
+            match.get_match_award_for_user(self.black_player)
+        with self.assertRaises(ValueError, msg="Match result not yet set"):
+            match.get_match_award_for_user(self.white_player)
 
 
     def test_match_award_win(self):

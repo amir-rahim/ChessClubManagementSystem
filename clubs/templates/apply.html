@@ -4,6 +4,7 @@
   <div class="row">
     <div class="col-12 col-md-6 offset-md-3">
       <h1>Apply for a membership</h1>
+      <!-- Membership-application form -->
       <form action="{% url 'membership_application' %}" method="post">
         {% csrf_token %}
         {% include 'partials/bootstrap_form.html' with form=form %}

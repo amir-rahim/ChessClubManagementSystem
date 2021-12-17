@@ -6,6 +6,7 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h1 class="cover-heading">Login</h1>
+                    <!-- Log-in form -->
                     <form action="{% url 'log_in' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ next }}">
