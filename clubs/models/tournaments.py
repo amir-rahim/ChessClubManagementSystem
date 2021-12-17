@@ -117,7 +117,9 @@ class Tournament(models.Model):
 
                 # TODO: Change functionality to reschedule match
                 else:
-                    rescheduled_matches.append(match)
+                    # If there doesn't exist a match between the players in the same round which has a result
+                    if not Match.objects.filter(white_player=match.white_player, black_player=match.black_player, tournament=self, group=last_competing_group).filter(Q(_result=Match.MatchResultTypes.WHITE_WIN) | Q(_result=Match.MatchResultTypes.BLACK_WIN)).exists():
+                        rescheduled_matches.append(match)
 
             if not rescheduled_matches:
                 group_index = last_competing_group.phase + 1
