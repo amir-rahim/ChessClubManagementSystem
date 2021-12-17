@@ -11,32 +11,37 @@
         <div class="col-sm-12 col-md-4">
             <div class="card cover-card">
                 <div class="card-body">
+                    <!-- Name of the club -->
                     <h1 class="card-title">{{club.name}}</h1>
-                    {% if membership %}
-                        {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %}
-                            {% if membership.application_status == membership.Application.PENDING %}
+                    {% if membership %} <!-- If the logged-in user has applied for a membership in this club -->
+                        {% if membership.UserTypes.NON_MEMBER in membership.get_user_types %} <!-- If the user's membership application is not successful (yet) -->
+                            {% if membership.application_status == membership.Application.PENDING %} <!-- If the user's membership application is 'Pending' -->
                                 You have applied for membership.
-                            {% elif membership.application_status == membership.Application.DENIED %}
+                            {% elif membership.application_status == membership.Application.DENIED %} <!-- If the user's membership application has been 'Denied' -->
                                 Your application for membership has been denied.
                             {% endif %}
-                        {% else %}
+                        {% else %} <!-- If the user's membership application is successful -->
                         <p>You are {{membership.get_user_type_name}}.</p>
                             {% if membership.UserTypes.OWNER in membership.get_user_types %}
+                            <!-- If the user is the club(s owner, then we give the user the option to edit the club's information -->
                             <a href="{% url 'edit_club' club.id %}?next={% url 'club_dashboard' club.id %}" class="btn btn-primary">
                                 Edit
                             </a>
                             {% else %}
+                            <!-- If the user is a member (or officer) of the club, then we give the user the option to leave the club -->
                             <a class="btn btn-danger" href="{% url 'leave_club' club.id %}?previous={{ request.get_full_path }}&next={% url 'user_dashboard' %}">
                                 Leave Club
                             </a>
                             {% endif %}
                         {% endif %}
-                    {% else %}
+                    {% else %} <!-- If the logged-in user has not applied for a membership in this club -->
+                      <!-- Button to apply for a membership to the club -->
                         <a href="{% url 'membership_application' %}" class="btn btn-primary">Join Club</a>
                     {% endif %}
                 </div>
             </div>
 
+            <!-- Table of club information -->
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Club Details</h2>
@@ -44,14 +49,17 @@
                     <table>
                         <tbody>
                             <tr>
+                                <!-- Club's geographical location -->
                                 <th scope="col">Location</th>
                                 <td>{{club.location}}</th>
                             </tr>
                             <tr>
+                                <!-- Club's mission statement -->
                                 <th scope="col">Mission Statement</th>
                                 <td>{{club.mission_statement}}</th>
                             </tr>
                             <tr>
+                                <!-- Club's textual description -->
                                 <th scope="col">Description</th>
                                 <td>{{club.description}}</th>
                             </tr>
@@ -60,24 +68,29 @@
                 </div>
             </div>
 
+            <!-- Table of club owner details -->
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Owner Details</h2>
                     <table>
                         <tbody>
                             <tr>
+                                <!-- Club owner's profile picture -->
                                 <th scope="col">Owner Gravatar</th>
                                 <td><img src="{{club.owner.gravatar}}" class="center" width="120" height="120"/> </th>
                             </tr>
                             <tr>
+                                <!-- Club owner's username -->
                                 <th scope="col">Username</th>
                                 <td>{{club.owner}}</th>
                             </tr>
                             <tr>
+                                <!-- Club owner's full name -->
                                 <th scope="col">Name</th>
                                 <td>{{club.owner.name}}</th>
                             </tr>
                             <tr>
+                                <!-- Club owner's public personal bio -->
                                 <th scope="col">Public Bio</th>
                                 <td>{{club.owner.public_bio}}</th>
                             </tr>
@@ -86,6 +99,7 @@
                 </div>
             </div>
 
+            <!-- Statistics table -->
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Statistics</h2>
@@ -93,10 +107,12 @@
                     <table>
                         <tbody>
                             <tr>
+                                <!-- Number of members in the club -->
                                 <th scope="col">Number of Members</th>
                                 <td>{{ members|length }}</td>
                             </tr>
                             <tr>
+                                <!-- Number of officers in the club -->
                                 <th scope="col">Number of Officers</th>
                                 <td>{{ officers|length }}</td>
                             </tr>
@@ -108,13 +124,15 @@
 
         </div>
 
+        <!-- Table of club's tournaments -->
         <div class="col-sm-12 col-md-8">
             <div class="card cover-card">
                 <div class="card-body">
                     {% if membership.UserTypes.OFFICER in membership.get_user_types %}
-                    <h2>Tournaments <a href="{% url 'new_tournament' club.id %}?next={{ request.get_full_path }}" class="btn btn-primary">Create Tournament</a></h2>
+                      <!-- If the user is an officer of this club, then we give the user the option to create a new tournament -->
+                      <h2>Tournaments <a href="{% url 'new_tournament' club.id %}?next={{ request.get_full_path }}" class="btn btn-primary">Create Tournament</a></h2>
                     {% else %}
-                    <h2>Tournaments</h2>
+                      <h2>Tournaments</h2>
                     {% endif %}
                     <div class="table-responsive">
                         <table id="table-tournaments" data-toggle="table" data-pagination="true">
@@ -128,6 +146,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- For each tournament for this club, display its info as a row, linked to the corresponding club dashboard -->
                                 {% for tournament in tournaments %}
                                     <tr>
                                         <td>{{tournament.name}}</td>
@@ -144,6 +163,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Table of club's members -->
             {% if membership and not membership.user_type == membership.UserTypes.NON_MEMBER %}
             <div class="card cover-card">
                 <div class="card-body">
@@ -160,13 +181,18 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- For each member of the club, display its info in a row -->
                                 {% for member in members %}
                                     <tr>
+                                        <!-- Club member's profile picture -->
                                         <td>
                                             <img src="{{member.user.gravatar}}" class="center" width="60" height="60">
                                         </td>
+                                        <!-- Club member's username -->
                                         <td>{{member.user.username}}</td>
+                                        <!-- Club member's full name -->
                                         <td>{{member.user.name}}</td>
+                                        <!-- Club member's rank (user type) in the club -->
                                         <td>
                                             {% if member.user_type == member.UserTypes.OFFICER %}
                                                 <p>Officer</p>
@@ -177,7 +203,9 @@
                                             {% endif %}
                                         </td>
                                         <td>
+                                              <!-- If the member (displayed in this row) is not the logged-in user, then we give the user the option to view that member's profile -->
                                               {% if membership and membership != member %}
+                                                <!-- If the logged-in user is an officer for this club, we give the user more option to act upon the member: 'Promote to officer', 'Demote to member' and 'Transfer ownership' -->
                                                 {% if membership.UserTypes.OFFICER in membership.get_user_types %}
                                                     <div class="btn-group" role="group">
                                                         <button id="btn-group-drop-{{member.user.username}}" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -221,6 +249,7 @@
                                                         </ul>
                                                     </div>
                                                 {% else %}
+                                                  <!-- Button to view the member's profile -->
                                                   <form action="{% url 'user_profile'%}" method="POST">
                                                     {% csrf_token %}
                                                     <input type="hidden" name="user" value="{{member.user.pk}}">
@@ -241,11 +270,12 @@
             </div>
             {% endif %}
 
+            <!-- Table of pending applications, only visible to the club's officers -->
             {% if membership.UserTypes.OFFICER in membership.get_user_types %}
               <div class="card cover-card">
                 <div class="card-body">
                   <h2>Pending applications</h2>
-                  {% if applications %}
+                  {% if applications %} <!-- If there is at least one pending membership application for this club -->
                     <div class="table-responsive">
                         <table id="table-applications" data-toggle="table" data-pagination="true">
                             <thead>
@@ -257,11 +287,13 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- For each pending application, display the applicant's name, its personal statement, a button to access the applicant's profile, and buttons to either 'Accept' or 'Reject' the membership application -->
                                 {% for application in applications %}
                                     <tr>
                                       <td>{{application.user.name}}</td>
                                       <td>{{application.personal_statement}}</td>
                                       <td>
+                                        <!-- Button to access the applicant's profile -->
                                         <form action="{% url 'user_profile'%}" method="POST">
                                           {% csrf_token %}
                                           <input type="hidden" name="user" value="{{application.user.pk}}">
@@ -270,9 +302,11 @@
                                         </form>
                                       </td>
                                       <td>
+                                        <!-- Button to Accept the application -->
                                         <a class="btn btn-success" href="{% url 'accept_membership' application.id %}?next={{ request.get_full_path }}">
                                               Accept
                                         </a>
+                                        <!-- Button to Reject the application -->
                                         <a class="btn btn-danger" href="{% url 'reject_membership' application.id %}?next={{ request.get_full_path }}">
                                               Reject
                                         </a>
@@ -282,7 +316,7 @@
                             </tbody>
                         </table>
                     </div>
-                  {% else %}
+                  {% else %} <!-- If there is no pending membership application for this club -->
                     <p>No pending applications</p>
                   {% endif %}
                 </div>

@@ -15,7 +15,7 @@ class Tournament(models.Model):
         ELIMINATION = 'E'
         GROUP_STAGES = 'G'
         FINISHED = 'F'
-"""Attributes of a tournament"""
+    """Attributes of a tournament"""
     name = models.CharField(max_length=100, blank=False, unique=True)
     description = models.CharField(max_length=1000, blank=False)
     date = models.DateTimeField(blank=True, null=True)
@@ -53,7 +53,7 @@ class Tournament(models.Model):
 
     def generate_elimination_matches(self):
         """Creates matches for elimination matches"""
-        # Generate groups from each stage 
+        # Generate groups from each stage
         group = None
         rescheduled_matches = []
 
@@ -302,7 +302,7 @@ class Group(models.Model):
     class GroupStageTypes(models.TextChoices):
         ELIMINATION = 'E'
         GROUP_STAGE = 'G'
-"""Attributes off groups"""
+    """Attributes off groups"""
     name = models.CharField(max_length=100, blank=False)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="groups")
     players = models.ManyToManyField(User)
@@ -311,7 +311,7 @@ class Group(models.Model):
     phase = models.IntegerField()
 
     def get_group_results(self):
-    """returns the restults of the players in the groups"""
+        """returns the restults of the players in the groups"""
         group_results = {}
         for player in self.players.all():
             player_awards = 0
@@ -329,7 +329,7 @@ class Match(models.Model):
         WHITE_WIN = 'W'
         DRAW = 'D'
         BLACK_WIN = 'B'
-"""Attributes of the matches"""
+    """Attributes of the matches"""
     white_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     black_player = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="+")
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=False, related_name="matches")

@@ -38,24 +38,29 @@
                     </div>
                 </div>
 
+                <!-- Tournament details -->
                 <div class="card cover-card">
                     <div class="card-body">
                         <h2>Tournament Details</h2>
                         <table>
                             <tbody>
                                 <tr>
+                                    <!-- Textual description of the tournament -->
                                     <th scope="col">Description</th>
                                     <td>{{tournament.description}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Deadline (date and time) to sign-up to or withdraw from the tournament -->
                                     <th scope="col">Deadline</th>
                                     <td>{{tournament.deadline}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Scheduled tournament start date (and time) -->
                                     <th scope="col">Date</th>
                                     <td>{{tournament.date}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Numerical tournament capacity -->
                                     <th scope="col">Capacity</th>
                                     <td>{{tournament.capacity}}</th>
                                 </tr>
@@ -64,24 +69,29 @@
                     </div>
                 </div>
 
+                <!-- Club details -->
                 <div class="card cover-card">
                     <div class="card-body">
                         <h2>Club Details</h2>
                         <table>
                             <tbody>
                                 <tr>
+                                    <!-- Club name -->
                                     <th scope="col">Name</th>
                                     <td>{{club.name}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Geographical location of the tournament -->
                                     <th scope="col">Location</th>
                                     <td>{{club.location}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Tournament's mission statement -->
                                     <th scope="col">Mission Statement</th>
                                     <td>{{club.mission_statement}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Tournament's textual description -->
                                     <th scope="col">Description</th>
                                     <td>{{club.description}}</th>
                                 </tr>
@@ -90,24 +100,29 @@
                     </div>
                 </div>
 
+                <!-- Tournament organizer details -->
                 <div class="card cover-card">
                     <div class="card-body">
                         <h2>Organizer Details</h2>
                         <table>
                             <tbody>
                                 <tr>
-                                    <th scope="col">Owner Gravatar</th>
+                                    <!-- Organizer's profile picture -->
+                                    <th scope="col">Organizer Gravatar</th>
                                     <td><img src="{{tournament.organizer.gravatar}}" class="center" width="120" height="120"/> </th>
                                 </tr>
                                 <tr>
+                                    <!-- Organizer's username -->
                                     <th scope="col">Username</th>
                                     <td>{{tournament.organizer.username}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Organizer's full name -->
                                     <th scope="col">Name</th>
                                     <td>{{tournament.organizer.name}}</th>
                                 </tr>
                                 <tr>
+                                    <!-- Organizer's public personal bio -->
                                     <th scope="col">Public Bio</th>
                                     <td>{{tournament.organizer.public_bio}}</th>
                                 </tr>
@@ -116,6 +131,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Table of tournament matches schedule -->
             <div class="col-sm-12 col-md-8">
                 <div class="card cover-card">
                     <div class="card-body">
@@ -133,6 +150,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- Display a row for each scheduled game -->
                                     {% for schedule in games %}
                                     {% if schedule.result == "P" %}
                                         <tr>
@@ -150,11 +168,13 @@
                                 </tbody>
                             </table>
                         </div>
+                        <!-- Save matches' scores -->
                         <input type="submit" value="Save scores" class="btn btn-primary"/>
                       </form>
                     </div>
                 </div>
 
+                <!-- Table of tournament matches' results -->
                 <div class="card cover-card">
                     <div class="card-body">
                         <h1 class="card-title">Results</h1>
@@ -169,6 +189,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- Display the result for each game -->
                                     {% for schedule in games %}
                                     {% if schedule.result != "P" %}
                                         <tr>
@@ -185,6 +206,7 @@
                     </div>
                 </div>
 
+                <!-- Table of tournament participants -->
                 <div class="card cover-card">
                     <div class="card-body">
                         <h1 class="card-title">Participants</h1>
@@ -200,6 +222,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- For each participant, display its info in a row -->
                                     {% for member in participants %}
                                     <tr>
                                         <td>

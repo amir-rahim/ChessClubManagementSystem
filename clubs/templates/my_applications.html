@@ -10,7 +10,7 @@
       <div class="card cover-card centered-card">
           <h1 class="cover-heading">My applications</h1>
           <p class="cover-text">Your Pending, Approved and Denied club applications</p>
-          {% if applications_info %}
+          {% if applications_info %} <!-- If the user has applications to any clubs -->
             <div class="table-responsive">
                  <table class="table table-hover" id="table-applications" data-toggle="table" data-pagination="true">
                     <thead>
@@ -21,6 +21,7 @@
                     </thead>
                     <tbody>
                         {% for application in applications_info %}
+                          <!-- For each club-membership application, add a row linked to the corresponding club's dashboard -->
                             <tr onclick="window.location='{% url 'club_dashboard' application.club_id %}';">
                                 <td>{{application.club_name}}</td>
                                 <td>{{application.application_status}}</td>
@@ -29,7 +30,7 @@
                     </tbody>
                 </table>
             </div>
-            {% else %}
+            {% else %} <!-- If the user has no application to clubs -->
               <hr class="solid">
               <p>You have not applied to any club yet.</p>
             {% endif %}

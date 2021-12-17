@@ -15,18 +15,22 @@
                     <table>
                         <tbody>
                             <tr>
+                                <!-- User's profile picture -->
                                 <th scope="col">Gravatar</th>
                                 <td><img src="{{user.gravatar}}" class="center" width="120" height="120"/> </th>
                             </tr>
                             <tr>
+                                <!-- User's username -->
                                 <th scope="col">Username</th>
                                 <td>{{user}}</th>
                             </tr>
                             <tr>
+                                <!-- User's full name -->
                                 <th scope="col">Name</th>
                                 <td>{{user.name}}</th>
                             </tr>
                             <tr>
+                                <!-- User's public personal bio -->
                                 <th scope="col">Public Bio</th>
                                 <td>{{user.public_bio}}</th>
                             </tr>
@@ -51,6 +55,7 @@
                                 </thead>
                                 <tbody>
                                     {% for match in matches %}
+                                      <!-- Display the result of each match the user has taken part in -->
                                         <tr>
                                             <td>{{match.white_player}}</td>
                                             <td>{{match.black_player}}</td>
@@ -64,7 +69,7 @@
 
                 </div>
             </div>
-            
+
             <div class="card cover-card">
                 <div class="card-body">
                     <h2>Tournaments</h2>
@@ -81,6 +86,7 @@
                             </thead>
                             <tbody>
                                 {% for tournament in tournaments %}
+                                  <!-- Display the information of every tournament the user participates in -->
                                     <tr>
                                         <td>{{tournament.name}}</td>
                                         <td>{{tournament.organizer.name}}</td>

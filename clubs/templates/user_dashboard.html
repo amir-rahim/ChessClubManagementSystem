@@ -10,6 +10,7 @@
           <p class="cover-text" style="margin: 0px;">Welcome to your profile dashboard!</p>
           <hr class="solid">
           <p><b>See your Profile Details:</b></p>
+          <!-- Button to logged-in user's profile -->
           <p style="margin: 0px;">
               <a href='{% url 'user_profile' %}' class="btn btn-lg btn-secondary">
               User Profile
@@ -17,6 +18,7 @@
           </p>
           <hr class="solid">
           <p><b>Create a brand new Chess Club:</b></p>
+          <!-- Button to club creation -->
           <p style="margin: 0px;">
               <a href='{% url 'new_club' %}' class="btn btn-lg btn-secondary">
               Create Club
@@ -24,6 +26,7 @@
           </p>
           <hr class="solid">
           <p><b>Chess Clubs you have memberships for here:</b></p>
+          <!-- Button to the logged-in user's club memberships -->
           <p style="margin: 0px;">
               <a href='{% url 'club_memberships' %}' class="btn btn-lg btn-secondary">
             Club Memberships
@@ -31,6 +34,7 @@
           </p>
           <hr class="solid">
           <p><b>Clubs that are available for you to apply to:</b></p>
+          <!-- Button to clubs available for the logged-in user to apply for -->
           <p style="margin: 0px;">
             <a href='{% url 'available_clubs' %}' class="btn btn-lg btn-secondary">
             Available Clubs
@@ -38,6 +42,7 @@
           </p>
           <hr class="solid">
           <p><b>Apply to an available club here:</b></p>
+          <!-- Button to apply to a chess club -->
           <p style="margin: 0px;">
             <a href='{% url 'membership_application' %}' class="btn btn-lg btn-secondary">
             Apply for Club
@@ -45,6 +50,7 @@
           </p>
           <hr class="solid">
           <p><b>See your Applications here:</b></p>
+          <!-- Button to logged-in user's list of club membership applications -->
           <p>
             <a href='{% url 'my_applications' %}' class="btn btn-lg btn-secondary">
             My Applications

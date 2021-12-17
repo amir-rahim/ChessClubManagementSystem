@@ -8,6 +8,7 @@
             <div class="card cover-card">
                 <div class="card-body">
                     <h1 class="cover-heading">Edit Club Details</h1>
+                    <!-- Club-info-edition form -->
                     <form action="{% url 'edit_club' club.id %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ next }}">
