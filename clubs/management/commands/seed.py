@@ -107,11 +107,13 @@ class Command(BaseCommand):
         else:
             chess_experience = 'G'
 
-        user_create = User.objects.create_user(username=username, password=Command.DEFAULT_PASSWORD)
-        user_create.name=name
-        user_create.email=email
-        user_create.public_bio=public_bio,
-        user_create.chess_experience=chess_experience
+        user_create = User.objects.create_user(username=username, 
+                                               name=name,
+                                               password=Command.DEFAULT_PASSWORD,
+                                               email=email,
+                                               public_bio=public_bio,
+                                               chess_experience=chess_experience)
+
 
         user_create.save()
 
