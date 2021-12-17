@@ -36,9 +36,11 @@ class Command(BaseCommand):
         self.create_default_memberships()
         self.make_memberships()
         self.memberships = Membership.objects.all()
+        self.create_default_tournaments()
         self.create_tournaments()
         self.tournaments = Tournament.objects.all()
         self.participants = TournamentParticipation.objects.all()
+        self.create_tournament_matches()
 
     def create_default_users(self):
         user1 = User.objects.create_user(username = "jkerman", password = "Password123")
@@ -80,7 +82,6 @@ class Command(BaseCommand):
             try:
                 self.create_user_profile()
             except Exception:
-                print(traceback.format_exc())
                 continue
             user_count = user_count + 1
         print("User seeding complete.      ")
@@ -213,6 +214,42 @@ class Command(BaseCommand):
 
         print("Default Memberships seeding complete.      ")
 
+    def create_default_tournaments(self):
+        vkerman = self.users.get(name="Valentina Kerman")
+        bkerman = self.users.get(name="Billie Kerman")
+        kerbal = self.clubs.get(name="Kerbal Chess Club")
+
+        tournament1 = Tournament.objects.create(
+            name = "Tournament 1",
+            description = "Tournament description",
+            club = kerbal,
+            date = make_aware(datetime(2020, 12, 25, 12, 0), timezone.utc),
+            organizer = vkerman,
+            capacity = 16,
+            deadline = make_aware(datetime(2020, 12, 20, 12, 0), timezone.utc),
+        )
+
+        tournament2 = Tournament.objects.create(
+            name = "Tournament 2",
+            description = "Tournament description",
+            club = kerbal,
+            date = make_aware(datetime(2020, 12, 25, 12, 0), timezone.utc),
+            organizer = vkerman,
+            capacity = 96,
+            deadline = make_aware(datetime(2020, 12, 20, 12, 0), timezone.utc),
+        )
+
+        tournament1.save()
+        tournament2.save()
+
+        self.create_participants(tournament1)
+        self.create_participants(tournament2)
+
+        TournamentParticipation.objects.filter(tournament=tournament1, user=bkerman).delete()
+        TournamentParticipation.objects.filter(tournament=tournament2, user=bkerman).delete()
+
+        print("Default Tournaments seeding complete.")
+
     def create_tournaments(self):
         for club in self.clubs:
             tournament_count = 1
@@ -262,4 +299,10 @@ class Command(BaseCommand):
                 user=members[current_count].user, 
                 tournament=tournament
             )
+
+    def create_tournament_matches(self):
+        for tournament in self.tournaments:
+            tournament.check_tournament_stage_transition()
+            tournament.generate_matches()
+        print("Tournament Matches seeding complete.")
 
